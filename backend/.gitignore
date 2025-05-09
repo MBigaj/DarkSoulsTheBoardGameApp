@@ -1,2 +1,11 @@
-.venv
-__pycache__
+# venv files
+.venv/
+
+# pycache files
+__pycache__/
+
+# environmental variables
+.env
+
+# json files
+json/
