@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pymongo import MongoClient
 import json
+import os
+
+from database.MongoDBSingleton import MongoDBSingleton
 
 app = FastAPI()
-client = MongoClient('')
 
 ORIGINS = [
     'http://localhost:3000',
@@ -18,15 +19,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get('/')
 def get_all():
-    # Build a class to setup a database connection seperately
-    database = client['databasename']
-    collection = database['collectionname']
+    mongo_db_singleton = MongoDBSingleton()
+    connection = mongo_db_singleton.get_connection()
+
+    collection = connection[os.environ.get('DATABASE_COLLECTION')]
     results = collection.find({})
 
-    data = [result for result in results][0]
-    data.pop('_id')
-    print(data)
+    data = [result for result in results]
+    
+    for element in data:
+        element.pop('_id')
+
     return data
