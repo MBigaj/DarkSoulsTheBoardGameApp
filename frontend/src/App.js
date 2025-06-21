@@ -17,7 +17,8 @@ function App() {
 
   return (
     <div className="App">
-      { cardJson && <img src={`assets/cards/${cardJson.imagePath}`} /> }
+      <h1>CARDS</h1>
+      { cardJson && <img src={`assets/cards/${cardJson[0].imagePath}` } alt='eatmyass' width='250px' /> }
     </div>
   );
 }
