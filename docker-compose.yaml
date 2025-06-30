@@ -2,9 +2,12 @@ services:
   backend:
     container_name: backend
     image: dstbg_backend
+    network_mode: "host"
     build:
       context: .
       dockerfile: backend.Dockerfile
+    env_file:
+      - ./backend/.env
     ports:
       - "8000:8000"
     volumes:

@@ -9,3 +9,6 @@ __pycache__/
 
 # json files
 json/
+
+# new relic files
+newrelic.ini
