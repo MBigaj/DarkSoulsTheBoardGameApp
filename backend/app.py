@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import json
 import os
+import newrelic.agent
 
 from database.MongoDBSingleton import MongoDBSingleton
+
+newrelic.agent.initialize('newrelic.ini')
 
 app = FastAPI()
 
