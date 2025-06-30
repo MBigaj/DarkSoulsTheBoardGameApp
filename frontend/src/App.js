@@ -16,9 +16,23 @@ function App() {
   }, [])
 
   return (
-    <div className="App">
-      <h1>CARDS</h1>
-      { cardJson && <img src={`assets/cards/${cardJson[0].imagePath}` } alt='eatmyass' width='250px' /> }
+    <div className="container mt-4">
+      <div className="mb-4">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Card search"
+        />
+      </div>
+      <div className="row">
+        { cardJson && cardJson.map((card) => (
+          <div key={card.id} className="col-md-3 mb-4">
+            <div className="card h-100">
+              <img src={`assets/cards/${card.imagePath}`} alt='no card' width='250px' />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
