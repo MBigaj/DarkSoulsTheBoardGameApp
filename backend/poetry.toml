@@ -1,3 +1,5 @@
 [virtualenvs]
 in-project = true
 path = "virtualenv"
+
+package-mode = false
