@@ -16,7 +16,7 @@ function App() {
   }, [])
 
   return (
-    <div className="container mt-4">
+    <div className='container'>
       <div className="mb-4">
         <input
           type="text"
@@ -28,7 +28,7 @@ function App() {
         { cardJson && cardJson.map((card) => (
           <div key={card.id} className="col-md-3 mb-4">
             <div className="card h-100">
-              <img src={`assets/cards/${card.imagePath}`} alt='no card' width='250px' />
+              <img src={`assets/cards/${card.imagePath}`} alt={card.name} width='250px' />
             </div>
           </div>
         ))}
