@@ -1,8 +1,7 @@
-import './App.css'
 import { useEffect, useState } from 'react'
 
-function App() {
-  const [cardJson, setCardJson] = useState(null)
+function CardPage() {
+  const [cardsJson, setCardsJson] = useState(null)
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/', {
@@ -10,14 +9,14 @@ function App() {
     })
       .then(response => response.json())
       .then((data) => {
-        setCardJson(data)
+        setCardsJson(data)
         console.log(data)
       })
   }, [])
 
   return (
     <div className='container'>
-      <div className="mb-4">
+      <div className="my-4">
         <input
           type="text"
           className="form-control"
@@ -25,10 +24,10 @@ function App() {
         />
       </div>
       <div className="row">
-        { cardJson && cardJson.map((card) => (
+        { cardsJson && cardsJson.map((card) => (
           <div key={card.id} className="col-md-3 mb-4">
-            <div className="card h-100">
-              <img src={`assets/cards/${card.imagePath}`} alt={card.name} width='250px' />
+            <div className="card h-100 w-75">
+              <img src={`assets/cards/${card.imagePath}`} alt={card.name} width='200px' />
             </div>
           </div>
         ))}
@@ -37,4 +36,4 @@ function App() {
   );
 }
 
-export default App
+export default CardPage

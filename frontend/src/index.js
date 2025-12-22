@@ -1,11 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import 'bootstrap/dist/css/bootstrap.css';
-import { BrowserRouter, Routes, Route } from "react-router";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import './index.css'
+import CardPage from './components/pages/CardPage'
+import reportWebVitals from './reportWebVitals'
+import 'bootstrap/dist/css/bootstrap.css'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router"
 import Navbar from './components/pages/Navbar'
+import HomePage from './components/pages/HomePage'
+import ExpansionsPage from './components/pages/ExpansionsPage'
+import CharactersPage from './components/pages/CharactersPage'
+import CampaignsPage from './components/pages/CampaignsPage'
+import { BASE_ROUTES } from 'constants'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -13,7 +18,14 @@ root.render(
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/" element={<App />} />
+        {/* Base Navbar Pages */}
+        <Route path={ BASE_ROUTES.HOMEPAGE } element={ <HomePage /> } />
+        <Route path={ BASE_ROUTES.CARDS } element={ <CardPage /> } />
+        <Route path={ BASE_ROUTES.EXPANSIONS } element={ <ExpansionsPage /> } />
+        <Route path={ BASE_ROUTES.CHARACTERS } element={ <CharactersPage /> } />
+        <Route path={ BASE_ROUTES.CAMPAIGNS } element={ <CampaignsPage /> } />
+        {/* All routes default here */}
+        <Route path="*" element={ <Navigate to={ BASE_ROUTES.HOMEPAGE } /> } />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
