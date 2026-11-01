@@ -23,9 +23,9 @@ services:
       retries: 5
       start_period: 20s
 
-  # api:   build ./api  — FastAPI + uv (owner)
-  # web:   build ./web  — Vite dev server / nginx (Claude)
-  # seed:  one-off import job using the api image (owner)
+  # api:   build ./api  — FastAPI + uv
+  # web:   build ./web  — Vite dev server / nginx
+  # seed:  one-off import job using the api image
 
 volumes:
   mongo-data:
