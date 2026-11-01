@@ -1,0 +1,86 @@
+{
+    "name": "Santier's Spear",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "SantiersSpear.png",
+    "details": {
+        "statRequirements": {
+            "strength": 20,
+            "dexterity": 30,
+            "intelligence": 0,
+            "faith": 0
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "legendary",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "magicDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "dodgeValue": 0,
+        "upgradeSlots" : 1,
+        "range": 0,
+        "weaponType": "one-handed",
+        "attacks": [
+            {
+                "staminaCost": 1,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 1,
+                "statusAliment": null,
+                "shaft": true,
+                "additionalMovement": 0,
+                "specificRange": 1,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 2
+                    }
+                ]
+            },
+            {
+                "staminaCost": 3,
+                "damageType": "physical",
+                "targetAll": true,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 1,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 1,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 2
+                    }
+                ]
+            },
+            {
+                "staminaCost": 4,
+                "damageType": "physical",
+                "targetAll": true,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 1,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 3
+                    }
+                ]
+            }
+        ]
+    }
+}

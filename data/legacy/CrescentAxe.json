@@ -1,0 +1,68 @@
+{
+    "name": "Crescent Axe",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "CrescentAxe.png",
+    "details": {
+        "statRequirements": {
+            "strength": 22,
+            "dexterity": 17,
+            "intelligence": 0,
+            "faith": 15
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "common",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "magicDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "dodgeValue": 0,
+        "upgradeSlots" : 2,
+        "range": 1,
+        "weaponType": "one-handed",
+        "attacks": [
+            {
+                "staminaCost": 0,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": true,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 2
+                    }
+                ]
+            },
+            {
+                "staminaCost": 4,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 1,
+                "statusAliment": null,
+                "shaft": true,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 2
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,68 @@
+{
+    "name": "Winged Spear",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "WingedSpear.png",
+    "details": {
+        "statRequirements": {
+            "strength": 20,
+            "dexterity": 0,
+            "intelligence": 0,
+            "faith": 22
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "common",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 1,
+            "dieType": "black"
+        },
+        "magicDamageBlockValue": {
+            "value": 1,
+            "dieType": "black"
+        },
+        "dodgeValue": 0,
+        "upgradeSlots" : 2,
+        "range": 1,
+        "weaponType": "two-handed",
+        "attacks": [
+            {
+                "staminaCost": 0,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 1,
+                "statusAliment": null,
+                "shaft": true,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 1
+                    }
+                ]
+            },
+            {
+                "staminaCost": 3,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 1,
+                "statusAliment": null,
+                "shaft": true,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 2
+                    }
+                ]
+            }
+        ]
+    }
+}

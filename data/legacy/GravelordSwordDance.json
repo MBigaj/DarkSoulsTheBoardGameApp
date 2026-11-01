@@ -1,0 +1,68 @@
+{
+    "name": "Gravelord Sword Dance",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "GravelordSwordDance.png",
+    "details": {
+        "statRequirements": {
+            "strength": 0,
+            "dexterity": 0,
+            "intelligence": 30,
+            "faith": 0
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "unique",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "magicDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "dodgeValue": 0,
+        "upgradeSlots" : 0,
+        "range": 3,
+        "weaponType": "one-handed",
+        "attacks": [
+            {
+                "staminaCost": 1,
+                "damageType": "magic",
+                "targetAll": true,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 2
+                    }
+                ]
+            },
+            {
+                "staminaCost": 3,
+                "damageType": "magic",
+                "targetAll": true,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 2
+                    }
+                ]
+            }
+        ]
+    }
+}

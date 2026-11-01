@@ -1,0 +1,68 @@
+{
+    "name": "Murakumo",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "Murakumo.png",
+    "details": {
+        "statRequirements": {
+            "strength": 0,
+            "dexterity": 27,
+            "intelligence": 17,
+            "faith": 0
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "common",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "magicDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "dodgeValue": 1,
+        "upgradeSlots" : 1,
+        "range": 0,
+        "weaponType": "one-handed",
+        "attacks": [
+            {
+                "staminaCost": 0,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 1
+                    }
+                ]
+            },
+            {
+                "staminaCost": 3,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 3
+                    }
+                ]
+            }
+        ]
+    }
+}

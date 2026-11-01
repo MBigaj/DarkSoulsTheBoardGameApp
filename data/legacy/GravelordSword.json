@@ -1,0 +1,76 @@
+{
+    "name": "Gravelord Sword",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "GravelordSword.png",
+    "details": {
+        "statRequirements": {
+            "strength": 0,
+            "dexterity": 32,
+            "intelligence": 18,
+            "faith": 0
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "unique",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 1,
+            "dieType": "blue"
+        },
+        "magicDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "dodgeValue": 0,
+        "upgradeSlots" : 2,
+        "range": 0,
+        "weaponType": "two-handed",
+        "attacks": [
+            {
+                "staminaCost": 2,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": "poison",
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 1
+                    },
+                    {
+                        "dieType": "blue",
+                        "throws": 1
+                    }
+                ]
+            },
+            {
+                "staminaCost": 4,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": "poison",
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 1
+                    },
+                    {
+                        "dieType": "orange",
+                        "throws": 1
+                    }
+                ]
+            }
+        ]
+    }
+}
