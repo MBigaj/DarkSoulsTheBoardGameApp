@@ -1,0 +1,86 @@
+{
+    "name": "Dark Sword",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "DarkSword.png",
+    "details": {
+        "statRequirements": {
+            "strength": 30,
+            "dexterity": 30,
+            "intelligence": 0,
+            "faith": 0
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "legendary",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "magicDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "dodgeValue": 0,
+        "upgradeSlots" : 2,
+        "range": 0,
+        "weaponType": "one-handed",
+        "attacks": [
+            {
+                "staminaCost": 0,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 1
+                    }
+                ]
+            },
+            {
+                "staminaCost": 2,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "blue",
+                        "throws": 2
+                    }
+                ]
+            },
+            {
+                "staminaCost": 5,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": false,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 1,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "orange",
+                        "throws": 2
+                    }
+                ]
+            }
+        ]
+    }
+}

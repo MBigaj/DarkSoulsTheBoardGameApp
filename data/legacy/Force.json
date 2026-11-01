@@ -1,0 +1,58 @@
+{
+    "name": "Force",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "Force.png",
+    "details": {
+        "statRequirements": {
+            "strength": 0,
+            "dexterity": 0,
+            "intelligence": 12,
+            "faith": 0
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "common",
+        "description": null,
+        "physicalDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "magicDamageBlockValue": {
+            "value": 0,
+            "dieType": null
+        },
+        "dodgeValue": 0,
+        "upgradeSlots" : 0,
+        "range": 2,
+        "weaponType": "one-handed",
+        "attacks": [
+            {
+                "staminaCost": 0,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": true,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": null
+            },
+            {
+                "staminaCost": 2,
+                "damageType": "physical",
+                "targetAll": false,
+                "push": true,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": null
+            }
+        ]
+    }
+}

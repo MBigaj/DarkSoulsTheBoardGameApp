@@ -1,0 +1,31 @@
+# Bonfire Ledger — local stack.
+# Start: docker compose up --watch
+# api/ and web/ services are added as those packages are scaffolded (see the implementation plan).
+
+name: bonfire-ledger
+
+services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    environment: # values come from .env; no credentials in this file
+      - MONGO_INITDB_ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD
+      - MONGO_INITDB_DATABASE
+    ports:
+      - "27017:27017" # dev only: lets Compass connect
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # api:   build ./api  — FastAPI + uv
+  # web:   build ./web  — Vite dev server / nginx
+  # seed:  one-off import job using the api image
+
+volumes:
+  mongo-data:

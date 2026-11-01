@@ -1,2 +1,37 @@
-# IDE Specific
-.vscode
+# Env & secrets
+.env
+.env.*
+!.env.example
+newrelic.ini
+.legacy-local/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# Playwright
+playwright-report/
+test-results/
+
+# IDE / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Leftovers from the reset; safe to delete
+_to_delete/

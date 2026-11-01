@@ -1,0 +1,44 @@
+{
+    "name": "Firebombs",
+    "set": "Tomb of Giants",
+    "cardType": "item",
+    "imagePath": "Firebombs.png",
+    "details": {
+        "statRequirements": {
+            "strength": 0,
+            "dexterity": 0,
+            "intelligence": 15,
+            "faith": 15
+        },
+        "slot": "hand",
+        "itemType": "treasure",
+        "rarity": "common",
+        "description": null,
+        "physicalDamageBlockValue": 0,
+        "magicDamageBlockValue": 0,
+        "dodgeValue": 0,
+        "upgradeSlots" : 0,
+        "range": 1,
+        "weaponType": "one-handed",
+        "attacks": [
+            {
+                "staminaCost": 4,
+                "damageType": "magic",
+                "targetAll": true,
+                "push": true,
+                "repeatAttack": 0,
+                "damageModifier": 0,
+                "statusAliment": null,
+                "shaft": false,
+                "additionalMovement": 0,
+                "specificRange": null,
+                "attackSequence": [
+                    {
+                        "dieType": "black",
+                        "throws": 3
+                    }
+                ]
+            }
+        ]
+    }
+}
