@@ -15,8 +15,11 @@ Unofficial fan companion for **Dark Souls™: The Board Game** — card archive,
 
 ```sh
 cp .env.example .env    # then edit the values
-docker compose up --watch
+docker compose up --watch                          # web dev server: http://localhost:5173
+docker compose --profile prod up --build web-prod  # production build via nginx: http://localhost:8080
 ```
+
+The web container reads the card data store read-only from `DSTBG_DATA_DIR` (default `../DSTBG_DATA`).
 
 ### Frontend only (Node 26)
 

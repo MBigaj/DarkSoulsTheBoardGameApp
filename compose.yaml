@@ -1,6 +1,7 @@
 # Bonfire Ledger — local stack.
-# Start: docker compose up --watch
-# api/ and web/ services are added as those packages are scaffolded (see the implementation plan).
+# Dev:  docker compose up --watch                       (web on http://localhost:5173)
+# Prod: docker compose --profile prod up --build web-prod  (nginx on http://localhost:8080)
+# api/ and seed services are added once api/ exists.
 
 name: bonfire-ledger
 
@@ -23,9 +24,53 @@ services:
       retries: 5
       start_period: 20s
 
-  # api:   build ./api  — FastAPI + uv
-  # web:   build ./web  — Vite dev server / nginx
-  # seed:  one-off import job using the api image
+  web:
+    build:
+      context: ./web
+      target: dev
+    environment:
+      VITE_API_MODE: ${VITE_API_MODE:-mock}
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+    ports:
+      - "5173:5173"
+    volumes:
+      # Card data store, read-only. Outside the repo until its final home is decided.
+      - ${DSTBG_DATA_DIR:-../DSTBG_DATA}:/data:ro
+    # Compose Watch instead of bind-mounting the source: bind mounts on Windows
+    # don't trigger file events in the container, so HMR would miss changes.
+    develop:
+      watch:
+        - action: sync
+          path: ./web/src
+          target: /app/src
+        - action: sync
+          path: ./web/index.html
+          target: /app/index.html
+        - action: sync+restart
+          path: ./web/vite.config.ts
+          target: /app/vite.config.ts
+        - action: sync+restart
+          path: ./web/tsconfig.json
+          target: /app/tsconfig.json
+        - action: rebuild
+          path: ./web/package.json
+        - action: rebuild
+          path: ./web/package-lock.json
+
+  # Production image: static build served by nginx, which proxies /api/v1 to api:8000.
+  web-prod:
+    profiles: [prod]
+    build:
+      context: ./web
+      target: runtime
+      args:
+        VITE_API_MODE: ${VITE_API_MODE:-mock}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+    ports:
+      - "8080:8080"
+
+  # api:   build ./api  — FastAPI + uv (owner)
+  # seed:  one-off import job using the api image (owner)
 
 volumes:
   mongo-data:
