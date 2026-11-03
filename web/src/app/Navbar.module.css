@@ -80,17 +80,18 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-min);
-  border-bottom: 1px solid transparent;
   color: var(--muted);
-  text-decoration: none;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: var(--fs-nav);
   letter-spacing: var(--track-nav);
   text-transform: uppercase;
+  /* Underline drawn on the text, so it sits ~8px under it whatever the 44px target adds. */
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 8px;
   transition:
     color var(--dur-hover) var(--ease-std),
-    border-color var(--dur-hover) var(--ease-std);
+    text-decoration-color var(--dur-hover) var(--ease-std);
 }
 
 .link:hover {
@@ -99,7 +100,7 @@
 
 .link[aria-current='page'] {
   color: var(--accent-text);
-  border-bottom-color: var(--accent);
+  text-decoration-color: var(--accent);
 }
 
 @media (max-width: 480px) {
