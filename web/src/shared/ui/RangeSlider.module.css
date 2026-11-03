@@ -19,7 +19,7 @@
 
 .slider input {
   width: 100%;
-  min-height: 28px;
+  min-height: var(--tap-min);
   accent-color: var(--accent);
   cursor: pointer;
 }

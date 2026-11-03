@@ -15,8 +15,8 @@ type DialogProps = {
 
 /**
  * Modal built on native <dialog> (focus trap, top layer, focus restored on close).
- * Escape and clicks on the backdrop call onClose; the parent owns `open`.
- * Content sits centred; a click that lands on the dialog itself, not its content, is a backdrop click.
+ * The parent owns `open`; Escape, a backdrop click, or any native close calls onClose.
+ * Content sits centred; the dialog's own empty area acts as the backdrop.
  */
 export function Dialog({
   open,
@@ -27,6 +27,8 @@ export function Dialog({
   className,
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  // A backdrop click must start on the backdrop: a drag from the card that ends there doesn't count.
+  const downOnBackdrop = useRef(false);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -40,19 +42,26 @@ export function Dialog({
   }, [open, initialFocusRef]);
 
   return (
-    // Escape is handled through the native cancel event, so the click handler needs no key twin.
+    // Escape goes through the native cancel event, so the click handler needs no key twin.
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <dialog
       ref={ref}
       aria-label={label}
-      aria-modal="true"
       className={cx(styles.dialog, className)}
       onCancel={(e) => {
         e.preventDefault();
         onClose();
       }}
+      // Chrome's close watcher and method="dialog" forms can close it without a cancel event.
+      onClose={() => {
+        if (open) onClose();
+      }}
+      onPointerDown={(e) => {
+        downOnBackdrop.current = e.target === e.currentTarget;
+      }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (downOnBackdrop.current && e.target === e.currentTarget) onClose();
+        downOnBackdrop.current = false;
       }}
     >
       {children}

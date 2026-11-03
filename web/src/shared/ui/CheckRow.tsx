@@ -2,7 +2,10 @@ import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { cx } from '@/shared/lib/cx';
 import styles from './CheckRow.module.css';
 
-type CheckRowProps = Omit<ComponentPropsWithRef<'button'>, 'onChange' | 'children'> & {
+type CheckRowProps = Omit<
+  ComponentPropsWithRef<'button'>,
+  'onChange' | 'onClick' | 'aria-pressed' | 'children'
+> & {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: ReactNode;
@@ -23,13 +26,13 @@ export function CheckRow({
 }: CheckRowProps) {
   return (
     <button
+      {...rest}
       type="button"
       aria-pressed={checked}
       className={cx(styles.row, size === 'lg' && styles.lg, className)}
       onClick={() => {
         onChange(!checked);
       }}
-      {...rest}
     >
       <span className={styles.box} aria-hidden="true">
         {checked ? '✓' : null}

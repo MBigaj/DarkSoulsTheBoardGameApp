@@ -11,6 +11,8 @@ export type TabItem<K extends string> = {
 type TabsProps<K extends string> = {
   /** Accessible name for the tab list, e.g. "Card type". */
   label: string;
+  /** Each tab's id is `${idPrefix}-${item.id}`, so the panel can use aria-labelledby. */
+  idPrefix: string;
   items: readonly TabItem<K>[];
   selected: K;
   onSelect: (id: K) => void;
@@ -20,11 +22,13 @@ type TabsProps<K extends string> = {
 };
 
 /**
- * ARIA tabs with automatic activation: arrow keys, Home and End move focus and select.
+ * ARIA tabs with manual activation: arrow keys, Home and End move focus;
+ * Enter, Space or a click selects. Selecting a tab loads data, so arrowing past one shouldn't.
  * Only the selected tab is in the Tab order.
  */
 export function Tabs<K extends string>({
   label,
+  idPrefix,
   items,
   selected,
   onSelect,
@@ -33,8 +37,7 @@ export function Tabs<K extends string>({
 }: TabsProps<K>) {
   const refs = useRef(new Map<K, HTMLButtonElement>());
 
-  function onKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
-    const index = items.findIndex((item) => item.id === selected);
+  function onKeyDown(e: KeyboardEvent<HTMLButtonElement>, index: number) {
     const last = items.length - 1;
     const next =
       e.key === 'ArrowRight'
@@ -53,13 +56,12 @@ export function Tabs<K extends string>({
     const target = items[next];
     if (!target) return;
     e.preventDefault();
-    onSelect(target.id);
     refs.current.get(target.id)?.focus();
   }
 
   return (
     <div role="tablist" aria-label={label} className={cx(styles.list, className)}>
-      {items.map((item) => {
+      {items.map((item, index) => {
         const isSelected = item.id === selected;
         return (
           <button
@@ -68,13 +70,16 @@ export function Tabs<K extends string>({
               if (el) refs.current.set(item.id, el);
               else refs.current.delete(item.id);
             }}
+            id={`${idPrefix}-${item.id}`}
             type="button"
             role="tab"
             aria-selected={isSelected}
             aria-controls={panelId}
             tabIndex={isSelected ? 0 : -1}
             className={styles.tab}
-            onKeyDown={onKeyDown}
+            onKeyDown={(e) => {
+              onKeyDown(e, index);
+            }}
             onClick={() => {
               onSelect(item.id);
             }}

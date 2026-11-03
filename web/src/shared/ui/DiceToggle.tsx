@@ -3,17 +3,15 @@ import { cx } from '@/shared/lib/cx';
 import styles from './DiceToggle.module.css';
 
 type DiceToggleProps = {
-  /** Accessible name for the group, e.g. "Attack dice". */
-  label: string;
   selected: readonly Die[];
   onToggle: (die: Die) => void;
   className?: string;
 };
 
-/** Three-column dice picker: swatch plus mono label per die. */
-export function DiceToggle({ label, selected, onToggle, className }: DiceToggleProps) {
+/** Three-column dice picker: swatch plus mono label per die. Place it in a FilterField for its name. */
+export function DiceToggle({ selected, onToggle, className }: DiceToggleProps) {
   return (
-    <div role="group" aria-label={label} className={cx(styles.grid, className)}>
+    <div className={cx(styles.grid, className)}>
       {DICE.map((die) => (
         <button
           key={die}

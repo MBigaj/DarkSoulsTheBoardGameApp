@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { cx } from '@/shared/lib/cx';
 import { ChevronDownIcon } from './icons';
 import styles from './FilterGroup.module.css';
@@ -51,11 +51,12 @@ type FilterFieldProps = {
   className?: string;
 };
 
-/** One labelled filter inside a group (pills, checks, dice or sliders). */
+/** One labelled filter inside a group (pills, checks, dice or sliders); it provides the group role. */
 export function FilterField({ label, children, className }: FilterFieldProps) {
+  const id = useId();
   return (
-    <div role="group" aria-label={label} className={cx(styles.field, className)}>
-      <span className={styles.fieldLabel} aria-hidden="true">
+    <div role="group" aria-labelledby={id} className={cx(styles.field, className)}>
+      <span id={id} className={styles.fieldLabel}>
         {label}
       </span>
       {children}

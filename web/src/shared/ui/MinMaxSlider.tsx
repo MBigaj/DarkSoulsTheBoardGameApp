@@ -3,7 +3,7 @@ import { RangeSlider } from './RangeSlider';
 import styles from './MinMaxSlider.module.css';
 
 type MinMaxSliderProps = {
-  /** e.g. "Threat level" */
+  /** e.g. "Threat level"; names the inputs "Minimum threat level" and "Maximum threat level". */
   label: string;
   value: readonly [min: number, max: number];
   min: number;
@@ -12,14 +12,17 @@ type MinMaxSliderProps = {
   className?: string;
 };
 
-/** Two range inputs, Min and Max. Each one stops at the other, so min ≤ max always holds. */
+/**
+ * Two range inputs, Min and Max. Each one stops at the other, so min ≤ max always holds.
+ * Place it in a FilterField for the group name.
+ */
 export function MinMaxSlider({ label, value, min, max, onChange, className }: MinMaxSliderProps) {
   const [lo, hi] = value;
   return (
-    <div role="group" aria-label={label} className={cx(styles.group, className)}>
+    <div className={cx(styles.group, className)}>
       <RangeSlider
         label="Min"
-        ariaLabel={`Minimum ${label}`}
+        ariaLabel={`Minimum ${label.toLowerCase()}`}
         value={lo}
         min={min}
         max={max}
@@ -29,7 +32,7 @@ export function MinMaxSlider({ label, value, min, max, onChange, className }: Mi
       />
       <RangeSlider
         label="Max"
-        ariaLabel={`Maximum ${label}`}
+        ariaLabel={`Maximum ${label.toLowerCase()}`}
         value={hi}
         min={min}
         max={max}
