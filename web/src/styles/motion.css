@@ -3,14 +3,6 @@
  * Interactions still work (e.g. the card flip jumps to its face instantly).
  */
 @media (prefers-reduced-motion: reduce) {
-  :root {
-    --dur-hover: 0ms;
-    --dur-lift: 0ms;
-    --dur-backdrop: 0ms;
-    --dur-open: 0ms;
-    --dur-flip: 0ms;
-  }
-
   *,
   *::before,
   *::after {

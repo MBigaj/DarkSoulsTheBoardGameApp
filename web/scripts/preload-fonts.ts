@@ -27,7 +27,7 @@ export function preloadFonts(prefixes: readonly string[]): Plugin {
               type: 'font/woff2',
               crossorigin: '',
             },
-            injectTo: 'head-prepend',
+            injectTo: 'head',
           };
         });
       },

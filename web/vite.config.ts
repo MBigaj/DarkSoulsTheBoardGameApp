@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
-import { preloadFonts } from './scripts/preload-fonts';
+import { preloadFonts } from './scripts/preload-fonts.ts';
 
 export default defineConfig({
   plugins: [

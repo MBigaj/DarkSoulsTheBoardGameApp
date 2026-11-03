@@ -43,7 +43,7 @@ h3 {
 a {
   color: var(--accent-text);
   text-underline-offset: 0.18em;
-  transition: color var(--dur-hover) var(--ease-out);
+  transition: color var(--dur-hover) var(--ease-std);
 }
 
 a:hover {
