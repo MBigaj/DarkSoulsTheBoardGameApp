@@ -62,6 +62,11 @@ samp {
   color: var(--on-accent);
 }
 
+/* Page behind an open modal dialog stays put (mobile included). */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
 :focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);

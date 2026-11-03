@@ -1,0 +1,81 @@
+.face {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--card-radius);
+  background: var(--panel2);
+}
+
+.treasure {
+  aspect-ratio: var(--ratio-treasure);
+}
+
+.event {
+  aspect-ratio: var(--ratio-event);
+}
+
+.behaviour {
+  aspect-ratio: var(--ratio-behaviour);
+}
+
+.enemy {
+  aspect-ratio: var(--ratio-enemy);
+}
+
+.boss {
+  aspect-ratio: var(--ratio-boss);
+}
+
+.encounter {
+  aspect-ratio: var(--ratio-encounter);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: inherit;
+}
+
+.name {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  /* The Cormorant subset has no small-caps feature, so use real capitals, smaller and tracked. */
+  font-size: 0.9375rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-wrap: balance;
+}
+
+.art {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background-color: var(--panel);
+  background-image: repeating-linear-gradient(135deg, var(--hatch) 0 1px, transparent 1px 12px);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

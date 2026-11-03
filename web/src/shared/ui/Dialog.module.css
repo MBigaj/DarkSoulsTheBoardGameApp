@@ -1,0 +1,34 @@
+/* The dialog fills the viewport; its children are centred, and the empty area acts as backdrop. */
+.dialog {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: var(--gutter);
+  background: transparent;
+  color: var(--text);
+  overflow: auto;
+}
+
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.dialog::backdrop {
+  background: rgba(5, 4, 4, 0.84);
+  backdrop-filter: blur(6px);
+}
+
+.dialog[open]::backdrop {
+  animation: backdrop-in var(--dur-backdrop) var(--ease-std) both;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}

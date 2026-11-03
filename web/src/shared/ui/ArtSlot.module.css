@@ -1,0 +1,40 @@
+.slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background-color: var(--panel2);
+  background-image: repeating-linear-gradient(135deg, var(--hatch) 0 1px, transparent 1px 12px);
+  text-align: center;
+}
+
+.framed {
+  composes: frame from './Frame.module.css';
+}
+
+/* Beat .slot's hairline regardless of stylesheet order. */
+.slot.framed {
+  border-color: var(--border);
+}
+
+.glow {
+  box-shadow: 0 40px 80px -40px var(--glow);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.note {
+  font-style: italic;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}

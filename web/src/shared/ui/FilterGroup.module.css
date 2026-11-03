@@ -1,0 +1,68 @@
+.group {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap-min);
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.title {
+  flex: 1;
+}
+
+.badge {
+  min-width: 20px;
+  padding: 1px 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0;
+}
+
+.chevron {
+  flex: none;
+  transition: transform var(--dur-hover) var(--ease-std);
+}
+
+.group[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 0 6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

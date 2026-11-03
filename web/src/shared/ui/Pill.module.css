@@ -1,0 +1,26 @@
+.pill {
+  min-height: var(--pill-min);
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--fs-small);
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std),
+    color var(--dur-hover) var(--ease-std);
+}
+
+.pill:hover:not(:disabled) {
+  border-color: var(--ornament);
+}
+
+.pill[aria-pressed='true'] {
+  background: var(--tint);
+  border-color: var(--accent-text);
+  color: var(--text);
+}
+
+.pill:disabled {
+  opacity: 0.45;
+}
