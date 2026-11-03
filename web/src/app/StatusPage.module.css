@@ -1,0 +1,20 @@
+.body {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 40px var(--gutter) 96px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.detail {
+  flex-basis: 100%;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px dashed var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: pre-wrap;
+}

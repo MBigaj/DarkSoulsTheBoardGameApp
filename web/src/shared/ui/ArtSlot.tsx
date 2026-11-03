@@ -1,5 +1,6 @@
 import { cx } from '@/shared/lib/cx';
 import styles from './ArtSlot.module.css';
+import frameStyles from './Frame.module.css';
 
 type ArtSlotProps = {
   /** Mono caps label, e.g. "Key art" or "Box art". */
@@ -19,7 +20,13 @@ type ArtSlotProps = {
 export function ArtSlot({ label, note, ratio, framed, glow, className }: ArtSlotProps) {
   return (
     <div
-      className={cx(styles.slot, framed && styles.framed, glow && styles.glow, className)}
+      className={cx(
+        styles.slot,
+        framed && frameStyles.frame,
+        framed && styles.framed,
+        glow && styles.glow,
+        className,
+      )}
       style={ratio ? { aspectRatio: ratio } : undefined}
       role="img"
       aria-label={note ? `${label}: ${note}` : `${label} placeholder`}
