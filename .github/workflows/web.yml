@@ -1,0 +1,78 @@
+name: web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/web.yml'
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/web.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-${{ github.ref }}
+  # Cancel superseded PR runs only; every commit on main keeps its run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    working-directory: web
+
+jobs:
+  check:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci --no-audit --no-fund
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+  image:
+    # Owns the production build (vite build runs inside the image).
+    name: Production image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: web
+          target: runtime
+          push: false
+          load: true
+          tags: bonfire-ledger-web:ci
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+      - name: Start container
+        working-directory: .
+        run: docker run -d --name web -p 8080:8080 bonfire-ledger-web:ci
+
+      - name: Smoke test
+        working-directory: .
+        run: |
+          curl -fsS --retry 20 --retry-delay 1 --retry-all-errors http://localhost:8080/healthz
+          curl -fsS http://localhost:8080/ | grep -q 'id="root"'
+          curl -fsS http://localhost:8080/cards/treasure | grep -q 'id="root"'
+
+      - name: Container logs
+        if: always()
+        working-directory: .
+        run: docker logs web || true
