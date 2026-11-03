@@ -16,7 +16,8 @@ permissions:
 
 concurrency:
   group: web-${{ github.ref }}
-  cancel-in-progress: true
+  # Cancel superseded PR runs only; every commit on main keeps its run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
@@ -24,7 +25,7 @@ defaults:
 
 jobs:
   check:
-    name: Lint, typecheck, test, build
+    name: Lint, typecheck, test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -41,13 +42,12 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-      - run: npm run build
 
   image:
+    # Owns the production build (vite build runs inside the image).
     name: Production image
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: check
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4
@@ -61,12 +61,18 @@ jobs:
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
 
+      - name: Start container
+        working-directory: .
+        run: docker run -d --name web -p 8080:8080 bonfire-ledger-web:ci
+
       - name: Smoke test
         working-directory: .
         run: |
-          docker run -d --name web -p 8080:8080 bonfire-ledger-web:ci
-          for i in $(seq 1 20); do curl -fsS http://localhost:8080/healthz && break; sleep 1; done
+          curl -fsS --retry 20 --retry-delay 1 --retry-all-errors http://localhost:8080/healthz
           curl -fsS http://localhost:8080/ | grep -q 'id="root"'
           curl -fsS http://localhost:8080/cards/treasure | grep -q 'id="root"'
-          docker logs web
-          docker rm -f web
+
+      - name: Container logs
+        if: always()
+        working-directory: .
+        run: docker logs web || true
