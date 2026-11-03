@@ -17,3 +17,12 @@ Unofficial fan companion for **Dark Souls™: The Board Game** — card archive,
 cp .env.example .env    # then edit the values
 docker compose up --watch
 ```
+
+### Frontend only (Node 26)
+
+```sh
+cd web
+npm ci
+npm run dev          # http://localhost:5173
+npm run lint && npm run typecheck && npm test && npm run build
+```
