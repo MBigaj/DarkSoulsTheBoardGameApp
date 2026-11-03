@@ -12,11 +12,6 @@
   text-align: center;
 }
 
-.framed {
-  composes: frame from './Frame.module.css';
-}
-
-/* Beat .slot's hairline regardless of stylesheet order. */
 .slot.framed {
   border-color: var(--border);
 }

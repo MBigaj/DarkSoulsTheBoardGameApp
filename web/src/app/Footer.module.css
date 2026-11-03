@@ -1,0 +1,27 @@
+.footer {
+  border-top: 1px solid var(--line);
+}
+
+.inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 36px var(--gutter) 48px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px 40px;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+
+.credit {
+  max-width: 46rem;
+}
