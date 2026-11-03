@@ -1,0 +1,14 @@
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.accent {
+  color: var(--accent-text);
+}
+
+.muted {
+  color: var(--muted);
+}

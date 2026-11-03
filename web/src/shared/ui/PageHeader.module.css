@@ -1,0 +1,36 @@
+.band {
+  border-bottom: 1px solid var(--line);
+}
+
+.inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 40px var(--gutter) 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.crumbs {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.rest {
+  color: var(--muted);
+}
+
+.title {
+  line-height: 1;
+  letter-spacing: var(--track-h2);
+}
+
+.lede {
+  max-width: 46rem;
+  font-size: var(--fs-lede);
+  font-style: italic;
+  color: var(--muted);
+}

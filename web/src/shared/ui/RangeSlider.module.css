@@ -1,0 +1,25 @@
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.value {
+  color: var(--accent-text);
+}
+
+.slider input {
+  width: 100%;
+  min-height: 28px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
