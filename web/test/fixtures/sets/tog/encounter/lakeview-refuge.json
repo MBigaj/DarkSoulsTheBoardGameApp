@@ -1,0 +1,66 @@
+{
+  "_id": "tog-encounter-lakeview-refuge",
+  "set": "tog",
+  "type": "encounter",
+  "name": "Lakeview Refuge",
+  "art": "tog/encounter/lakeview-refuge.png",
+  "level": 3,
+  "flavour": "A forgotten shrine watches over the Lake of Ash. A dangerous place yes, but worth your time to ignite the shrine once more.",
+  "objective": "Place the torch on the shrine node.",
+  "rewards": [
+    {
+      "type": "souls",
+      "amount": 8
+    },
+    {
+      "type": "draw",
+      "deck": "treasure",
+      "count": 2
+    }
+  ],
+  "trial": {
+    "objective": "Kill the Skeleton Beast.",
+    "rewards": [
+      {
+        "type": "souls",
+        "amount": 6
+      }
+    ]
+  },
+  "specialRules": [
+    {
+      "keyword": "onslaught"
+    },
+    {
+      "keyword": "darkness"
+    },
+    {
+      "text": "The first time a character is placed on the same node as the torch token, spawn a Skeleton Beast on the torch's tile and Skeleton Soldiers on tile two."
+    }
+  ],
+  "tiles": [
+    {
+      "tile": 1,
+      "at": [
+        0,
+        0
+      ],
+      "startNodes": "top"
+    },
+    {
+      "tile": 2,
+      "at": [
+        1,
+        0
+      ],
+      "trapped": true
+    },
+    {
+      "tile": 3,
+      "at": [
+        1,
+        1
+      ]
+    }
+  ]
+}

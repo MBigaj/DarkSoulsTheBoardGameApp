@@ -1,0 +1,17 @@
+{
+  "_id": "tog-boss-gravelord-nito",
+  "set": "tog",
+  "type": "boss",
+  "name": "Gravelord Nito",
+  "art": "tog/boss/gravelord-nito.png",
+  "tier": "main",
+  "threat": 10,
+  "health": 30,
+  "heatUp": 15,
+  "block": 2,
+  "resist": 2,
+  "deckSize": 5,
+  "rules": [
+    "On heat-up, enemies killed in the encounter return."
+  ]
+}

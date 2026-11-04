@@ -30,12 +30,18 @@ services:
       target: dev
     environment:
       VITE_API_MODE: ${VITE_API_MODE:-mock}
+      VITE_API_HTTP: ${VITE_API_HTTP:-}
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+      # Read by mockApi (web/scripts/data-paths.ts).
+      DATA_DIR: /data
+      FIXTURES_DIR: /fixtures
     ports:
       - "5173:5173"
     volumes:
       # Card data store, read-only. Outside the repo until its final home is decided.
       - ${DSTBG_DATA_DIR:-../DSTBG_DATA}:/data:ro
+      # Phase 1 fixtures (classes, sample encounters), shared with the backend seed.
+      - ./data/fixtures:/fixtures:ro
     # Compose Watch instead of bind-mounting the source: bind mounts on Windows
     # don't trigger file events in the container, so HMR would miss changes.
     develop:
@@ -52,6 +58,9 @@ services:
         - action: sync+restart
           path: ./web/tsconfig.json
           target: /app/tsconfig.json
+        - action: sync+restart
+          path: ./web/scripts
+          target: /app/scripts
         - action: rebuild
           path: ./web/package.json
         - action: rebuild

@@ -1,0 +1,41 @@
+{
+  "_id": "tog-treasure-fireball",
+  "set": "tog",
+  "type": "treasure",
+  "name": "Fireball",
+  "art": "tog/treasure/fireball.png",
+  "deck": "treasure",
+  "rarity": "common",
+  "equip": "hand",
+  "hands": 1,
+  "requirements": {
+    "strength": 0,
+    "dexterity": 0,
+    "intelligence": 23,
+    "faith": 0
+  },
+  "defence": {
+    "block": {},
+    "resist": {},
+    "dodge": 0
+  },
+  "upgradeSlots": 0,
+  "range": 2,
+  "attacks": [
+    {
+      "staminaCost": 0,
+      "dice": {
+        "black": 2
+      },
+      "damageType": "magical"
+    },
+    {
+      "staminaCost": 5,
+      "dice": {
+        "orange": 2
+      },
+      "damageType": "magical",
+      "nodeAttack": true
+    }
+  ]
+}

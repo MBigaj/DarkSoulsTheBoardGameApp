@@ -1,0 +1,24 @@
+{
+  "_id": "tog-enemy-skeleton-beast",
+  "set": "tog",
+  "type": "enemy",
+  "name": "Skeleton Beast",
+  "art": "tog/enemy/skeleton-beast.png",
+  "threat": 6,
+  "health": 5,
+  "range": 0,
+  "block": 2,
+  "resist": 2,
+  "dodgeDifficulty": 2,
+  "behaviour": [
+    {
+      "kind": "move",
+      "target": "nearest",
+      "nodes": 1,
+      "direction": "towards",
+      "push": true,
+      "pushDamage": 4
+    }
+  ],
+  "repeat": 2
+}

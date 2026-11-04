@@ -7,7 +7,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'node_modules'] },
+  { ignores: ['dist', 'coverage', 'node_modules', 'src/shared/api/generated'] },
   {
     files: ['src/**/*.{ts,tsx}'],
     extends: [
@@ -26,6 +26,22 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/consistent-type-imports': 'error',
+      // `_name` marks an intentionally unused binding, e.g. a field dropped with a rest spread.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
+    },
+  },
+  {
+    // Data goes through the hooks in shared/api/queries.ts; only httpApi talks to the network.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/shared/api/http/**'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        { name: 'fetch', message: 'Use the hooks in @/shared/api/queries instead.' },
+      ],
     },
   },
   {
