@@ -35,3 +35,6 @@ Thumbs.db
 
 # Leftovers from the reset; safe to delete
 _to_delete/
+
+# Generated from the data store by scripts/build-images.ts
+web/public/images/

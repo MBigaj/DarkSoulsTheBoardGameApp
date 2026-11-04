@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import type { CardType } from '@/shared/lib/card-types';
 import { cx } from '@/shared/lib/cx';
+import { CardImage } from './CardImage';
 import styles from './CardFace.module.css';
 
 type CardFaceProps = {
   name: string;
   type: CardType;
-  /** Card image; without it the face shows the placeholder (name + hatched art slot). */
-  src?: string;
-  srcSet?: string;
+  /** Card `art` path. Without it, or if the file fails to load, the face shows the placeholder. */
+  art?: string | null;
+  /** See CardImage. */
   sizes?: string;
+  priority?: boolean;
   /** Empty by default: the face usually sits inside a control that already names the card. */
   alt?: string;
   className?: string;
@@ -18,28 +21,59 @@ type CardFaceProps = {
  * The card face only, in its printed shape with rounded corners.
  * Type badge, ID and stat line belong to the tile around it.
  */
-export function CardFace({ name, type, src, srcSet, sizes, alt = '', className }: CardFaceProps) {
+export function CardFace({ name, type, art, sizes, priority, alt, className }: CardFaceProps) {
   return (
     <span className={cx(styles.face, styles[type], className)}>
-      {src ? (
-        <img
-          className={styles.image}
-          src={src}
-          srcSet={srcSet}
-          sizes={sizes}
-          alt={alt}
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-        />
+      {art ? (
+        // Keyed by art, so a new card starts fresh instead of inheriting the last one's state.
+        <FaceImage key={art} name={name} art={art} sizes={sizes} priority={priority} alt={alt} />
       ) : (
-        <span className={styles.placeholder}>
-          <span className={styles.name}>{name}</span>
-          <span className={styles.art} aria-hidden="true">
-            Card art
-          </span>
-        </span>
+        <Placeholder name={name} />
       )}
+    </span>
+  );
+}
+
+function FaceImage({
+  name,
+  art,
+  sizes,
+  priority,
+  alt,
+}: {
+  name: string;
+  art: string;
+  sizes?: string;
+  priority?: boolean;
+  alt?: string;
+}) {
+  const [status, setStatus] = useState<'loading' | 'loaded' | 'failed'>('loading');
+  // A missing file (e.g. images not built yet) falls back to the placeholder, never a broken icon.
+  if (status === 'failed') return <Placeholder name={name} />;
+  return (
+    <CardImage
+      art={art}
+      sizes={sizes}
+      priority={priority}
+      alt={alt}
+      className={cx(styles.image, status === 'loaded' && styles.loaded)}
+      onLoad={() => {
+        setStatus('loaded');
+      }}
+      onError={() => {
+        setStatus('failed');
+      }}
+    />
+  );
+}
+
+function Placeholder({ name }: { name: string }) {
+  return (
+    <span className={styles.placeholder}>
+      <span className={styles.name}>{name}</span>
+      <span className={styles.art} aria-hidden="true">
+        Card art
+      </span>
     </span>
   );
 }

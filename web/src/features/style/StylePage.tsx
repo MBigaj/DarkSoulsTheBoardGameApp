@@ -192,7 +192,7 @@ export function StylePage() {
           <CardDemo state="rest" label="Rest" />
           <CardDemo state="hover" label="Hover · lift, tilt, glow" />
           <CardDemo state="selected" label="Selected · 2px accent ring" />
-          <CardDemo state="rest" label="No scan yet" name="[Card name]" />
+          <CardDemo state="rest" label="No scan yet" name="[Card name]" art={null} />
         </section>
       </div>
     </>
@@ -226,14 +226,16 @@ function CardDemo({
   state,
   label,
   name = 'Bonewheel Shield',
+  art = 'tog/treasure/bonewheel-shield.png',
 }: {
   state: 'rest' | 'hover' | 'selected';
   label: string;
   name?: string;
+  art?: string | null;
 }) {
   return (
     <div className={styles.cardDemo}>
-      <CardFace name={name} type="treasure" className={styles[state]} />
+      <CardFace name={name} type="treasure" art={art} sizes="150px" className={styles[state]} />
       <Eyebrow tone="muted">{label}</Eyebrow>
     </div>
   );
