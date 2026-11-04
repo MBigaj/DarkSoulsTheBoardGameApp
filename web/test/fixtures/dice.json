@@ -1,0 +1,47 @@
+{
+  "black": {
+    "kind": "attack",
+    "faces": [
+      0,
+      1,
+      1,
+      1,
+      2,
+      2
+    ]
+  },
+  "blue": {
+    "kind": "attack",
+    "faces": [
+      1,
+      1,
+      2,
+      2,
+      2,
+      3
+    ]
+  },
+  "orange": {
+    "kind": "attack",
+    "faces": [
+      1,
+      2,
+      2,
+      3,
+      3,
+      3
+    ]
+  },
+  "green": {
+    "kind": "dodge",
+    "faces": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      1
+    ],
+    "faceMeaning": "dodge symbols"
+  }
+}

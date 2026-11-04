@@ -1,0 +1,28 @@
+{
+  "_id": "tog-treasure-blue-titanite",
+  "set": "tog",
+  "type": "treasure",
+  "name": "Blue Titanite",
+  "art": "tog/treasure/blue-titanite.png",
+  "deck": "boss",
+  "boss": "tog-boss-black-knight",
+  "equip": "upgrade",
+  "upgradeTarget": "weapon",
+  "requirements": {
+    "strength": 0,
+    "dexterity": 0,
+    "intelligence": 20,
+    "faith": 0
+  },
+  "defence": {
+    "block": {},
+    "resist": {},
+    "dodge": 0
+  },
+  "upgradeSlots": 0,
+  "abilities": [
+    {
+      "text": "This weapon gains 1 upgrade slot. This weapon's attacks become magical."
+    }
+  ]
+}

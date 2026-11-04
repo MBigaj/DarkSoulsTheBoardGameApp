@@ -1,0 +1,29 @@
+{
+  "_id": "tog-enemy-giant-skeleton-archer",
+  "set": "tog",
+  "type": "enemy",
+  "name": "Giant Skeleton Archer",
+  "art": "tog/enemy/giant-skeleton-archer.png",
+  "threat": 1,
+  "health": 5,
+  "range": "infinite",
+  "block": 1,
+  "resist": 1,
+  "dodgeDifficulty": 2,
+  "behaviour": [
+    {
+      "kind": "move",
+      "target": "nearest",
+      "nodes": 1,
+      "direction": "away",
+      "push": true,
+      "pushDamage": 2
+    },
+    {
+      "kind": "attack",
+      "target": "aggro",
+      "damage": 5,
+      "damageType": "physical"
+    }
+  ]
+}

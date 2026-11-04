@@ -1,0 +1,40 @@
+{
+  "_id": "tog-treasure-bandit-knife",
+  "set": "tog",
+  "type": "treasure",
+  "name": "Bandit Knife",
+  "art": "tog/treasure/bandit-knife.png",
+  "deck": "starter",
+  "class": "thief",
+  "equip": "hand",
+  "hands": 1,
+  "requirements": {
+    "strength": 0,
+    "dexterity": 0,
+    "intelligence": 0,
+    "faith": 0
+  },
+  "defence": {
+    "block": {},
+    "resist": {},
+    "dodge": 0
+  },
+  "upgradeSlots": 0,
+  "range": 0,
+  "attacks": [
+    {
+      "staminaCost": 0,
+      "dice": {
+        "black": 1
+      },
+      "damageType": "physical"
+    },
+    {
+      "staminaCost": 3,
+      "dice": {
+        "black": 2
+      },
+      "damageType": "physical"
+    }
+  ]
+}

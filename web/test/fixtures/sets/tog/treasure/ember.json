@@ -1,0 +1,27 @@
+{
+  "_id": "tog-treasure-ember",
+  "set": "tog",
+  "type": "treasure",
+  "name": "Ember",
+  "art": "tog/treasure/ember.png",
+  "deck": "treasure",
+  "rarity": "common",
+  "equip": "consumable",
+  "requirements": {
+    "strength": 0,
+    "dexterity": 0,
+    "intelligence": 0,
+    "faith": 0
+  },
+  "defence": {
+    "block": {},
+    "resist": {},
+    "dodge": 0
+  },
+  "upgradeSlots": 0,
+  "abilities": [
+    {
+      "text": "Immediately gain an Ember token and discard this card."
+    }
+  ]
+}

@@ -1,0 +1,272 @@
+{
+  "id": "sample-level-3",
+  "level": 3,
+  "partySize": 4,
+  "sets": [
+    "tog"
+  ],
+  "objective": "exit",
+  "trial": {
+    "objective": "Kill both Skeleton Beasts."
+  },
+  "specialRules": [
+    {
+      "keyword": "onslaught"
+    },
+    {
+      "keyword": "illusion"
+    }
+  ],
+  "tiles": [
+    {
+      "tile": 1,
+      "at": [
+        0,
+        0
+      ],
+      "nodes": [
+        {
+          "r": 0,
+          "c": 1,
+          "kind": "start"
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "kind": "start"
+        },
+        {
+          "r": 0,
+          "c": 3,
+          "kind": "start"
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "kind": "spawn"
+        },
+        {
+          "r": 2,
+          "c": 4,
+          "kind": "doorway"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "doorway"
+        }
+      ]
+    },
+    {
+      "tile": 2,
+      "at": [
+        0,
+        1
+      ],
+      "nodes": [
+        {
+          "r": 2,
+          "c": 0,
+          "kind": "doorway"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "doorway"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "kind": "spawn"
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "kind": "spawn"
+        },
+        {
+          "r": 1,
+          "c": 3,
+          "kind": "terrain",
+          "ref": "torch"
+        }
+      ]
+    },
+    {
+      "tile": 3,
+      "at": [
+        1,
+        1
+      ],
+      "nodes": [
+        {
+          "r": 0,
+          "c": 2,
+          "kind": "doorway"
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "kind": "doorway"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "kind": "spawn"
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "kind": "spawn"
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "kind": "terrain",
+          "ref": "shrine"
+        }
+      ]
+    },
+    {
+      "tile": 4,
+      "at": [
+        1,
+        0
+      ],
+      "nodes": [
+        {
+          "r": 2,
+          "c": 4,
+          "kind": "doorway"
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "kind": "doorway"
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "kind": "spawn"
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "kind": "terrain",
+          "ref": "chest"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "exit"
+        }
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "from": {
+        "tile": 1,
+        "r": 2,
+        "c": 4
+      },
+      "to": {
+        "tile": 2,
+        "r": 2,
+        "c": 0
+      }
+    },
+    {
+      "from": {
+        "tile": 2,
+        "r": 4,
+        "c": 2
+      },
+      "to": {
+        "tile": 3,
+        "r": 0,
+        "c": 2
+      }
+    },
+    {
+      "from": {
+        "tile": 3,
+        "r": 2,
+        "c": 0
+      },
+      "to": {
+        "tile": 4,
+        "r": 2,
+        "c": 4
+      }
+    },
+    {
+      "from": {
+        "tile": 4,
+        "r": 0,
+        "c": 2
+      },
+      "to": {
+        "tile": 1,
+        "r": 4,
+        "c": 2
+      }
+    }
+  ],
+  "enemies": [
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 1
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 3
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 3
+    },
+    {
+      "enemyId": "tog-enemy-skeleton-beast",
+      "tile": 3
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 4
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 4
+    },
+    {
+      "enemyId": "tog-enemy-skeleton-beast",
+      "tile": 4
+    }
+  ],
+  "terrain": [
+    {
+      "name": "torch",
+      "tile": 2
+    },
+    {
+      "name": "shrine",
+      "tile": 3
+    },
+    {
+      "name": "chest",
+      "tile": 4
+    }
+  ]
+}

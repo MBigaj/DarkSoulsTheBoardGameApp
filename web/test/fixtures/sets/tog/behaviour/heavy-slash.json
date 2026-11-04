@@ -1,0 +1,28 @@
+{
+  "_id": "tog-behaviour-heavy-slash",
+  "set": "tog",
+  "type": "behaviour",
+  "name": "Heavy Slash",
+  "art": "tog/behaviour/heavy-slash.png",
+  "boss": "tog-boss-black-knight",
+  "range": 2,
+  "dodgeDifficulty": 1,
+  "behaviour": [
+    {
+      "kind": "attack",
+      "target": "nearest",
+      "damage": 5,
+      "damageType": "physical",
+      "conditions": [
+        "stagger"
+      ]
+    },
+    {
+      "kind": "move",
+      "target": "nearest",
+      "nodes": 1,
+      "direction": "towards",
+      "push": true
+    }
+  ]
+}

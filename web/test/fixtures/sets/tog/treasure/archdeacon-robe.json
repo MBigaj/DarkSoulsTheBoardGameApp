@@ -1,0 +1,28 @@
+{
+  "_id": "tog-treasure-archdeacon-robe",
+  "set": "tog",
+  "type": "treasure",
+  "name": "Archdeacon Robe",
+  "art": "tog/treasure/archdeacon-robe.png",
+  "deck": "treasure",
+  "rarity": "rare",
+  "class": "cleric",
+  "equip": "armour",
+  "requirements": {
+    "strength": 17,
+    "dexterity": 0,
+    "intelligence": 0,
+    "faith": 35
+  },
+  "defence": {
+    "block": {
+      "orange": 1
+    },
+    "resist": {
+      "black": 1,
+      "orange": 1
+    },
+    "dodge": 0
+  },
+  "upgradeSlots": 2
+}

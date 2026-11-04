@@ -29,3 +29,5 @@ npm ci
 npm run dev          # http://localhost:5173
 npm run lint && npm run typecheck && npm test && npm run build
 ```
+
+In mock mode (`VITE_API_MODE=mock`, the default) the app reads card JSON from the data store: `DATA_DIR`, else `../DSTBG_DATA` next to the repo, else `web/test/fixtures`. Phase 1 fixtures (classes, sample encounters) live in `data/fixtures/`. Tests always use `web/test/fixtures`. After a schema change in the store, run `npm run gen:types`.

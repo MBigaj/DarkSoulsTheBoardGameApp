@@ -1,0 +1,192 @@
+{
+  "id": "sample-level-2",
+  "level": 2,
+  "partySize": 3,
+  "sets": [
+    "tog"
+  ],
+  "objective": "survive",
+  "trial": {
+    "objective": "Kill the Skeleton Beast."
+  },
+  "specialRules": [
+    {
+      "keyword": "respawn"
+    },
+    {
+      "keyword": "darkness"
+    }
+  ],
+  "tiles": [
+    {
+      "tile": 1,
+      "at": [
+        0,
+        0
+      ],
+      "nodes": [
+        {
+          "r": 4,
+          "c": 1,
+          "kind": "start"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "start"
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "kind": "start"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "kind": "spawn"
+        },
+        {
+          "r": 2,
+          "c": 4,
+          "kind": "doorway"
+        }
+      ]
+    },
+    {
+      "tile": 2,
+      "at": [
+        0,
+        1
+      ],
+      "nodes": [
+        {
+          "r": 2,
+          "c": 0,
+          "kind": "doorway"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "doorway"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "kind": "spawn"
+        },
+        {
+          "r": 1,
+          "c": 3,
+          "kind": "spawn"
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "kind": "terrain",
+          "ref": "gravestone"
+        }
+      ]
+    },
+    {
+      "tile": 3,
+      "at": [
+        1,
+        1
+      ],
+      "nodes": [
+        {
+          "r": 0,
+          "c": 2,
+          "kind": "doorway"
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "kind": "spawn"
+        },
+        {
+          "r": 2,
+          "c": 3,
+          "kind": "spawn"
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "kind": "terrain",
+          "ref": "chest"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "exit"
+        }
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "from": {
+        "tile": 1,
+        "r": 2,
+        "c": 4
+      },
+      "to": {
+        "tile": 2,
+        "r": 2,
+        "c": 0
+      }
+    },
+    {
+      "from": {
+        "tile": 2,
+        "r": 4,
+        "c": 2
+      },
+      "to": {
+        "tile": 3,
+        "r": 0,
+        "c": 2
+      }
+    }
+  ],
+  "enemies": [
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 1
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 3
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 3
+    },
+    {
+      "enemyId": "tog-enemy-skeleton-beast",
+      "tile": 3
+    }
+  ],
+  "terrain": [
+    {
+      "name": "gravestone",
+      "tile": 2
+    },
+    {
+      "name": "chest",
+      "tile": 3
+    }
+  ]
+}

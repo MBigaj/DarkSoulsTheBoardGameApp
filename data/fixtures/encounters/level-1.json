@@ -1,0 +1,123 @@
+{
+  "id": "sample-level-1",
+  "level": 1,
+  "partySize": 2,
+  "sets": [
+    "tog"
+  ],
+  "objective": "slay",
+  "specialRules": [
+    {
+      "keyword": "onslaught"
+    }
+  ],
+  "tiles": [
+    {
+      "tile": 1,
+      "at": [
+        0,
+        0
+      ],
+      "nodes": [
+        {
+          "r": 4,
+          "c": 1,
+          "kind": "start"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "start"
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "kind": "start"
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "kind": "spawn"
+        },
+        {
+          "r": 2,
+          "c": 4,
+          "kind": "doorway"
+        }
+      ]
+    },
+    {
+      "tile": 2,
+      "at": [
+        0,
+        1
+      ],
+      "nodes": [
+        {
+          "r": 2,
+          "c": 0,
+          "kind": "doorway"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "kind": "spawn"
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "kind": "spawn"
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "kind": "terrain",
+          "ref": "barrel"
+        },
+        {
+          "r": 2,
+          "c": 4,
+          "kind": "exit"
+        }
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "from": {
+        "tile": 1,
+        "r": 2,
+        "c": 4
+      },
+      "to": {
+        "tile": 2,
+        "r": 2,
+        "c": 0
+      }
+    }
+  ],
+  "enemies": [
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 1
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-archer",
+      "tile": 2
+    }
+  ],
+  "terrain": [
+    {
+      "name": "barrel",
+      "tile": 2
+    }
+  ]
+}
