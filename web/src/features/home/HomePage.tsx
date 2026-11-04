@@ -50,19 +50,23 @@ export function HomePage() {
             The three pillars
           </h2>
         </div>
+        {/* Cards use a stretched link: the title is the link (its name matches what's on screen),
+            and its ::after covers the card so the whole card is clickable. */}
         <ul className={styles.grid}>
           {TOOLS.map((tool) => (
-            <li key={tool.to}>
-              <Link to={tool.to} className={styles.tool}>
-                <span className={styles.toolIcon}>
-                  <ToolIcon icon={tool.icon} />
-                </span>
-                <span className={styles.toolTitle}>{tool.title}</span>
-                <span className={styles.toolLine}>{tool.line}</span>
-                <span className={styles.cta}>
-                  {tool.cta} <span aria-hidden="true">→</span>
-                </span>
-              </Link>
+            <li key={tool.to} className={styles.tool}>
+              <span className={styles.toolIcon}>
+                <ToolIcon icon={tool.icon} />
+              </span>
+              <h3 className={styles.toolTitle}>
+                <Link to={tool.to} className={styles.stretched}>
+                  {tool.title}
+                </Link>
+              </h3>
+              <p className={styles.toolLine}>{tool.line}</p>
+              <span className={styles.cta} aria-hidden="true">
+                {tool.cta} →
+              </span>
             </li>
           ))}
         </ul>
@@ -84,26 +88,28 @@ export function HomePage() {
         </div>
         <ul className={styles.grid}>
           {SETS.map((set) => (
-            <li key={set.short}>
-              <Link to="/cards" className={styles.setCard}>
-                <span className={styles.setHead}>
-                  <span>Core set</span>
-                  <span className={styles.setShort}>{set.short}</span>
-                </span>
-                <ArtSlot label="Box art" ratio="4 / 5" framed />
-                <span className={styles.setText}>
-                  <span className={styles.setName}>{set.name}</span>
-                  <span className={styles.setLine}>{set.line}</span>
-                </span>
-                <span className={styles.counts}>
-                  {set.counts.map(([label, value]) => (
-                    <span key={label} className={styles.count}>
-                      <span className={styles.countLabel}>{label}</span>
-                      <span>{value}</span>
-                    </span>
-                  ))}
-                </span>
-              </Link>
+            <li key={set.short} className={styles.setCard}>
+              <span className={styles.setHead}>
+                <span>Core set</span>
+                <span className={styles.setShort}>{set.short}</span>
+              </span>
+              <ArtSlot label="Box art" ratio="4 / 5" framed decorative />
+              <div className={styles.setText}>
+                <h3 className={styles.setName}>
+                  <Link to="/cards" className={styles.stretched}>
+                    {set.name}
+                  </Link>
+                </h3>
+                <p className={styles.setLine}>{set.line}</p>
+              </div>
+              <dl className={styles.counts}>
+                {set.counts.map(([label, value]) => (
+                  <div key={label} className={styles.count}>
+                    <dt className={styles.countLabel}>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
             </li>
           ))}
         </ul>

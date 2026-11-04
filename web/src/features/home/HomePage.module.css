@@ -118,13 +118,10 @@
   gap: 20px;
 }
 
-.grid > li {
-  display: flex;
-}
-
 /* Shared by tool and set cards: lift, ornament border, glow. */
 .tool,
 .setCard {
+  position: relative; /* anchors the stretched link */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -132,7 +129,6 @@
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--text);
-  text-decoration: none;
   transition:
     transform var(--dur-lift) var(--ease-std),
     border-color var(--dur-lift) var(--ease-std),
@@ -141,10 +137,16 @@
 
 .tool:hover,
 .setCard:hover {
-  color: var(--text);
   transform: translateY(-5px);
   border-color: var(--ornament);
   box-shadow: 0 22px 44px -24px var(--glow);
+}
+
+/* The card shows the link's focus ring. */
+.tool:has(.stretched:focus-visible),
+.setCard:has(.stretched:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -152,6 +154,25 @@
   .setCard:hover {
     transform: none;
   }
+}
+
+.stretched {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stretched:hover {
+  color: inherit;
+}
+
+.stretched:focus-visible {
+  outline: none;
+}
+
+.stretched::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 /* ── Tool cards ───────────────────────────────────────────────────── */
@@ -173,6 +194,7 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.5625rem;
+  line-height: 1.2;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -235,6 +257,8 @@
   font-weight: 600;
   font-size: 1.875rem;
   line-height: 1.1;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .setLine {
@@ -259,6 +283,10 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+}
+
+.count dd {
+  margin: 0;
 }
 
 .countLabel {

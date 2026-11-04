@@ -50,6 +50,7 @@ test/fixtures/    committed test data, same layout as the store
 - Data: components use the hooks in `shared/api/queries.ts`, never `api` or `fetch` directly (ESLint blocks `fetch` outside `shared/api/http/`).
 - State: anything shareable (filters, tab, `?card=`) lives in the URL; `useReducer` per feature otherwise. No global store.
 - Routes: one lazy chunk per page in `app/router.tsx`. Pages set their own `<title>`.
+- `/cards`, `/cards/:type`, `/characters`, `/forge` and `/forge/:id` render placeholder pages (`features/*/…Page.tsx`) until FE-12, FE-15 and FE-19 replace those files. Archive tab slugs live in `features/archive/tabs.ts`; an unknown slug renders Not Found.
 - Import UI components from their own files (`@/shared/ui/Button`), not a barrel: a barrel pulls every component's CSS into each chunk.
 - Card text comes from `format.ts` (`statLine`, `badgeLabel`, `displayCodes`); card images from `CardFace`/`CardImage` with the card's `art`.
 - Accessibility: real buttons/links, 44px targets (rail pills 40px), visible focus ring, `aria-pressed` on toggles. Run axe on new pages.
