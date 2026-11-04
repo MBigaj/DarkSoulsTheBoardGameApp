@@ -32,9 +32,16 @@
 }
 
 .image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* The panel fill only shows while the scan loads; scans carry their own transparent corners. */
+.face:has(> .loaded) {
+  background: transparent;
 }
 
 .placeholder {
