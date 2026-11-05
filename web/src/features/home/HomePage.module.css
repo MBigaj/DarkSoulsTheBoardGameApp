@@ -1,0 +1,297 @@
+/* Values follow the HomeFinal artboard. */
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+.hero {
+  padding: 96px var(--gutter) 0;
+  background: radial-gradient(ellipse 60% 48% at 50% 82%, var(--hero-glow), transparent 70%);
+}
+
+.heroInner {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  text-align: center;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 160px;
+}
+
+.divider > span:not(.diamond) {
+  flex: 1;
+  height: 1px;
+  background: var(--ornament);
+  opacity: 0.6;
+}
+
+.diamond {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--ornament);
+  transform: rotate(45deg);
+}
+
+.title {
+  font-size: var(--fs-hero);
+  line-height: 1.02;
+  letter-spacing: var(--track-display);
+}
+
+.lede {
+  max-width: 34rem;
+  font-size: var(--fs-lede);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+
+.keyArt {
+  width: 100%;
+  max-width: 760px;
+  margin-top: 28px;
+}
+
+/* ── Sections ─────────────────────────────────────────────────────── */
+.section {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 104px var(--gutter) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.section:last-child {
+  padding-bottom: 112px;
+}
+
+.headingCentred {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.headingRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.headingStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.h2 {
+  font-size: var(--fs-h2);
+}
+
+.note {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.grid {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+}
+
+/* Shared by tool and set cards: lift, ornament border, glow. */
+.tool,
+.setCard {
+  position: relative; /* anchors the stretched link */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  transition:
+    transform var(--dur-lift) var(--ease-std),
+    border-color var(--dur-lift) var(--ease-std),
+    box-shadow var(--dur-lift) var(--ease-std);
+}
+
+.tool:hover,
+.setCard:hover {
+  transform: translateY(-5px);
+  border-color: var(--ornament);
+  box-shadow: 0 22px 44px -24px var(--glow);
+}
+
+/* The card shows the link's focus ring. */
+.tool:has(.stretched:focus-visible),
+.setCard:has(.stretched:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool:hover,
+  .setCard:hover {
+    transform: none;
+  }
+}
+
+.stretched {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stretched:hover {
+  color: inherit;
+}
+
+.stretched:focus-visible {
+  outline: none;
+}
+
+.stretched::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Tool cards ───────────────────────────────────────────────────── */
+.tool {
+  padding: 30px;
+}
+
+.toolIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  color: var(--accent-text);
+}
+
+.toolTitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.5625rem;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.toolLine {
+  font-size: 1.0625rem;
+  color: var(--muted);
+}
+
+.cta {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.later {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  /* Clear of the page top when /#later scrolls here. */
+  scroll-margin-top: 96px;
+}
+
+/* ── Set cards ────────────────────────────────────────────────────── */
+.setCard {
+  padding: 18px;
+}
+
+.setHead {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.setShort {
+  color: var(--accent-text);
+}
+
+.setText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setName {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.875rem;
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.setLine {
+  font-style: italic;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.counts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.count {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.count dd {
+  margin: 0;
+}
+
+.countLabel {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

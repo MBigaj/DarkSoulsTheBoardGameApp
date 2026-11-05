@@ -13,11 +13,13 @@ type ArtSlotProps = {
   framed?: boolean;
   /** Crimson glow under the slot (Home hero). */
   glow?: boolean;
+  /** Hidden from assistive tech, e.g. inside a link that is already named. */
+  decorative?: boolean;
   className?: string;
 };
 
 /** Labelled, hatched placeholder for owner-supplied art that hasn't been uploaded yet. */
-export function ArtSlot({ label, note, ratio, framed, glow, className }: ArtSlotProps) {
+export function ArtSlot({ label, note, ratio, framed, glow, decorative, className }: ArtSlotProps) {
   return (
     <div
       className={cx(
@@ -28,8 +30,9 @@ export function ArtSlot({ label, note, ratio, framed, glow, className }: ArtSlot
         className,
       )}
       style={ratio ? { aspectRatio: ratio } : undefined}
-      role="img"
-      aria-label={note ? `${label}: ${note}` : `${label} placeholder`}
+      {...(decorative
+        ? { 'aria-hidden': true }
+        : { role: 'img', 'aria-label': note ? `${label}: ${note}` : `${label} placeholder` })}
     >
       <span className={styles.label}>{label}</span>
       {note && <span className={styles.note}>{note}</span>}
