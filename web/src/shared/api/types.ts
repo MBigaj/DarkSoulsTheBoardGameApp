@@ -2,7 +2,7 @@
  * Domain types the UI works with: cards after normalization, list/overview shapes,
  * dice, classes and forged encounters. Raw card types are generated from the JSON Schemas.
  */
-import type { CardType, Die, SetCode } from '@/shared/lib/card-types';
+import type { CardSet, CardType, Die, SetCode } from '@/shared/lib/card-types';
 import type {
   RawBehaviour,
   RawBoss,
@@ -12,7 +12,7 @@ import type {
   RawTreasure,
 } from './generated';
 
-export type { CardType, Die, SetCode };
+export type { CardSet, CardType, Die, SetCode };
 
 /** Dice per colour, e.g. `{ black: 2 }`. A colour that isn't rolled is absent. */
 export type DiceCounts = Partial<Record<Die, number>>;
@@ -63,24 +63,48 @@ export type Enemy = Omit<RawEnemy, 'behaviour' | 'keywords'> & {
   keywords: string[];
 };
 
-export type Boss = Omit<RawBoss, 'rules'> & { rules: string[] };
+export type Boss = Omit<RawBoss, 'rules'> & { rules: NonNullable<RawBoss['rules']> };
 
-export type Behaviour = Omit<RawBehaviour, 'behaviour' | 'heatUp'> & {
+type RawSide = NonNullable<RawBehaviour['parts']>[number];
+/** One half of a combined card (SC Ornstein & Smough). */
+export type BehaviourSide = Omit<RawSide, 'behaviour' | 'heatUp'> & {
   behaviour: Action[];
   heatUp: boolean;
 };
 
-export type Reward = Omit<RawReward, 'plusPlayers'> & { plusPlayers: boolean };
-export type SpecialRule = RawSpecialRule;
-export type EncounterTile = Omit<RawTile, 'setup' | 'trapped' | 'exit'> & {
-  setup: NonNullable<RawTile['setup']>;
-  trapped: boolean;
-  exit: boolean;
+/** A single card carries its own `boss`, stats and `arcs`; a combined card carries `parts` instead. */
+export type Behaviour = Omit<RawBehaviour, 'behaviour' | 'heatUp' | 'parts'> & {
+  behaviour: Action[];
+  heatUp: boolean;
+  parts: BehaviourSide[];
 };
 
+export type Reward = Omit<RawReward, 'plusPlayers'> & { plusPlayers: boolean };
+export type SpecialRule = RawSpecialRule;
+export type SpecialRuleKeyword = NonNullable<SpecialRule['keyword']>;
+/** Setup column: node role → enemy/boss `_id`s or terrain names. Absent roles stay absent. */
+export type TileSetup = { [Role in keyof NonNullable<RawTile['setup']>]?: string[] };
+export type EncounterTile = Omit<
+  RawTile,
+  'setup' | 'trapped' | 'isolated' | 'start' | 'markers'
+> & {
+  setup: TileSetup;
+  trapped: boolean;
+  isolated: boolean;
+  start: NonNullable<RawTile['start']>;
+  markers: NonNullable<RawTile['markers']>;
+};
+
+type RawTrial = NonNullable<RawEncounter['trial']>;
+export type Trial = Omit<RawTrial, 'rewards' | 'plusPlayers'> & {
+  rewards: Reward[];
+  plusPlayers: boolean;
+};
+
+/** A regular encounter has `level`; a boss encounter has `boss` (one id, or a list for O&S). */
 export type Encounter = Omit<RawEncounter, 'rewards' | 'trial' | 'specialRules' | 'tiles'> & {
   rewards: Reward[];
-  trial?: { objective: string; rewards: Reward[] };
+  trial?: Trial;
   specialRules: SpecialRule[];
   tiles: EncounterTile[];
 };
@@ -102,7 +126,7 @@ export type TreasureSummary = Pick<
 export type EnemySummary = Pick<Enemy, Common | 'threat' | 'health'>;
 export type BossSummary = Pick<Boss, Common | 'tier' | 'threat' | 'health'>;
 export type BehaviourSummary = Pick<Behaviour, Common | 'boss'>;
-export type EncounterSummary = Pick<Encounter, Common | 'level'> & { tileCount: number };
+export type EncounterSummary = Pick<Encounter, Common | 'level' | 'boss'> & { tileCount: number };
 export type EventSummary = Pick<Event, Common | 'eventType'>;
 
 export type CardSummary =
@@ -113,8 +137,8 @@ export type CardSummary =
 export type SortKey = 'id' | 'name';
 
 /**
- * GET /cards. Absent or empty `sets` means every set. Type-specific filters arrive in M4,
- * together with the shared filter vectors.
+ * GET /cards. Absent or empty `sets` means every set. Archive filters run on the client
+ * (`features/archive/filters`); FE-26 drops these query params.
  */
 export type CardQuery = {
   type: CardType;

@@ -9,20 +9,33 @@ export interface RawBehaviour {
   /**
    * boss card _id
    */
-  boss: string;
+  boss?: string;
+  /**
+   * flame icon top-right: heat-up card (added to the deck when the boss heats up)
+   */
   heatUp?: true;
   /**
-   * ∞ = any model on the same tile
+   * ∞ = any model on the same tile · omitted when the card prints "–" (no attack)
    */
-  range: number | "infinite";
-  dodgeDifficulty: number;
+  range?: number | "infinite";
+  /**
+   * dodge symbol on the card: how many dodge results a character needs to dodge this enemy's attacks (not the enemy's own dodge)
+   */
+  dodgeDifficulty?: number;
   /**
    * left to right
    */
-  behaviour: Action[];
+  behaviour?: Action[];
+  /**
+   * circular arrows + n at the top: resolve the whole behaviour row n times
+   */
   repeat?: number;
   /**
-   * arc diagram: weak = attacker rolls +1 black die; attack = hit by area attacks
+   * Estus symbol (PWA Heavy Knight): the boss heals this many wounds before resolving the behaviour symbols
+   */
+  heal?: number;
+  /**
+   * arc diagram (top = front, bottom = back): green = attack arc (hit by area attacks), red/orange = weak arc (attacker rolls +1 black die), plain = neutral
    */
   arcs?: {
     front: "neutral" | "attack" | "weak";
@@ -30,24 +43,37 @@ export interface RawBehaviour {
     right: "neutral" | "attack" | "weak";
     back: "neutral" | "attack" | "weak";
   };
+  /**
+   * combined card (SC Ornstein & Smough): one card, two halves, each with its own name, boss, stats, behaviour and arcs; top half (Ornstein) first, then bottom half (Smough). The card name is 'Top / Bottom'.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  parts?: [Side, Side];
 }
 export interface Action {
-  kind: "move" | "attack" | "turn";
   /**
-   * ring = nearest character · skull = aggro token holder; omitted on a boss move = move in the shown direction without changing facing
+   * resurrect (ToG hand symbol): place a Skeleton Soldier on the nearest spawn node
+   */
+  kind: "move" | "attack" | "turn" | "resurrect";
+  /**
+   * ring = nearest character · skull = aggro token holder; omitted on area attacks and on boss moves without a target
    */
   target?: "nearest" | "aggro";
+  /**
+   * 0 towards = turn to face the target without moving (boss)
+   */
   nodes?: number;
   /**
-   * move: number in the top arm = towards, bottom arm = away
+   * move: number in the top arm = towards, bottom = away, left/right arm = sideways relative to the boss's facing
    */
-  direction?: "towards" | "away";
+  direction?: "towards" | "away" | "left" | "right";
   /**
    * move: placed on the target's node
    */
   leap?: true;
   /**
-   * move: pushes characters it moves through · attack: pushes characters hit
+   * move: pushes characters it moves through (number on the icon = pushDamage) · attack: push icon top-left = pushes characters hit
    */
   push?: true;
   pushDamage?: number;
@@ -57,16 +83,59 @@ export interface Action {
    */
   damageType?: "physical" | "magical";
   /**
-   * attacks all characters on the target node
+   * symbol bottom-left of the attack (rulebook p.25 position 3): attacks all characters on the target node
    */
   nodeAttack?: true;
   /**
-   * boss: attacks all nodes in range in the arcs marked as attack arcs
+   * spiky symbol bottom-left of a boss attack: attacks every character in range in the arcs marked as attack arcs (green)
    */
   area?: true;
+  /**
+   * attack: conditions applied to characters hit · move with push: conditions applied to pushed characters
+   */
   conditions?: ("bleed" | "poison" | "frostbite" | "stagger")[];
   /**
    * boss only
    */
   turn?: "left" | "right" | "around";
+}
+export interface Side {
+  name: string;
+  /**
+   * boss card _id
+   */
+  boss: string;
+  /**
+   * flame icon top-right: heat-up card (added to the deck when the boss heats up)
+   */
+  heatUp?: true;
+  /**
+   * ∞ = any model on the same tile · omitted when the card prints "–" (no attack)
+   */
+  range?: number | "infinite";
+  /**
+   * dodge symbol on the card: how many dodge results a character needs to dodge this enemy's attacks (not the enemy's own dodge)
+   */
+  dodgeDifficulty: number;
+  /**
+   * left to right
+   */
+  behaviour: Action[];
+  /**
+   * circular arrows + n at the top: resolve the whole behaviour row n times
+   */
+  repeat?: number;
+  /**
+   * Estus symbol (PWA Heavy Knight): the boss heals this many wounds before resolving the behaviour symbols
+   */
+  heal?: number;
+  /**
+   * arc diagram (top = front, bottom = back): green = attack arc (hit by area attacks), red/orange = weak arc (attacker rolls +1 black die), plain = neutral
+   */
+  arcs: {
+    front: "neutral" | "attack" | "weak";
+    left: "neutral" | "attack" | "weak";
+    right: "neutral" | "attack" | "weak";
+    back: "neutral" | "attack" | "weak";
+  };
 }

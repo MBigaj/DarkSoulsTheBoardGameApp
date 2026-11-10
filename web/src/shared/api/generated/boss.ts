@@ -7,17 +7,30 @@ export interface RawBoss {
   name: string;
   art: string | null;
   tier: "mini" | "main";
+  /**
+   * star top-left
+   */
   threat: number;
   health: number;
   /**
-   * heat-up point
+   * flame + number: the boss heats up when its health drops to this value · 0 = no damage heat-up (Ornstein & Smough: heat-up cards replace the deck when the partner dies, see rules)
    */
   heatUp: number;
   block: number;
   resist: number;
   /**
-   * behaviour deck size
+   * cards icon + number: behaviour cards drawn into the deck at the start
    */
   deckSize: number;
-  rules?: string[];
+  /**
+   * named rules printed in the text box (e.g. Parry). Board-node icons in the text are written as [<name> node], e.g. [skull node] = the red skull node printed on the boss's board tile
+   */
+  rules?: {
+    name: string;
+    text: string;
+  }[];
+  /**
+   * boss _id of the partner fought in the same encounter (SC Ornstein ↔ Smough)
+   */
+  pairedWith?: string;
 }

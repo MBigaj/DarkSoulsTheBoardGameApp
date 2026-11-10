@@ -13,6 +13,7 @@
       "target": "nearest",
       "damage": 5,
       "damageType": "physical",
+      "nodeAttack": true,
       "conditions": [
         "stagger"
       ]
@@ -24,5 +25,11 @@
       "direction": "towards",
       "push": true
     }
-  ]
+  ],
+  "arcs": {
+    "front": "neutral",
+    "left": "weak",
+    "right": "neutral",
+    "back": "neutral"
+  }
 }

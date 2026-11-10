@@ -1,9 +1,13 @@
 {
-  "_id": "tog-treasure-fireball",
-  "set": "tog",
+  "_id": "shared-treasure-fireball",
+  "set": "shared",
+  "sets": [
+    "sc",
+    "tog"
+  ],
   "type": "treasure",
   "name": "Fireball",
-  "art": "tog/treasure/fireball.png",
+  "art": "shared/treasure/fireball.png",
   "deck": "treasure",
   "rarity": "common",
   "equip": "hand",

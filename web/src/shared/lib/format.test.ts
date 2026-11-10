@@ -64,6 +64,11 @@ describe('statLine', () => {
       'Level III · 3 tiles',
     ],
     [
+      'boss encounter, no level',
+      { ...common, _id: 'tog-encounter-z', type: 'encounter', boss: 'tog-boss-x', tileCount: 2 },
+      'Boss · 2 tiles',
+    ],
+    [
       'event',
       { ...common, _id: 'tog-event-x', type: 'event', eventType: 'rendezvous' },
       'Rendezvous',

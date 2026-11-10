@@ -7,114 +7,206 @@ export interface RawEncounter {
   name: string;
   art: string | null;
   /**
-   * encounter level icon: 1, 2 or 3
+   * soul icon colour: pale = 1, blue = 2, purple = 3
    */
-  level: 1 | 2 | 3;
+  level?: 1 | 2 | 3;
+  /**
+   * boss encounter: boss card _id, or a list when several bosses are fought together (SC Ornstein and Smough)
+   */
+  boss?: string | [string, string, ...string[]];
   flavour?: string;
+  /**
+   * printed text
+   */
   objective: string;
+  /**
+   * objective in structured form, printed order
+   *
+   * @minItems 1
+   */
+  goals: [Goal, ...Goal[]];
   rewards: Reward[];
   trial?: {
-    objective: string;
+    /**
+     * Trial (n): complete the objective within n turns
+     */
+    turns?: number;
+    objective?: string;
+    goal?: Goal;
     rewards: Reward[];
+    /**
+     * Trial ([party]+n): turns + number of players
+     */
+    plusPlayers?: true;
   };
+  /**
+   * printed order; keyword entries (Onslaught, Darkness, Timer (n) …) plus free text. Trials live in `trial`
+   */
   specialRules?: {
-    keyword?: "onslaught" | "darkness" | "timer" | "respawn" | "gang" | "illusion" | "mimic" | "occupy";
+    keyword?:
+      | "barrage"
+      | "bitterCold"
+      | "darkness"
+      | "eerie"
+      | "gang"
+      | "hidden"
+      | "illusion"
+      | "mimic"
+      | "onslaught"
+      | "poisonMist"
+      | "snowstorm"
+      | "timer";
     n?: number;
     text?: string;
+    /**
+     * keyword limited to one tile, e.g. Poison Mist (Tile 2)
+     */
+    tile?: number;
   }[];
   /**
    * @minItems 1
    */
-  tiles: [
-    {
-      tile: number;
-      /**
-       * [row, col] in the printed layout
-       *
-       * @minItems 2
-       * @maxItems 2
-       */
-      at: [number, number];
-      /**
-       * setup column, one row per node marker
-       */
-      setup?: {
-        node: "primarySpawn" | "secondarySpawn" | "primaryTerrain" | "secondaryTerrain";
-        /**
-         * enemy _ids or terrain names (chest, barrel, gravestone, lever, torch, shrine…)
-         *
-         * @maxItems 3
-         */
-        contents: [] | [string] | [string, string] | [string, string, string];
-      }[];
-      /**
-       * three spears next to the tile number; place trap tokens on this tile
-       */
-      trapped?: true;
-      /**
-       * edge of the tile whose nodes are gold character start nodes
-       */
-      startNodes?: "top" | "bottom" | "left" | "right";
-      /**
-       * tile has the exit node
-       */
-      exit?: true;
-    },
-    ...{
-      tile: number;
-      /**
-       * [row, col] in the printed layout
-       *
-       * @minItems 2
-       * @maxItems 2
-       */
-      at: [number, number];
-      /**
-       * setup column, one row per node marker
-       */
-      setup?: {
-        node: "primarySpawn" | "secondarySpawn" | "primaryTerrain" | "secondaryTerrain";
-        /**
-         * enemy _ids or terrain names (chest, barrel, gravestone, lever, torch, shrine…)
-         *
-         * @maxItems 3
-         */
-        contents: [] | [string] | [string, string] | [string, string, string];
-      }[];
-      /**
-       * three spears next to the tile number; place trap tokens on this tile
-       */
-      trapped?: true;
-      /**
-       * edge of the tile whose nodes are gold character start nodes
-       */
-      startNodes?: "top" | "bottom" | "left" | "right";
-      /**
-       * tile has the exit node
-       */
-      exit?: true;
-    }[]
-  ];
+  tiles: [Tile, ...Tile[]];
+}
+export interface Goal {
+  kind: "activate" | "break" | "exit" | "kill" | "occupy" | "open" | "place" | "reveal" | "survive";
+  /**
+   * kill: enemy/boss _id or "all" · open/activate/break/place/occupy: terrain name · reveal: "blankTrap"
+   */
+  target?: string;
+  /**
+   * place: terrain the target is placed on
+   */
+  on?: string;
+  /**
+   * survive/occupy: turns · activate: times · reveal: tokens · kill: within n turns · activate with plusPlayers and no n = [party] times
+   */
+  n?: number;
+  plusPlayers?: true;
+  /**
+   * kill on [party] tiles (Central Plaza)
+   */
+  tiles?: "party";
 }
 export interface Reward {
-  type: "souls" | "draw" | "search" | "refresh" | "shortcut";
+  type: "souls" | "draw" | "search" | "refresh" | "shortcut" | "completeCampaign";
   amount?: number;
   /**
-   * e.g. respawn
+   * [party] icon: amount + number of players
    */
-  per?: string;
+  plusPlayers?: true;
+  per?: "enemyKilled" | "faceDownTrap" | "flippedTrap" | "respawn" | "tileWithoutEnemies";
   deck?: "treasure" | "event";
   count?: number;
   /**
-   * search: treasure card _id
+   * search: treasure card _id added to the inventory
    */
   card?: string;
   /**
-   * player-count icon: amount + number of players
+   * refresh: player token flipped back to ready
    */
-  plusPlayers?: true;
+  token?: "luck" | "estusFlask" | "heroicAction";
+}
+export interface Tile {
   /**
-   * refresh: player token flipped to ready, e.g. luck
+   * tile number printed on the map
    */
-  token?: string;
+  tile: number;
+  /**
+   * [row, col] of the tile in the map grid (upright card)
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  at: [number, number];
+  /**
+   * node rows when not 5 (boss arenas)
+   */
+  rows?: number;
+  /**
+   * gold character start nodes (the tile number is printed red on this tile)
+   */
+  start?: [number, number][];
+  /**
+   * three spears by the tile number: trap tokens on every free node
+   */
+  trapped?: true;
+  /**
+   * special nodes printed on the map, referred to in text as [<icon> node]
+   */
+  markers?: {
+    /**
+     * [row, col] on the tile's node lattice in upright card orientation: standard tile = 5 rows × 5 cols, nodes where row+col is even (13 nodes; [2,2] = centre, where the tile number is printed)
+     *
+     * @minItems 2
+     * @maxItems 2
+     */
+    node: [number, number];
+    icon: "crossbones" | "crownedSkull" | "highlight" | "ornstein" | "skull" | "smough";
+  }[];
+  /**
+   * setup column: node role → models/tokens placed on that node. primary/secondary spawn and terrain nodes are printed on the physical tile; skull/crownedSkull refer to markers on the map
+   */
+  setup?: {
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    primarySpawn?: [] | [string] | [string, string] | [string, string, string];
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    secondarySpawn?: [] | [string] | [string, string] | [string, string, string];
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    primaryTerrain?: [] | [string] | [string, string] | [string, string, string];
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    secondaryTerrain?: [] | [string] | [string, string] | [string, string, string];
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    skull?: [] | [string] | [string, string] | [string, string, string];
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    crownedSkull?: [] | [string] | [string, string] | [string, string, string];
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    ornstein?: [] | [string] | [string, string] | [string, string, string];
+    /**
+     * one item per filled slot, left to right: enemy/boss _ids or terrain names
+     *
+     * @maxItems 3
+     */
+    smough?: [] | [string] | [string, string] | [string, string, string];
+  };
+  /**
+   * tile side used (tiles/{set}/); set only where the encounter fixes it (boss arenas). Regular encounters: any side with the needed nodes, joined by doorways, never both sides of one tile
+   */
+  physicalTile?: string;
+  /**
+   * clockwise turn applied to the stored tile image to match this map
+   */
+  rotation?: 0 | 90 | 180 | 270;
+  /**
+   * tile printed apart from the others on the map (not connected at setup)
+   */
+  isolated?: true;
 }

@@ -1,5 +1,5 @@
 /** Text shown under archive tiles: badge label, stat line and the short display code. */
-import type { CardSummary, SetCode } from '@/shared/api/types';
+import type { CardSet, CardSummary } from '@/shared/api/types';
 import type { CardType } from './card-types';
 
 const ROMAN = { 1: 'I', 2: 'II', 3: 'III' } as const;
@@ -43,8 +43,10 @@ export function statLine(card: CardSummary): string {
       return `Threat ${String(card.threat)} · Health ${String(card.health)}`;
     case 'boss':
       return `${capitalize(card.tier)} · Threat ${String(card.threat)} · Health ${String(card.health)}`;
-    case 'encounter':
-      return `Level ${ROMAN[card.level]} · ${String(card.tileCount)} ${card.tileCount === 1 ? 'tile' : 'tiles'}`;
+    case 'encounter': {
+      const tiles = `${String(card.tileCount)} ${card.tileCount === 1 ? 'tile' : 'tiles'}`;
+      return card.level === undefined ? `Boss · ${tiles}` : `Level ${ROMAN[card.level]} · ${tiles}`;
+    }
     case 'event':
       return capitalize(card.eventType);
     case 'behaviour':
@@ -73,7 +75,7 @@ export function compareById(a: { _id: string }, b: { _id: string }): number {
  * the data ever carries them (frontend plan, open question 3).
  */
 export function displayCodes(
-  cards: readonly { _id: string; set: SetCode; type: CardType }[],
+  cards: readonly { _id: string; set: CardSet; type: CardType }[],
 ): Map<string, string> {
   const groups = new Map<string, string[]>();
   for (const card of cards) {

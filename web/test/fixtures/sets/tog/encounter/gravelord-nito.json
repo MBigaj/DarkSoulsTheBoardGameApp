@@ -1,0 +1,86 @@
+{
+  "_id": "tog-encounter-gravelord-nito",
+  "set": "tog",
+  "type": "encounter",
+  "name": "Gravelord Nito",
+  "art": "tog/encounter/gravelord-nito.png",
+  "boss": "tog-boss-gravelord-nito",
+  "flavour": "The ground rumbles as the Gravelord emerges, his presence a challenge to those who disturb his unhallowed court.",
+  "objective": "Kill Gravelord Nito.",
+  "goals": [
+    {
+      "kind": "kill",
+      "target": "tog-boss-gravelord-nito"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "completeCampaign"
+    }
+  ],
+  "tiles": [
+    {
+      "tile": 1,
+      "at": [
+        0,
+        0
+      ],
+      "rows": 6,
+      "markers": [
+        {
+          "node": [
+            2,
+            2
+          ],
+          "icon": "crownedSkull"
+        }
+      ],
+      "setup": {
+        "crownedSkull": [
+          "tog-boss-gravelord-nito"
+        ]
+      },
+      "physicalTile": "tog-tile-1a",
+      "rotation": 0
+    },
+    {
+      "tile": 2,
+      "at": [
+        1,
+        0
+      ],
+      "start": [
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "markers": [
+        {
+          "node": [
+            0,
+            2
+          ],
+          "icon": "skull"
+        }
+      ],
+      "setup": {
+        "skull": [
+          "tog-enemy-skeleton-soldier",
+          "tog-enemy-skeleton-soldier",
+          "tog-enemy-giant-skeleton-soldier"
+        ]
+      },
+      "physicalTile": "tog-tile-4a",
+      "rotation": 270
+    }
+  ]
+}

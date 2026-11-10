@@ -1,9 +1,0 @@
-{
-  "_id": "tog-event-martial-bonfire-ascetic",
-  "set": "tog",
-  "type": "event",
-  "name": "Martial Bonfire Ascetic",
-  "art": "tog/event/martial-bonfire-ascetic.png",
-  "eventType": "rendezvous",
-  "text": "Increase the damage value of all enemy attacks in this encounter by one. If the party completes this encounter, they receive a number of extra souls equal to [party]+2. Discard this card at the end of the encounter, regardless of whether it was completed or failed."
-}

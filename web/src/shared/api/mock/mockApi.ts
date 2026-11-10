@@ -3,7 +3,7 @@
  * Each card type is its own lazy chunk. Dev builds add 150–400 ms per call so loading states
  * are real; tests run with none.
  */
-import { CARD_TYPES, SET_CODES, type CardType } from '@/shared/lib/card-types';
+import { CARD_TYPES, SET_CODES, cardSets, type CardType } from '@/shared/lib/card-types';
 import type { Api } from '../api';
 import { notFound } from '../errors';
 import { normalizeCard, type RawCard } from '../normalize/cards';
@@ -75,7 +75,7 @@ export const mockApi: Api = {
     const page = paginate(matching, sort, cursor, clampLimit(limit));
 
     const setCounts = Object.fromEntries(
-      SET_CODES.map((set) => [set, searched.filter((card) => card.set === set).length]),
+      SET_CODES.map((set) => [set, searched.filter((card) => cardSets(card).includes(set)).length]),
     ) as CardPage['setCounts'];
     const typeCounts = Object.fromEntries(
       CARD_TYPES.map((t) => [

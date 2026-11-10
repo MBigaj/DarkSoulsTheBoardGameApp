@@ -4,6 +4,7 @@
   "type": "enemy",
   "name": "Giant Skeleton Archer",
   "art": "tog/enemy/giant-skeleton-archer.png",
+  "models": 2,
   "threat": 1,
   "health": 5,
   "range": "infinite",
@@ -23,7 +24,8 @@
       "kind": "attack",
       "target": "aggro",
       "damage": 5,
-      "damageType": "physical"
+      "damageType": "physical",
+      "push": true
     }
   ]
 }

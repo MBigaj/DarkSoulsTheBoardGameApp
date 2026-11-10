@@ -1,0 +1,27 @@
+{
+  "_id": "pwa-treasure-black-leather-armour",
+  "set": "pwa",
+  "type": "treasure",
+  "name": "Black Leather Armour",
+  "art": "pwa/treasure/black-leather-armour.png",
+  "deck": "treasure",
+  "rarity": "common",
+  "class": "mercenary",
+  "equip": "armour",
+  "requirements": {
+    "strength": 24,
+    "dexterity": 30,
+    "intelligence": 0,
+    "faith": 0
+  },
+  "defence": {
+    "block": {
+      "black": 1
+    },
+    "resist": {
+      "black": 1
+    },
+    "dodge": 2
+  },
+  "upgradeSlots": 1
+}

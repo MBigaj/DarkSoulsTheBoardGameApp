@@ -37,6 +37,7 @@ const enemy: RawEnemy = {
   type: 'enemy',
   name: 'Test Hollow',
   art: null,
+  models: 1,
   threat: 1,
   health: 1,
   range: 'infinite',
@@ -81,14 +82,40 @@ const encounter: RawEncounter = {
   art: null,
   level: 1,
   objective: 'Kill all enemies.',
+  goals: [{ kind: 'kill', target: 'all' }],
   rewards: [
     { type: 'souls', amount: 2, plusPlayers: true },
     { type: 'souls', amount: 1 },
   ],
   trial: { objective: 'Win fast.', rewards: [{ type: 'souls', amount: 1 }] },
   tiles: [
-    { tile: 1, at: [0, 0], trapped: true },
+    { tile: 1, at: [0, 0], trapped: true, setup: { primarySpawn: ['tog-enemy-test'] } },
     { tile: 2, at: [0, 1] },
+  ],
+};
+
+const combined: RawBehaviour = {
+  _id: 'sc-behaviour-test-combined',
+  set: 'sc',
+  type: 'behaviour',
+  name: 'Top / Bottom',
+  art: null,
+  parts: [
+    {
+      name: 'Top',
+      boss: 'sc-boss-a',
+      dodgeDifficulty: 1,
+      behaviour: [action],
+      arcs: { front: 'neutral', left: 'neutral', right: 'neutral', back: 'weak' },
+    },
+    {
+      name: 'Bottom',
+      boss: 'sc-boss-b',
+      heatUp: true,
+      dodgeDifficulty: 2,
+      behaviour: [],
+      arcs: { front: 'attack', left: 'neutral', right: 'neutral', back: 'neutral' },
+    },
   ],
 };
 
@@ -126,7 +153,18 @@ describe('normalizeCard: defaults the store omits are filled', () => {
       conditions: [],
     });
     expect(actions[1]).toMatchObject({ push: true, conditions: ['stagger'] });
-    expect(normalizeCard(behaviour)).toMatchObject({ heatUp: false });
+    expect(normalizeCard(behaviour)).toMatchObject({ heatUp: false, parts: [] });
+  });
+
+  it('combined behaviour: no own actions, each part normalized', () => {
+    expect(normalizeCard(combined)).toMatchObject({
+      behaviour: [],
+      heatUp: false,
+      parts: [
+        { heatUp: false, behaviour: [{ push: false, conditions: [] }] },
+        { heatUp: true, behaviour: [] },
+      ],
+    });
   });
 
   it('boss: absent rules become empty', () => {
@@ -137,10 +175,16 @@ describe('normalizeCard: defaults the store omits are filled', () => {
     expect(normalizeCard(encounter)).toMatchObject({
       specialRules: [],
       rewards: [{ plusPlayers: true }, { plusPlayers: false }],
-      trial: { rewards: [{ plusPlayers: false }] },
+      trial: { plusPlayers: false, rewards: [{ plusPlayers: false }] },
       tiles: [
-        { trapped: true, exit: false, setup: [] },
-        { trapped: false, exit: false, setup: [] },
+        {
+          trapped: true,
+          isolated: false,
+          start: [],
+          markers: [],
+          setup: { primarySpawn: ['tog-enemy-test'] },
+        },
+        { trapped: false, isolated: false, start: [], markers: [], setup: {} },
       ],
     });
   });

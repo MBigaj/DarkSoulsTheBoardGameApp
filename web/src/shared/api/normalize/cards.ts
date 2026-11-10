@@ -94,8 +94,13 @@ export function normalizeBoss(raw: RawBoss): Boss {
 export function normalizeBehaviour(raw: RawBehaviour): Behaviour {
   return {
     ...raw,
-    behaviour: raw.behaviour.map(normalizeAction),
+    behaviour: list(raw.behaviour).map(normalizeAction),
     heatUp: flag(raw.heatUp),
+    parts: list(raw.parts).map((side) => ({
+      ...side,
+      behaviour: side.behaviour.map(normalizeAction),
+      heatUp: flag(side.heatUp),
+    })),
   };
 }
 
@@ -109,14 +114,22 @@ export function normalizeEncounter(raw: RawEncounter): Encounter {
     ...rest,
     ...(trial === undefined
       ? {}
-      : { trial: { ...trial, rewards: trial.rewards.map(normalizeReward) } }),
+      : {
+          trial: {
+            ...trial,
+            rewards: trial.rewards.map(normalizeReward),
+            plusPlayers: flag(trial.plusPlayers),
+          },
+        }),
     rewards: raw.rewards.map(normalizeReward),
     specialRules: list(raw.specialRules),
     tiles: raw.tiles.map((tile) => ({
       ...tile,
-      setup: list(tile.setup),
+      setup: tile.setup === undefined ? {} : { ...tile.setup },
       trapped: flag(tile.trapped),
-      exit: flag(tile.exit),
+      isolated: flag(tile.isolated),
+      start: list(tile.start),
+      markers: list(tile.markers),
     })),
   };
 }
