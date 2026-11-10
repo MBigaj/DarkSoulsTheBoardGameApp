@@ -227,6 +227,46 @@
 }
 
 /* ── Set cards ────────────────────────────────────────────────────── */
+.setArt {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--panel2);
+}
+
+/* Beats Frame's border colour whatever order the stylesheets load in. */
+.setCard .setArt {
+  border-color: var(--line);
+}
+
+.setTile {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.45) saturate(0.8);
+}
+
+.setShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgb(13 11 11 / 0.85), transparent 55%);
+}
+
+.setBoss {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 78%;
+  width: auto;
+  max-width: none;
+  aspect-ratio: 611 / 850;
+  object-fit: contain;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  filter: drop-shadow(0 20px 28px rgb(0 0 0 / 0.8));
+}
+
 .setCard {
   padding: 18px;
 }
