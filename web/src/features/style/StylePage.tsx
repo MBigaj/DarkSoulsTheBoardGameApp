@@ -235,7 +235,7 @@ function CardDemo({
 }) {
   return (
     <div className={styles.cardDemo}>
-      <CardFace name={name} type="treasure" art={art} sizes="150px" className={styles[state]} />
+      <CardFace name={name} type="treasure" art={art} className={styles[state]} />
       <Eyebrow tone="muted">{label}</Eyebrow>
     </div>
   );

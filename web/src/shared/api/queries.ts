@@ -1,44 +1,48 @@
 /** TanStack Query hooks: the only way components read or write API data. */
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  type InfiniteData,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from './api';
-import type { CardPage, CardQuery, ForgeRequest, OverviewQuery } from './types';
+import { fetchCatalog } from './catalog';
+import type { Card, CardType, ForgeRequest } from './types';
+
+/** First page of the visible type: enough to paint a screen of tiles. */
+const FIRST_PAGE = 48;
 
 export const queryKeys = {
-  overview: (query: OverviewQuery) => ['cards', 'overview', query] as const,
-  cards: (query: Omit<CardQuery, 'cursor'>) => ['cards', 'list', query] as const,
+  firstPage: (type: CardType | 'all') => ['cards', 'first', type] as const,
+  catalog: (version: string) => ['cards', 'catalog', version] as const,
   card: (id: string) => ['cards', 'detail', id] as const,
   dice: ['dice'] as const,
   classes: ['classes'] as const,
   encounter: (id: string) => ['encounters', id] as const,
 };
 
-export function useCardsOverview(query: OverviewQuery) {
-  return useQuery({
-    queryKey: queryKeys.overview(query),
-    queryFn: () => api.getCardsOverview(query),
+/**
+ * The card catalog. Paints from the first page of `type` (or of every card), then loads the whole
+ * catalog in the background into one cache keyed by its version. `cards` holds the first page
+ * until `complete`, then every card of every type; callers filter (features/archive/filters).
+ */
+export function useCatalog(type?: CardType) {
+  const first = useQuery({
+    queryKey: queryKeys.firstPage(type ?? 'all'),
+    queryFn: () => api.listCards({ type, limit: FIRST_PAGE }),
+    staleTime: Infinity,
   });
-}
-
-/** Pages of cards; call fetchNextPage while hasNextPage is true. */
-export function useCards(query: Omit<CardQuery, 'cursor'>) {
-  return useInfiniteQuery<
-    CardPage,
-    Error,
-    InfiniteData<CardPage>,
-    readonly unknown[],
-    string | null
-  >({
-    queryKey: queryKeys.cards(query),
-    queryFn: ({ pageParam }) => api.listCards({ ...query, cursor: pageParam }),
-    initialPageParam: null,
-    getNextPageParam: (last) => last.nextCursor,
+  const version = first.data?.version;
+  const full = useQuery({
+    queryKey: queryKeys.catalog(version ?? ''),
+    queryFn: () => fetchCatalog((query) => api.listCards(query)),
+    enabled: version !== undefined,
+    staleTime: Infinity,
+    gcTime: Infinity, // one catalog per session, kept across pages
   });
+  const cards: Card[] = full.data?.cards ?? first.data?.items ?? [];
+  return {
+    cards,
+    version,
+    complete: full.isSuccess,
+    isPending: first.isPending,
+    error: first.error ?? full.error,
+  };
 }
 
 /** The full card for the close-up; idle while `id` is null. */

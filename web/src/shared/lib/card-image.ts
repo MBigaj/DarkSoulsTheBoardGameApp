@@ -1,21 +1,11 @@
-import { CARD_IMAGE } from './card-image-sizes';
-
-/** Where scripts/build-images.ts puts the WebP files (web/public/images). */
-const BASE = '/images/';
-
-export type CardImageSources = { src: string; srcSet: string };
-
 /**
- * Card `art` ("tog/treasure/fireball.png") → the generated WebP files.
- * null when the card has no art.
+ * Image URL for an `art` key ("tog/treasure/fireball.png"): VITE_IMAGE_BASE_URL + key.
+ * Dev and the prod image serve `/images` from the store's images/ folder; later a CDN.
  */
-export function cardImageSources(art: string | null | undefined): CardImageSources | null {
+const BASE = (import.meta.env.VITE_IMAGE_BASE_URL ?? '/images').replace(/\/+$/, '');
+
+/** null when there is no art. */
+export function imageUrl(art: string | null | undefined): string | null {
   if (!art) return null;
-  const base = BASE + art.replace(/\.png$/i, '');
-  const full = `${base}.webp`;
-  const tile = `${base}-${String(CARD_IMAGE.tileWidth)}.webp`;
-  return {
-    src: full,
-    srcSet: `${tile} ${String(CARD_IMAGE.tileWidth)}w, ${full} ${String(CARD_IMAGE.fullWidth)}w`,
-  };
+  return `${BASE}/${art.replace(/^\/+/, '')}`;
 }

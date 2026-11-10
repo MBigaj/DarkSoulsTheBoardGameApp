@@ -1,20 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import type { CardSummary, TreasureSummary } from '@/shared/api/types';
-import { badgeLabel, compareById, displayCodes, statLine } from './format';
+import type { Treasure } from '@/shared/api/types';
+import { badgeLabel, compareById, displayCodes, statLine, type TileCard } from './format';
 
-const common = { set: 'tog', name: 'Card', art: null } as const;
+const common = { set: 'tog', name: 'Card' } as const;
 
 function treasure(
-  requirements: TreasureSummary['requirements'],
-  extra: Partial<TreasureSummary> = {},
-): CardSummary {
+  requirements: Treasure['requirements'],
+  extra: Partial<Pick<Treasure, 'deck' | 'rarity'>> = {},
+): TileCard {
   return {
     ...common,
     _id: 'tog-treasure-x',
     type: 'treasure',
     deck: 'treasure',
     rarity: 'common',
-    equip: 'hand',
     requirements,
     ...extra,
   };
@@ -28,7 +27,7 @@ const req = (strength: number, dexterity: number, intelligence: number, faith: n
 });
 
 describe('statLine', () => {
-  it.each<[string, CardSummary, string]>([
+  it.each<[string, TileCard, string]>([
     // Edge cases first: zero requirements are left out; none at all says so.
     ['treasure, no requirements', treasure(req(0, 0, 0, 0)), 'No requirements'],
     ['treasure, one requirement', treasure(req(0, 0, 23, 0)), 'INT 23'],
@@ -55,17 +54,17 @@ describe('statLine', () => {
     ],
     [
       'encounter, one tile',
-      { ...common, _id: 'tog-encounter-x', type: 'encounter', level: 1, tileCount: 1 },
+      { ...common, _id: 'tog-encounter-x', type: 'encounter', level: 1, tiles: [{}] },
       'Level I · 1 tile',
     ],
     [
       'encounter, several tiles',
-      { ...common, _id: 'tog-encounter-y', type: 'encounter', level: 3, tileCount: 3 },
+      { ...common, _id: 'tog-encounter-y', type: 'encounter', level: 3, tiles: [{}, {}, {}] },
       'Level III · 3 tiles',
     ],
     [
       'boss encounter, no level',
-      { ...common, _id: 'tog-encounter-z', type: 'encounter', boss: 'tog-boss-x', tileCount: 2 },
+      { ...common, _id: 'tog-encounter-z', type: 'encounter', boss: 'tog-boss-x', tiles: [{}, {}] },
       'Boss · 2 tiles',
     ],
     [
@@ -73,18 +72,14 @@ describe('statLine', () => {
       { ...common, _id: 'tog-event-x', type: 'event', eventType: 'rendezvous' },
       'Rendezvous',
     ],
-    [
-      'behaviour has none yet',
-      { ...common, _id: 'tog-behaviour-x', type: 'behaviour', boss: 'tog-boss-x' },
-      '',
-    ],
+    ['behaviour has none yet', { ...common, _id: 'tog-behaviour-x', type: 'behaviour' }, ''],
   ])('%s', (_name, card, line) => {
     expect(statLine(card)).toBe(line);
   });
 });
 
 describe('badgeLabel', () => {
-  it.each<[string, CardSummary, string]>([
+  it.each<[string, TileCard, string]>([
     ['common treasure', treasure(req(0, 0, 0, 0)), 'Common'],
     ['legendary treasure', treasure(req(0, 0, 0, 0), { rarity: 'legendary' }), 'Legendary'],
     ['boss drop', treasure(req(0, 0, 0, 0), { deck: 'boss', rarity: undefined }), 'Boss drop'],

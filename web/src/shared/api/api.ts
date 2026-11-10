@@ -8,20 +8,17 @@
  */
 import type {
   Card,
+  CardListQuery,
   CardPage,
-  CardQuery,
   ClassDef,
   DiceTable,
   ForgedEncounter,
   ForgeRequest,
-  OverviewQuery,
-  OverviewSection,
 } from './types';
 
 export interface Api {
-  /** One section per type: total plus the first 5. Only sets and search apply. */
-  getCardsOverview(query: OverviewQuery): Promise<OverviewSection[]>;
-  listCards(query: CardQuery): Promise<CardPage>;
+  /** One page of the catalog in `_id` order; every page carries the catalog version. */
+  listCards(query: CardListQuery): Promise<CardPage>;
   /** The full card, for the close-up. 404 → ApiError. */
   getCard(id: string): Promise<Card>;
   getDice(): Promise<DiceTable>;
@@ -33,7 +30,6 @@ export interface Api {
 export type EndpointGroup = 'cards' | 'dice' | 'classes' | 'encounters';
 
 const GROUP: Record<keyof Api, EndpointGroup> = {
-  getCardsOverview: 'cards',
   listCards: 'cards',
   getCard: 'cards',
   getDice: 'dice',
@@ -60,8 +56,6 @@ function implementation(method: keyof Api): Promise<Api> {
 }
 
 export const api: Api = {
-  getCardsOverview: async (query) =>
-    (await implementation('getCardsOverview')).getCardsOverview(query),
   listCards: async (query) => (await implementation('listCards')).listCards(query),
   getCard: async (id) => (await implementation('getCard')).getCard(id),
   getDice: async () => (await implementation('getDice')).getDice(),

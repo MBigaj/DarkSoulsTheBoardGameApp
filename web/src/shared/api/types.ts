@@ -1,5 +1,5 @@
 /**
- * Domain types the UI works with: cards after normalization, list/overview shapes,
+ * Domain types the UI works with: cards after normalization, catalog pages,
  * dice, classes and forged encounters. Raw card types are generated from the JSON Schemas.
  */
 import type { CardSet, CardType, Die, SetCode } from '@/shared/lib/card-types';
@@ -114,39 +114,13 @@ export type Event = RawEvent;
 export type Card = Treasure | Enemy | Boss | Behaviour | Encounter | Event;
 export type CardOf<T extends CardType> = Extract<Card, { type: T }>;
 
-// ── Summaries: what list and overview responses carry (tile fields only) ─────────────────────
-// The close-up fetches the full card with getCard().
+// ── Catalog ──────────────────────────────────────────────────────────────────────────────────
+// GET /cards pages through the whole catalog in `_id` order. Filtering, search, sort and counts
+// run on the client over the cached catalog (architecture decision 4).
 
-type Common = '_id' | 'set' | 'type' | 'name' | 'art';
-
-export type TreasureSummary = Pick<
-  Treasure,
-  Common | 'deck' | 'rarity' | 'class' | 'boss' | 'equip' | 'hands' | 'requirements'
->;
-export type EnemySummary = Pick<Enemy, Common | 'threat' | 'health'>;
-export type BossSummary = Pick<Boss, Common | 'tier' | 'threat' | 'health'>;
-export type BehaviourSummary = Pick<Behaviour, Common | 'boss'>;
-export type EncounterSummary = Pick<Encounter, Common | 'level' | 'boss'> & { tileCount: number };
-export type EventSummary = Pick<Event, Common | 'eventType'>;
-
-export type CardSummary =
-  TreasureSummary | EnemySummary | BossSummary | BehaviourSummary | EncounterSummary | EventSummary;
-
-// ── Queries and responses ────────────────────────────────────────────────────────────────────
-
-export type SortKey = 'id' | 'name';
-
-/**
- * GET /cards. Absent or empty `sets` means every set. Archive filters run on the client
- * (`features/archive/filters`); FE-26 drops these query params.
- */
-export type CardQuery = {
-  type: CardType;
-  sets?: readonly SetCode[];
-  /** Matches name or ID, case-insensitive. */
-  q?: string;
-  /** Default 'id' (`_id` order). 'name' sorts by name, then `_id`. */
-  sort?: SortKey;
+export type CardListQuery = {
+  /** Only this type; absent = every card. */
+  type?: CardType;
   /** Opaque; from the previous page's nextCursor. */
   cursor?: string | null;
   /** Default 48, max 100. */
@@ -154,25 +128,13 @@ export type CardQuery = {
 };
 
 export type CardPage = {
-  items: CardSummary[];
+  items: Card[];
   /** null on the last page. */
   nextCursor: string | null;
-  /** Cards matching the whole query. */
+  /** Cards matching `type` (or all cards). */
   total: number;
-  /** Per set, with `q` applied but not `sets`, so the rail can show counts for unticked sets. */
-  setCounts: Record<SetCode, number>;
-  /** Per type, with `sets` and `q` applied: the tab counts. */
-  typeCounts: Record<CardType, number>;
-};
-
-export type OverviewQuery = { sets?: readonly SetCode[]; q?: string };
-
-/** GET /cards/overview: one section per type, in CARD_TYPES order. */
-export type OverviewSection = {
-  type: CardType;
-  total: number;
-  /** The first 5 in `_id` order. */
-  items: CardSummary[];
+  /** Catalog version, the same value as the ETag; changes whenever the data does. */
+  version: string;
 };
 
 // ── Dice, classes, encounters ────────────────────────────────────────────────────────────────

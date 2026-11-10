@@ -32,6 +32,7 @@ services:
       VITE_API_MODE: ${VITE_API_MODE:-mock}
       VITE_API_HTTP: ${VITE_API_HTTP:-}
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+      VITE_IMAGE_BASE_URL: ${VITE_IMAGE_BASE_URL:-/images}
       # Read by mockApi (web/scripts/data-paths.ts).
       DATA_DIR: /data
       FIXTURES_DIR: /fixtures
@@ -75,8 +76,12 @@ services:
       args:
         VITE_API_MODE: ${VITE_API_MODE:-mock}
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+        VITE_IMAGE_BASE_URL: ${VITE_IMAGE_BASE_URL:-/images}
     ports:
       - "8080:8080"
+    volumes:
+      # nginx serves /images from the store's images/ folder.
+      - ${DSTBG_DATA_DIR:-../DSTBG_DATA}:/data:ro
 
   # api:   build ./api  — FastAPI + uv (owner)
   # seed:  one-off import job using the api image (owner)

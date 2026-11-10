@@ -3,12 +3,12 @@
  * Each card type is its own lazy chunk. Dev builds add 150–400 ms per call so loading states
  * are real; tests run with none.
  */
-import { CARD_TYPES, SET_CODES, cardSets, type CardType } from '@/shared/lib/card-types';
+import { CARD_TYPES, type CardType } from '@/shared/lib/card-types';
 import type { Api } from '../api';
 import { notFound } from '../errors';
 import { normalizeCard, type RawCard } from '../normalize/cards';
-import type { Card, CardOf, CardPage, ForgedEncounter, OverviewSection } from '../types';
-import { clampLimit, inSets, matchesSearch, paginate, sortCards, toSummary } from './query';
+import type { Card, CardOf, ForgedEncounter } from '../types';
+import { catalogVersion, clampLimit, paginate, sortById } from './query';
 
 const SOURCES: Record<CardType, () => Promise<{ default: RawCard[] }>> = {
   treasure: () => import('./sources/treasure'),
@@ -25,18 +25,21 @@ const cache = new Map<CardType, Promise<Card[]>>();
 function load<T extends CardType>(type: T): Promise<CardOf<T>[]> {
   let cards = cache.get(type);
   if (!cards) {
-    cards = SOURCES[type]().then((m) => sortCards(m.default.map(normalizeCard), 'id'));
+    cards = SOURCES[type]().then((m) => sortById(m.default.map(normalizeCard)));
     cache.set(type, cards);
   }
   return cards as Promise<CardOf<T>[]>;
 }
 
-async function loadAll(): Promise<Record<CardType, Card[]>> {
-  const lists = await Promise.all(CARD_TYPES.map((type) => load(type)));
-  return Object.fromEntries(CARD_TYPES.map((type, i) => [type, lists[i] ?? []])) as Record<
-    CardType,
-    Card[]
-  >;
+let catalog: Promise<{ cards: Card[]; version: string }> | undefined;
+
+/** Every card in `_id` order, plus the catalog version (a hash of the data). */
+function loadCatalog(): Promise<{ cards: Card[]; version: string }> {
+  catalog ??= Promise.all(CARD_TYPES.map((type) => load(type))).then((lists) => {
+    const cards = sortById(lists.flat());
+    return { cards, version: catalogVersion(cards) };
+  });
+  return catalog;
 }
 
 function latency(): Promise<void> {
@@ -55,42 +58,13 @@ async function forgedEncounters(): Promise<ForgedEncounter[]> {
 }
 
 export const mockApi: Api = {
-  async getCardsOverview({ sets, q }) {
+  // Pages exactly like GET /cards: `_id` order, opaque cursor, the catalog version on every page.
+  async listCards({ type, cursor, limit }) {
     await latency();
-    const all = await loadAll();
-    return CARD_TYPES.map((type): OverviewSection => {
-      const matching = all[type].filter((card) => inSets(card, sets) && matchesSearch(card, q));
-      return { type, total: matching.length, items: matching.slice(0, 5).map(toSummary) };
-    });
-  },
-
-  async listCards({ type, sets, q, sort = 'id', cursor, limit }) {
-    await latency();
-    const all = await loadAll();
-    const searched = all[type].filter((card) => matchesSearch(card, q));
-    const matching = sortCards(
-      searched.filter((card) => inSets(card, sets)),
-      sort,
-    );
-    const page = paginate(matching, sort, cursor, clampLimit(limit));
-
-    const setCounts = Object.fromEntries(
-      SET_CODES.map((set) => [set, searched.filter((card) => cardSets(card).includes(set)).length]),
-    ) as CardPage['setCounts'];
-    const typeCounts = Object.fromEntries(
-      CARD_TYPES.map((t) => [
-        t,
-        all[t].filter((card) => inSets(card, sets) && matchesSearch(card, q)).length,
-      ]),
-    ) as CardPage['typeCounts'];
-
-    return {
-      items: page.items.map(toSummary),
-      nextCursor: page.nextCursor,
-      total: matching.length,
-      setCounts,
-      typeCounts,
-    };
+    const { cards, version } = await loadCatalog();
+    const matching = type === undefined ? cards : await load(type);
+    const page = paginate(matching, cursor, clampLimit(limit));
+    return { ...page, total: matching.length, version };
   },
 
   async getCard(id) {
