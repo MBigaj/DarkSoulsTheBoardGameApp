@@ -89,23 +89,45 @@ function isHeatUp(card: Pick<Behaviour, 'heatUp' | 'parts'>): boolean {
   return card.heatUp || card.parts.some((part) => part.heatUp);
 }
 
+/** Colour of a badge within its type; none = the type's own colour. */
+export type BadgeTone =
+  | 'common'
+  | 'rare'
+  | 'legendary'
+  | 'bossDrop'
+  | 'miniBoss'
+  | 'mainBoss'
+  | 'heatUp'
+  | 'bossEncounter';
+
+export type Badge = { label: string; tone?: BadgeTone };
+
 /**
- * The tile's badge: rarity or "Boss drop" (treasure), "Mini boss" / "Main boss", "Heat up"
- * (behaviour), "Boss" (boss encounter), else the type.
+ * The tile's badge: rarity, "Starter" or "Boss drop" (treasure), "Mini boss" / "Main boss",
+ * "Heat up" (behaviour), "Boss" (boss encounter), else the type.
  */
-export function badgeLabel(card: TileCard): string {
+export function badge(card: TileCard): Badge {
   switch (card.type) {
     case 'treasure':
-      if (card.deck === 'boss') return 'Boss drop';
-      return card.rarity ? capitalize(card.rarity) : TYPE_LABEL.treasure;
+      if (card.deck === 'boss') return { label: 'Boss drop', tone: 'bossDrop' };
+      if (card.deck === 'starter') return { label: 'Starter' };
+      return card.rarity
+        ? { label: capitalize(card.rarity), tone: card.rarity }
+        : { label: TYPE_LABEL.treasure };
     case 'boss':
-      return card.tier === 'mini' ? 'Mini boss' : 'Main boss';
+      return card.tier === 'mini'
+        ? { label: 'Mini boss', tone: 'miniBoss' }
+        : { label: 'Main boss', tone: 'mainBoss' };
     case 'behaviour':
-      return isHeatUp(card) ? 'Heat up' : TYPE_LABEL.behaviour;
+      return isHeatUp(card)
+        ? { label: 'Heat up', tone: 'heatUp' }
+        : { label: TYPE_LABEL.behaviour };
     case 'encounter':
-      return card.boss === undefined ? TYPE_LABEL.encounter : 'Boss';
+      return card.boss === undefined
+        ? { label: TYPE_LABEL.encounter }
+        : { label: 'Boss', tone: 'bossEncounter' };
     default:
-      return TYPE_LABEL[card.type];
+      return { label: TYPE_LABEL[card.type] };
   }
 }
 

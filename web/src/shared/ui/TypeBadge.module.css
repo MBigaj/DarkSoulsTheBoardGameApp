@@ -32,3 +32,33 @@
 .event {
   color: var(--badge-event);
 }
+
+/* Tones within a type (owner, 10 Nov). */
+.common {
+  color: var(--badge-common);
+}
+
+.rare {
+  color: var(--badge-rare);
+}
+
+.legendary {
+  color: var(--badge-legendary);
+}
+
+/* Crimson and gold: gold text on a crimson-tinted fill. */
+.bossDrop,
+.mainBoss {
+  color: var(--badge-legendary);
+  border-color: var(--accent-text);
+  background: var(--tint);
+}
+
+.miniBoss,
+.bossEncounter {
+  color: var(--badge-boss);
+}
+
+.heatUp {
+  color: var(--badge-ember);
+}

@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from 'react-router';
 import type { Card } from '@/shared/api/types';
-import { badgeLabel, statLine, type NameOf } from '@/shared/lib/format';
+import { badge, statLine, type NameOf } from '@/shared/lib/format';
 import { cx } from '@/shared/lib/cx';
 import { CardFace } from '@/shared/ui/CardFace';
 import { TypeBadge } from '@/shared/ui/TypeBadge';
@@ -34,7 +34,7 @@ export function CardTile({ card, code, nameOf }: CardTileProps) {
         </Link>
       </h3>
       <p className={styles.row}>
-        <TypeBadge type={card.type} label={badgeLabel(card)} />
+        <TypeBadge type={card.type} {...badge(card)} />
         {code !== undefined && <span className={styles.code}>{code}</span>}
       </p>
       <p className={styles.stat}>{statLine(card, nameOf)}</p>

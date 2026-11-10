@@ -15,7 +15,8 @@
 }
 
 .tile > :first-child {
-  transition: filter var(--dur-lift) var(--ease-std);
+  /* Shorter than the lift and ease-out, so the crimson shows as soon as the card moves. */
+  transition: filter var(--dur-hover) ease-out;
 }
 
 .tile:hover {

@@ -124,6 +124,18 @@ export function StylePage() {
               />
             ))}
           </div>
+          <Eyebrow tone="muted">Badge tones</Eyebrow>
+          <div className={styles.badges}>
+            <TypeBadge type="treasure" label="Common" tone="common" />
+            <TypeBadge type="treasure" label="Rare" tone="rare" />
+            <TypeBadge type="treasure" label="Legendary" tone="legendary" />
+            <TypeBadge type="treasure" label="Boss drop" tone="bossDrop" />
+            <TypeBadge type="treasure" label="Starter" />
+            <TypeBadge type="boss" label="Mini boss" tone="miniBoss" />
+            <TypeBadge type="boss" label="Main boss" tone="mainBoss" />
+            <TypeBadge type="behaviour" label="Heat up" tone="heatUp" />
+            <TypeBadge type="encounter" label="Boss" tone="bossEncounter" />
+          </div>
         </section>
 
         <section className={cx(styles.section, styles.wide, styles.ruled)}>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Treasure } from '@/shared/api/types';
-import { badgeLabel, compareById, displayCodes, statLine, type TileCard } from './format';
+import { badge, compareById, displayCodes, statLine, type Badge, type TileCard } from './format';
 
 const common = { set: 'tog', name: 'Card' } as const;
 
@@ -105,34 +105,61 @@ describe('statLine: behaviour cards name their boss', () => {
   });
 });
 
-describe('badgeLabel', () => {
-  it.each<[string, TileCard, string]>([
-    ['common treasure', treasure(req(0, 0, 0, 0)), 'Common'],
-    ['legendary treasure', treasure(req(0, 0, 0, 0), { rarity: 'legendary' }), 'Legendary'],
-    ['boss drop', treasure(req(0, 0, 0, 0), { deck: 'boss', rarity: undefined }), 'Boss drop'],
+describe('badge', () => {
+  it.each<[string, TileCard, Badge]>([
+    ['common treasure', treasure(req(0, 0, 0, 0)), { label: 'Common', tone: 'common' }],
     [
-      'starter (no rarity)',
+      'rare treasure',
+      treasure(req(0, 0, 0, 0), { rarity: 'rare' }),
+      { label: 'Rare', tone: 'rare' },
+    ],
+    [
+      'legendary treasure',
+      treasure(req(0, 0, 0, 0), { rarity: 'legendary' }),
+      { label: 'Legendary', tone: 'legendary' },
+    ],
+    [
+      'boss drop wins over rarity',
+      treasure(req(0, 0, 0, 0), { deck: 'boss', rarity: 'legendary' }),
+      { label: 'Boss drop', tone: 'bossDrop' },
+    ],
+    [
+      'starter: no rarity, type colour',
       treasure(req(0, 0, 0, 0), { deck: 'starter', rarity: undefined }),
-      'Treasure',
+      { label: 'Starter' },
     ],
     [
       'mini boss',
       { ...common, _id: 'tog-boss-y', type: 'boss', tier: 'mini', threat: 5, health: 18 },
-      'Mini boss',
+      { label: 'Mini boss', tone: 'miniBoss' },
     ],
-    ['event', { ...common, _id: 'tog-event-x', type: 'event', eventType: 'immediate' }, 'Event'],
+    [
+      'main boss',
+      { ...common, _id: 'tog-boss-z', type: 'boss', tier: 'main', threat: 10, health: 30 },
+      { label: 'Main boss', tone: 'mainBoss' },
+    ],
+    [
+      'event: the type',
+      { ...common, _id: 'tog-event-x', type: 'event', eventType: 'immediate' },
+      { label: 'Event' },
+    ],
     [
       'heat-up behaviour',
       { ...common, _id: 'tog-behaviour-x', type: 'behaviour', heatUp: true, parts: [] },
-      'Heat up',
+      { label: 'Heat up', tone: 'heatUp' },
+    ],
+    [
+      'plain behaviour',
+      { ...common, _id: 'tog-behaviour-y', type: 'behaviour', heatUp: false, parts: [] },
+      { label: 'Behaviour' },
     ],
     [
       'boss encounter',
       { ...common, _id: 'tog-encounter-x', type: 'encounter', boss: 'tog-boss-x', tiles: [{}] },
-      'Boss',
+      { label: 'Boss', tone: 'bossEncounter' },
     ],
-  ])('%s', (_name, card, label) => {
-    expect(badgeLabel(card)).toBe(label);
+  ])('%s', (_name, card, expected) => {
+    expect(badge(card)).toEqual(expected);
   });
 });
 

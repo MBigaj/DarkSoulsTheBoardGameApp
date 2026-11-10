@@ -41,6 +41,11 @@
   --badge-behaviour: #7fa7c4;
   --badge-encounter: #93b58d;
   --badge-event: #c79ad6;
+  /* Badge tones within a type (owner, 10 Nov): rarity, boss drops, heat-up cards. */
+  --badge-common: var(--muted);
+  --badge-rare: #7fa7c4;
+  --badge-legendary: #e2b54e;
+  --badge-ember: #e08a3c;
 
   --level-1: #9fc3dd;
   --level-2: #7f9be0;
