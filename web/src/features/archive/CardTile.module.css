@@ -5,7 +5,7 @@
   flex-direction: column;
   gap: 10px;
   color: var(--text);
-  transition: transform var(--dur-lift) var(--ease-std);
+  transition: transform var(--dur-card-hover) var(--ease-lift);
 }
 
 /* Off-screen tiles skip rendering until scrolled near (large type pages). */
@@ -15,8 +15,8 @@
 }
 
 .tile > :first-child {
-  /* Shorter than the lift and ease-out, so the crimson shows as soon as the card moves. */
-  transition: filter var(--dur-hover) ease-out;
+  /* Same timing as the lift, so the crimson rises with the card from the first frame. */
+  transition: filter var(--dur-card-hover) var(--ease-lift);
 }
 
 .tile:hover {

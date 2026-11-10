@@ -46,8 +46,13 @@
   color: var(--badge-legendary);
 }
 
-/* Crimson and gold: gold text on a crimson-tinted fill. */
-.bossDrop,
+/* Boss drop: crimson text and outline on a crimson-tinted fill. */
+.bossDrop {
+  color: var(--accent-text);
+  background: var(--tint);
+}
+
+/* Main boss: gold text, crimson outline, crimson-tinted fill. */
 .mainBoss {
   color: var(--badge-legendary);
   border-color: var(--accent-text);

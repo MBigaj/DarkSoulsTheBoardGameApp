@@ -100,10 +100,13 @@
   /* Motion */
   --dur-hover: 180ms;
   --dur-lift: 250ms;
+  --dur-card-hover: 380ms; /* archive card lift and glow, one movement (owner, 10 Nov) */
   --dur-backdrop: 280ms;
   --dur-open: 420ms;
   --dur-flip: 1.05s;
   --ease-std: ease;
+  /* Starts at full speed and settles slowly: the lift and glow show on the first frames. */
+  --ease-lift: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-open: cubic-bezier(0.2, 0.9, 0.3, 1.05);
   --ease-flip: cubic-bezier(0.25, 1.08, 0.4, 1);
 }
