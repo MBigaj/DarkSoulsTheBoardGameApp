@@ -116,6 +116,15 @@
   --tile-min: 150px;
 }
 
+/* Phones: two columns (a 328px content box can't fit two 160px tiles plus the gap). */
+@media (max-width: 480px) {
+  .grid,
+  .grid[data-type] {
+    --tile-min: 136px;
+    gap: 12px;
+  }
+}
+
 .empty {
   margin: 0;
   padding: 40px 24px;

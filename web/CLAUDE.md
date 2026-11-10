@@ -68,6 +68,7 @@ test/fixtures/    committed test data, same layout as the store
 - Navigation moves focus to `<main>`. To keep focus where it is (e.g. archive tabs), navigate with `state: { keepFocus: true }` (`KeepFocusState` in `AppShell`).
 - `<ScrollRestoration />` handles scroll: hash targets, top on a new page, restore on Back. Give anchor targets a `scroll-margin-top`.
 - `Dialog` closes on Escape, a backdrop click that _starts_ on the backdrop, and any native close; the parent owns `open`.
+- `text` URL fields are stored trimmed. A debounced input that syncs from the URL must not reset its draft when the URL value is just its own trimmed write (`ArchiveToolbar`), or typed spaces vanish.
 - The Cormorant subset has no small caps: use uppercase at a smaller size instead of `font-variant: small-caps`.
 - Fonts use `font-display: block`: text stays invisible (layout and images show) until its face loads, so the fallback serif never flashes. Every face visible on first paint must be in `preloadFonts` (vite.config.ts), or it pops in later than the rest.
 - Measure layout shift with `vite preview`, built with `DATA_DIR` at the store (a build bakes in whichever data it finds; without the store it's the fixtures). The dev server doesn't preload fonts, so its first paint isn't representative.

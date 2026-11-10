@@ -54,6 +54,7 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
   const filtersOf = <T extends CardType>(type: T): TypeFilters<T> =>
     readParams(typeFields[type], type === tab?.type ? params : archiveMemory.load(type));
   const counts = complete ? tabCounts(cards, common, filtersOf, codes) : undefined;
+  const sections = tab ? [] : overview(cards, common, codes);
   const tabCards = tab ? cardsOfType(cards, tab.type, common, filtersOf(tab.type), codes) : [];
 
   function openTab(id: typeof ALL | CardType) {
@@ -101,7 +102,7 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
             onChange={setCommon}
           />
           {error ? (
-            <p className={styles.error}>The archive could not be loaded. Try again later.</p>
+            <p className={styles.message}>The archive could not be loaded. Try again later.</p>
           ) : tab ? (
             <TypeSection
               tab={tab}
@@ -112,23 +113,30 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
               nameOf={nameOf}
               heading="hidden"
             />
+          ) : complete && sections.every((section) => section.total === 0) ? (
+            <p className={styles.message}>
+              Nothing stirs in the dark. No cards match these filters.
+            </p>
           ) : (
-            overview(cards, common, codes).map((section) => (
-              <TypeSection
-                key={section.type}
-                tab={TAB_OF[section.type]}
-                cards={section.items}
-                total={complete ? section.total : undefined}
-                skeletons={complete ? 0 : PREVIEW - section.items.length}
-                codes={codes}
-                nameOf={nameOf}
-                viewAll={{
-                  pathname: `/cards/${TAB_OF[section.type].slug}`,
-                  search: tabSearch(archiveMemory, section.type, params),
-                }}
-                heading="visible"
-              />
-            ))
+            // Once loaded, types with no matches are left out; one empty message covers all.
+            sections
+              .filter((section) => !complete || section.total > 0)
+              .map((section) => (
+                <TypeSection
+                  key={section.type}
+                  tab={TAB_OF[section.type]}
+                  cards={section.items}
+                  total={complete ? section.total : undefined}
+                  skeletons={complete ? 0 : PREVIEW - section.items.length}
+                  codes={codes}
+                  nameOf={nameOf}
+                  viewAll={{
+                    pathname: `/cards/${TAB_OF[section.type].slug}`,
+                    search: tabSearch(archiveMemory, section.type, params),
+                  }}
+                  heading="visible"
+                />
+              ))
           )}
         </section>
       </div>

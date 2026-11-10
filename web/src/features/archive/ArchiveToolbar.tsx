@@ -17,9 +17,10 @@ export function ArchiveToolbar({ q, sort, placeholder, onChange }: ArchiveToolba
   const [draft, setDraft] = useState(q);
   const [urlQ, setUrlQ] = useState(q);
   // The URL changed from outside (Back, a tab switch): show its search instead of the draft.
+  // The URL holds the trimmed draft, so our own write ("black ") must not replace what's typed.
   if (q !== urlQ) {
     setUrlQ(q);
-    setDraft(q);
+    if (q !== draft.trim()) setDraft(q);
   }
 
   useEffect(() => {
