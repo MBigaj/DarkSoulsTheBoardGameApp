@@ -16,8 +16,9 @@ class Settings(BaseSettings):
     mongo_db: str = "bonfire"
     mongo_timeout_ms: int = Field(default=2000, gt=0)
 
-    # Card data store (read by the seed job).
-    data_dir: Path = Path("../data")
+    # Card data store (read by the seed job). Docker sets /data; outside Docker the
+    # default is the DSTBG_DATA folder next to the repo, seen from api/.
+    data_dir: Path = Path("../../DSTBG_DATA")
 
     # Comma-separated in .env: API_CORS_ORIGINS=http://localhost:5173
     cors_origins: Annotated[list[str], NoDecode] = []
