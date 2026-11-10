@@ -1,5 +1,13 @@
 /** Text shown under archive tiles: badge label, stat line and the short display code. */
-import type { CardSet, CardSummary } from '@/shared/api/types';
+import type {
+  Behaviour,
+  Boss,
+  CardSet,
+  Encounter,
+  Enemy,
+  Event,
+  Treasure,
+} from '@/shared/api/types';
 import type { CardType } from './card-types';
 
 const ROMAN = { 1: 'I', 2: 'II', 3: 'III' } as const;
@@ -20,6 +28,17 @@ const TYPE_LABEL: Record<CardType, string> = {
   event: 'Event',
 };
 
+type Common = '_id' | 'set' | 'type' | 'name';
+
+/** The fields tile text reads. Every normalized card fits. */
+export type TileCard =
+  | Pick<Treasure, Common | 'deck' | 'rarity' | 'requirements'>
+  | Pick<Enemy, Common | 'threat' | 'health'>
+  | Pick<Boss, Common | 'tier' | 'threat' | 'health'>
+  | Pick<Behaviour, Common>
+  | (Pick<Encounter, Common | 'level' | 'boss'> & { tiles: readonly unknown[] })
+  | Pick<Event, Common | 'eventType'>;
+
 const capitalize = (word: string) => (word[0]?.toUpperCase() ?? '') + word.slice(1);
 
 /**
@@ -31,7 +50,7 @@ const capitalize = (word: string) => (word[0]?.toUpperCase() ?? '') + word.slice
  *   event     its type, e.g. "Rendezvous"
  *   behaviour none yet ("")
  */
-export function statLine(card: CardSummary): string {
+export function statLine(card: TileCard): string {
   switch (card.type) {
     case 'treasure': {
       const parts = REQUIREMENTS.filter(([key]) => card.requirements[key] > 0).map(
@@ -44,7 +63,8 @@ export function statLine(card: CardSummary): string {
     case 'boss':
       return `${capitalize(card.tier)} · Threat ${String(card.threat)} · Health ${String(card.health)}`;
     case 'encounter': {
-      const tiles = `${String(card.tileCount)} ${card.tileCount === 1 ? 'tile' : 'tiles'}`;
+      const count = card.tiles.length;
+      const tiles = `${String(count)} ${count === 1 ? 'tile' : 'tiles'}`;
       return card.level === undefined ? `Boss · ${tiles}` : `Level ${ROMAN[card.level]} · ${tiles}`;
     }
     case 'event':
@@ -55,7 +75,7 @@ export function statLine(card: CardSummary): string {
 }
 
 /** The tile's badge: rarity, "Boss drop", "Mini boss" or "Main boss" where they apply, else the type. */
-export function badgeLabel(card: CardSummary): string {
+export function badgeLabel(card: TileCard): string {
   if (card.type === 'treasure') {
     if (card.deck === 'boss') return 'Boss drop';
     return card.rarity ? capitalize(card.rarity) : TYPE_LABEL.treasure;

@@ -17,12 +17,14 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 FROM deps AS build
 ARG VITE_API_MODE=mock
 ARG VITE_API_BASE_URL=/api/v1
+ARG VITE_IMAGE_BASE_URL=/images
 ENV VITE_API_MODE=$VITE_API_MODE \
-    VITE_API_BASE_URL=$VITE_API_BASE_URL
+    VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_IMAGE_BASE_URL=$VITE_IMAGE_BASE_URL
 COPY . .
 RUN npm run build
 
-# --- runtime: nginx serves dist/ and proxies /api/v1 to the api service
+# --- runtime: nginx serves dist/, /images from the store mounted at /data, and proxies /api/v1
 FROM nginx:alpine AS runtime
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY security-headers.conf /etc/nginx/security-headers.conf

@@ -14,11 +14,10 @@ Keep this file current: replace stale lines, don't append history. Under ~150 li
 
 ```sh
 npm ci
-npm run dev            # http://localhost:5173 (runs build:images first)
+npm run dev            # http://localhost:5173
 npm run lint && npm run typecheck && npm test && npm run build
 npm run format         # Prettier; CI runs format:check
 npm run gen:types      # after a schema change in the store (DATA_DIR=…); drops cross-field oneOf/allOf
-npm run build:images   # PNG scans → public/images/*.webp (incremental, git-ignored)
 ```
 
 Docker (repo root): `docker compose up --watch web` (dev, HMR), `docker compose --profile prod up --build web-prod` (nginx on :8080).
@@ -40,7 +39,7 @@ src/shared/lib/   pure logic: dice.ts, format.ts, url-state.ts, card-image.ts, c
 src/shared/api/   api.ts (Api interface + mock/http switch), types.ts, queries.ts (hooks),
                   normalize/, mock/ (mockApi + per-type lazy sources), http/, generated/ (do not edit)
 src/features/     one folder per page: home, style (dev only), archive (filters/), characters, forge
-scripts/          gen-types, build-images, data-paths, preload-fonts (Vite plugin)
+scripts/          gen-types, data-paths, Vite plugins (serve-images, preload-fonts)
 test/fixtures/    committed test data, same layout as the store
 ```
 
@@ -48,6 +47,7 @@ test/fixtures/    committed test data, same layout as the store
 
 - Styling: CSS Modules + tokens from `tokens.css`. No inline colours or magic sizes when a token exists. Font sizes in rem.
 - Data: components use the hooks in `shared/api/queries.ts`, never `api` or `fetch` directly (ESLint blocks `fetch` outside `shared/api/http/`).
+- Cards: `useCatalog(type?)` paints from the first page of `type`, then loads every card in the background (`fetchCatalog`, keyed by `version`, `staleTime: Infinity`). `cards` is the first page until `complete`, then the whole catalog: always filter by type (`filterCards`). `listCards` only pages in `_id` order; no server-side filters, sort or counts. `useCard(id)` serves `?card=` deep links before the catalog is cached.
 - State: anything shareable (filters, tab, `?card=`) lives in the URL; `useReducer` per feature otherwise. No global store.
 - URL state: describe a page's state as fields (`list`, `tags`, `atLeast`, `atMost`, `range`, `choice`, `text` in `lib/url-state.ts`); `readParams`/`writeParams` keep values canonical and leave other params alone.
 - Archive filters: `features/archive/filters/<type>.ts` = fields + a pure `matches…`; `index.ts` has `typeFields`, `filterCards`, and the per-tab memory (`rememberFilters`, `tabSearch`). Set, search and sort (`commonFields`) carry across tabs; each type's own filters are restored from session memory. Options typed against a schema enum use `every<T>()([...])`, so a new enum value breaks the build.
@@ -68,5 +68,5 @@ test/fixtures/    committed test data, same layout as the store
 - `<ScrollRestoration />` handles scroll: hash targets, top on a new page, restore on Back. Give anchor targets a `scroll-margin-top`.
 - `Dialog` closes on Escape, a backdrop click that _starts_ on the backdrop, and any native close; the parent owns `open`.
 - The Cormorant subset has no small caps: use uppercase at a smaller size instead of `font-variant: small-caps`.
-- Generated images and the production image: the prod Docker build has no store, so it ships no card images yet.
+- Images are the store's PNGs, served at `/images` (`VITE_IMAGE_BASE_URL`) by a Vite plugin in dev/preview and by nginx in `web-prod`, which mounts the store at `/data`. A dev setup: no WebP or srcset until the CDN task.
 - The device shell can't reach npm; install and run checks in a workspace with network, then copy files over.

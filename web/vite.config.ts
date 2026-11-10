@@ -1,9 +1,11 @@
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { searchForWorkspaceRoot } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { resolveDataDir, resolveFixturesDir, TEST_FIXTURES_DIR } from './scripts/data-paths.ts';
 import { preloadFonts } from './scripts/preload-fonts.ts';
+import { serveImages } from './scripts/serve-images.ts';
 
 export default defineConfig(({ mode }) => {
   // Tests always use the committed fixtures, so results never depend on the local store.
@@ -15,6 +17,7 @@ export default defineConfig(({ mode }) => {
       react(),
       // Display (headings, nav, buttons) and body faces; the rest load on demand.
       preloadFonts(['cormorant-garamond-latin-600-italic', 'eb-garamond-latin-400-normal']),
+      serveImages(join(dataDir, 'images')),
     ],
     resolve: {
       alias: {

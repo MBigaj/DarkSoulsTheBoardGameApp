@@ -117,19 +117,12 @@ export function HomePage() {
 function SetArt({ set }: { set: CoreSet }) {
   return (
     <Frame className={styles.setArt}>
-      <StoreImage
-        className={styles.setTile}
-        art={set.tile}
-        sizes="(max-width: 700px) 90vw, 420px"
-        width={1000}
-        height={1000}
-      />
+      <StoreImage className={styles.setTile} art={set.tile} width={1000} height={1000} />
       <span className={styles.setShade} />
       <StoreImage
         className={styles.setBoss}
         art={set.boss}
         alt={`${set.bossName} boss card`}
-        sizes="(max-width: 700px) 60vw, 260px"
         width={611}
         height={850}
       />
