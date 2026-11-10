@@ -1,0 +1,135 @@
+/* ArchiveFinal results section: heading row, then the card grid. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 10px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px 20px;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.diamond {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  transform: rotate(45deg);
+  background: var(--badge-treasure);
+}
+
+.diamond[data-type='enemy'] {
+  background: var(--badge-enemy);
+}
+
+.diamond[data-type='boss'] {
+  background: var(--badge-boss);
+}
+
+.diamond[data-type='behaviour'] {
+  background: var(--badge-behaviour);
+}
+
+.diamond[data-type='encounter'] {
+  background: var(--badge-encounter);
+}
+
+.diamond[data-type='event'] {
+  background: var(--badge-event);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: var(--track-heading);
+  text-transform: uppercase;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.blurb {
+  margin: 0;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  color: var(--accent-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-heading);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color var(--dur-hover) var(--ease-std);
+}
+
+.viewAll:hover {
+  border-color: var(--ornament);
+  color: var(--accent-text);
+}
+
+/* Minimum tile width per printed shape (ArchiveFinal): wider cards get wider cells. */
+.grid {
+  --tile-min: 160px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--tile-min), 100%), 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.grid[data-type='enemy'],
+.grid[data-type='boss'],
+.grid[data-type='behaviour'] {
+  --tile-min: 170px;
+}
+
+.grid[data-type='encounter'] {
+  --tile-min: 150px;
+}
+
+/* Phones: two columns (a 328px content box can't fit two 160px tiles plus the gap). */
+@media (max-width: 480px) {
+  .grid,
+  .grid[data-type] {
+    --tile-min: 136px;
+    gap: 12px;
+  }
+}
+
+.empty {
+  margin: 0;
+  padding: 40px 24px;
+  border: 1px dashed var(--border);
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+}

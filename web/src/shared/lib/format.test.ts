@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Treasure } from '@/shared/api/types';
-import { badgeLabel, compareById, displayCodes, statLine, type TileCard } from './format';
+import { badge, compareById, displayCodes, statLine, type Badge, type TileCard } from './format';
 
 const common = { set: 'tog', name: 'Card' } as const;
 
@@ -72,30 +72,94 @@ describe('statLine', () => {
       { ...common, _id: 'tog-event-x', type: 'event', eventType: 'rendezvous' },
       'Rendezvous',
     ],
-    ['behaviour has none yet', { ...common, _id: 'tog-behaviour-x', type: 'behaviour' }, ''],
   ])('%s', (_name, card, line) => {
     expect(statLine(card)).toBe(line);
   });
 });
 
-describe('badgeLabel', () => {
+describe('statLine: behaviour cards name their boss', () => {
+  const names: Record<string, string> = { 'sc-boss-o': 'Ornstein', 'sc-boss-s': 'Smough' };
+  const nameOf = (id: string) => names[id];
+  const behaviour = (extra: object): TileCard => ({
+    ...common,
+    _id: 'sc-behaviour-x',
+    type: 'behaviour',
+    heatUp: false,
+    parts: [],
+    ...extra,
+  });
+  const part = (boss: string, heatUp: boolean) =>
+    ({ boss, heatUp }) as Extract<TileCard, { type: 'behaviour' }>['parts'][number];
+
   it.each<[string, TileCard, string]>([
-    ['common treasure', treasure(req(0, 0, 0, 0)), 'Common'],
-    ['legendary treasure', treasure(req(0, 0, 0, 0), { rarity: 'legendary' }), 'Legendary'],
-    ['boss drop', treasure(req(0, 0, 0, 0), { deck: 'boss', rarity: undefined }), 'Boss drop'],
+    ['single card', behaviour({ boss: 'sc-boss-o' }), 'Ornstein'],
+    ['heat-up card', behaviour({ boss: 'sc-boss-o', heatUp: true }), 'Ornstein · Heat up'],
     [
-      'starter (no rarity)',
+      'combined card: both bosses, heat up if a half is',
+      behaviour({ parts: [part('sc-boss-o', false), part('sc-boss-s', true)] }),
+      'Ornstein & Smough · Heat up',
+    ],
+    ['unknown boss id shows nothing', behaviour({ boss: 'sc-boss-gone' }), ''],
+  ])('%s', (_name, card, line) => {
+    expect(statLine(card, nameOf)).toBe(line);
+  });
+});
+
+describe('badge', () => {
+  it.each<[string, TileCard, Badge]>([
+    ['common treasure', treasure(req(0, 0, 0, 0)), { label: 'Common', tone: 'common' }],
+    [
+      'rare treasure',
+      treasure(req(0, 0, 0, 0), { rarity: 'rare' }),
+      { label: 'Rare', tone: 'rare' },
+    ],
+    [
+      'legendary treasure',
+      treasure(req(0, 0, 0, 0), { rarity: 'legendary' }),
+      { label: 'Legendary', tone: 'legendary' },
+    ],
+    [
+      'boss drop wins over rarity',
+      treasure(req(0, 0, 0, 0), { deck: 'boss', rarity: 'legendary' }),
+      { label: 'Boss drop', tone: 'bossDrop' },
+    ],
+    [
+      'starter: no rarity, type colour',
       treasure(req(0, 0, 0, 0), { deck: 'starter', rarity: undefined }),
-      'Treasure',
+      { label: 'Starter' },
     ],
     [
       'mini boss',
       { ...common, _id: 'tog-boss-y', type: 'boss', tier: 'mini', threat: 5, health: 18 },
-      'Mini boss',
+      { label: 'Mini boss', tone: 'miniBoss' },
     ],
-    ['event', { ...common, _id: 'tog-event-x', type: 'event', eventType: 'immediate' }, 'Event'],
-  ])('%s', (_name, card, label) => {
-    expect(badgeLabel(card)).toBe(label);
+    [
+      'main boss',
+      { ...common, _id: 'tog-boss-z', type: 'boss', tier: 'main', threat: 10, health: 30 },
+      { label: 'Main boss', tone: 'mainBoss' },
+    ],
+    [
+      'event: the type',
+      { ...common, _id: 'tog-event-x', type: 'event', eventType: 'immediate' },
+      { label: 'Event' },
+    ],
+    [
+      'heat-up behaviour',
+      { ...common, _id: 'tog-behaviour-x', type: 'behaviour', heatUp: true, parts: [] },
+      { label: 'Heat up', tone: 'heatUp' },
+    ],
+    [
+      'plain behaviour',
+      { ...common, _id: 'tog-behaviour-y', type: 'behaviour', heatUp: false, parts: [] },
+      { label: 'Behaviour' },
+    ],
+    [
+      'boss encounter',
+      { ...common, _id: 'tog-encounter-x', type: 'encounter', boss: 'tog-boss-x', tiles: [{}] },
+      { label: 'Boss', tone: 'bossEncounter' },
+    ],
+  ])('%s', (_name, card, expected) => {
+    expect(badge(card)).toEqual(expected);
   });
 });
 
@@ -108,6 +172,7 @@ describe('display codes and Card ID order', () => {
     { _id: 'tog-enemy-skeleton-beast', set: 'tog', type: 'enemy' },
     { _id: 'sc-treasure-axe', set: 'sc', type: 'treasure' },
     { _id: 'tog-treasure-fireball', set: 'tog', type: 'treasure' }, // listed twice
+    { _id: 'shared-treasure-ember', set: 'shared', type: 'treasure' },
   ] as const;
 
   it('numbers from 001 in _id order, restarting for each set and type', () => {
@@ -118,6 +183,7 @@ describe('display codes and Card ID order', () => {
       'sc-treasure-axe': 'SC-001',
       'sc-treasure-zweihander': 'SC-002',
       'tog-enemy-skeleton-beast': 'TOG-001',
+      'shared-treasure-ember': 'SH-001',
     });
   });
 

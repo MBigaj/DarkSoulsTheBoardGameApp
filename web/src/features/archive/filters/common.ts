@@ -11,18 +11,26 @@ export const commonFields = {
 
 export type CommonFilters = Values<typeof commonFields>;
 
-/** Name or ID, case-insensitive. */
-export function matchesSearch(card: Card, q: string): boolean {
+/** Display code per `_id` (lib/format `displayCodes`), so a search for "TOG-012" finds the tile. */
+export type Codes = ReadonlyMap<string, string>;
+
+/** Name, `_id` or display code, case-insensitive. */
+export function matchesSearch(card: Card, q: string, codes?: Codes): boolean {
   const needle = q.trim().toLowerCase();
   if (needle === '') return true;
-  return card.name.toLowerCase().includes(needle) || card._id.includes(needle);
+  const code = codes?.get(card._id)?.toLowerCase();
+  return (
+    card.name.toLowerCase().includes(needle) ||
+    card._id.includes(needle) ||
+    (code !== undefined && code.includes(needle))
+  );
 }
 
 /** A shared card passes when any set it ships in is ticked. */
-export function matchesCommon(card: Card, filters: CommonFilters): boolean {
-  const sets = filters.sets;
-  return (
-    (sets.length === 0 || cardSets(card).some((set) => sets.includes(set))) &&
-    matchesSearch(card, filters.q)
-  );
+export function matchesSets(card: Card, sets: CommonFilters['sets']): boolean {
+  return sets.length === 0 || cardSets(card).some((set) => sets.includes(set));
+}
+
+export function matchesCommon(card: Card, filters: CommonFilters, codes?: Codes): boolean {
+  return matchesSets(card, filters.sets) && matchesSearch(card, filters.q, codes);
 }

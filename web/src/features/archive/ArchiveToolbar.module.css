@@ -1,0 +1,60 @@
+/* ArchiveFinal toolbar: search field and sort select. */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.search,
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.search {
+  flex: 1 1 280px;
+  padding: 0 14px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: var(--tap-min);
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font-size: 1.0625rem;
+}
+
+.input::placeholder {
+  color: var(--muted);
+}
+
+.input:focus-visible {
+  outline-offset: 6px;
+}
+
+.sort {
+  padding: 0 4px 0 14px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-heading);
+  text-transform: uppercase;
+}
+
+.select {
+  height: var(--tap-min);
+  padding: 0 8px;
+  background: var(--panel);
+  border: 0;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  letter-spacing: 0;
+  text-transform: none;
+}

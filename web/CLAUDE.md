@@ -53,11 +53,12 @@ test/fixtures/    committed test data, same layout as the store
 - Archive filters: `features/archive/filters/<type>.ts` = fields + a pure `matches…`; `index.ts` has `typeFields`, `filterCards`, and the per-tab memory (`rememberFilters`, `tabSearch`). Set, search and sort (`commonFields`) carry across tabs; each type's own filters are restored from session memory. Options typed against a schema enum use `every<T>()([...])`, so a new enum value breaks the build.
 - Filter semantics (handoff): any of within a filter, all of across; absent field fails an active filter; `null` passes; bounds inclusive; attack dice = card uses every ticked die. Use the helpers in `filters/match.ts`.
 - Routes: one lazy chunk per page in `app/router.tsx`. Pages set their own `<title>`.
-- `/cards`, `/cards/:type`, `/characters`, `/forge` and `/forge/:id` render placeholder pages (`features/*/…Page.tsx`) until FE-12, FE-15 and FE-19 replace those files. Archive tab slugs live in `features/archive/tabs.ts`; an unknown slug renders Not Found.
+- `/characters`, `/forge` and `/forge/:id` render placeholder pages (`features/*/…Page.tsx`) until FE-15 and FE-19 replace those files.
+- Archive: `ArchivePage` (tabs, toolbar, sections) → `TypeSection` → `CardTile`. Tab slugs, labels and blurbs live in `features/archive/tabs.ts`; an unknown slug renders Not Found. Everything shown is derived in `archive/catalog.ts` (overview, `cardsOfType`, tab and set counts). Counts and "View all" appear once the catalog is `complete`; until then skeleton tiles hold the grid slots (keyed by slot, so nothing shifts). A tile is one stretched link to `?card=<_id>` (close-up in FE-14); the rail (FE-13) joins the results on the left.
 - Import UI components from their own files (`@/shared/ui/Button`), not a barrel: a barrel pulls every component's CSS into each chunk.
-- Card text comes from `format.ts` (`statLine`, `badgeLabel`, `displayCodes`); card images from `CardFace`/`CardImage` with the card's `art`.
+- Card text comes from `format.ts` (`statLine` with a boss-name lookup for behaviour cards, `badge` → label + tone for `TypeBadge` (rarity, boss drop, heat up…; colours in `tokens.css`), `displayCodes`: `SH-` for shared cards); card images from `CardFace`/`CardImage` with the card's `art`. Search matches name, `_id` and display code.
 - No art is committed to the repo. Every image (card scans, tiles, page art) comes from the data store's `images/` folder: reference its path (`tiles/sc/3a.png`) and render it with `CardFace`/`CardImage` or `StoreImage`. Missing files render nothing.
-- Accessibility: real buttons/links, 44px targets (rail pills 40px), visible focus ring, `aria-pressed` on toggles. Run axe on new pages.
+- Accessibility: real buttons/links, 44px targets (rail pills 40px), visible focus ring, `aria-pressed` on toggles. Whole-card links use the stretched-link pattern (`::after` over the tile), not `aria-labelledby`. Run axe on new pages.
 - Tests: only logic that can be wrong in our code (testing policy in the plan). Table-driven, edge cases first, next to the module. No snapshots, no CSS or copy tests, no tests for static pages.
 
 ## Gotchas
@@ -67,6 +68,9 @@ test/fixtures/    committed test data, same layout as the store
 - Navigation moves focus to `<main>`. To keep focus where it is (e.g. archive tabs), navigate with `state: { keepFocus: true }` (`KeepFocusState` in `AppShell`).
 - `<ScrollRestoration />` handles scroll: hash targets, top on a new page, restore on Back. Give anchor targets a `scroll-margin-top`.
 - `Dialog` closes on Escape, a backdrop click that _starts_ on the backdrop, and any native close; the parent owns `open`.
+- `text` URL fields are stored trimmed. A debounced input that syncs from the URL must not reset its draft when the URL value is just its own trimmed write (`ArchiveToolbar`), or typed spaces vanish.
 - The Cormorant subset has no small caps: use uppercase at a smaller size instead of `font-variant: small-caps`.
+- Fonts use `font-display: block`: text stays invisible (layout and images show) until its face loads, so the fallback serif never flashes. Every face visible on first paint must be in `preloadFonts` (vite.config.ts), or it pops in later than the rest.
+- Measure layout shift with `vite preview`, built with `DATA_DIR` at the store (a build bakes in whichever data it finds; without the store it's the fixtures). The dev server doesn't preload fonts, so its first paint isn't representative.
 - Images are the store's PNGs, served at `/images` (`VITE_IMAGE_BASE_URL`) by a Vite plugin in dev/preview and by nginx in `web-prod`, which mounts the store at `/data`. A dev setup: no WebP or srcset until the CDN task.
 - The device shell can't reach npm; install and run checks in a workspace with network, then copy files over.

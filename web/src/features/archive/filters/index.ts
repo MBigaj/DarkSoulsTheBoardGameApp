@@ -13,13 +13,13 @@ import {
 } from '@/shared/lib/url-state';
 import { behaviourFields, matchesBehaviour } from './behaviour';
 import { bossFields, matchesBoss } from './boss';
-import { commonFields, matchesCommon, type CommonFilters } from './common';
+import { commonFields, matchesCommon, type Codes, type CommonFilters } from './common';
 import { encounterFields, matchesEncounter } from './encounter';
 import { enemyFields, matchesEnemy } from './enemy';
 import { eventFields, matchesEvent } from './event';
 import { matchesTreasure, treasureFields } from './treasure';
 
-export { commonFields, matchesCommon, type CommonFilters };
+export { commonFields, matchesCommon, type Codes, type CommonFilters };
 
 export const typeFields = {
   treasure: treasureFields,
@@ -47,11 +47,14 @@ export function filterCards<T extends CardType>(
   cards: readonly Card[],
   common: CommonFilters,
   filters: TypeFilters<T>,
+  codes?: Codes,
 ): CardOf<T>[] {
   const matches = matchers[type];
   return cards.filter(
     (card): card is CardOf<T> =>
-      card.type === type && matchesCommon(card, common) && matches(card as CardOf<T>, filters),
+      card.type === type &&
+      matchesCommon(card, common, codes) &&
+      matches(card as CardOf<T>, filters),
   );
 }
 

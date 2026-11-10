@@ -72,12 +72,14 @@ export function StylePage() {
               label="571 × 850"
               sub="Treasure · Event"
             />
-            <Shape ratio="var(--ratio-enemy)" width={92} label="5 : 7" sub="Enemy · Boss" />
-            <Shape ratio="var(--ratio-encounter)" width={76} label="188 × 320" sub="Encounter" />
+            <Shape
+              ratio="var(--ratio-enemy)"
+              width={92}
+              label="611 × 850"
+              sub="Enemy · Boss · Behaviour"
+            />
+            <Shape ratio="var(--ratio-encounter)" width={76} label="7 : 12" sub="Encounter" />
           </div>
-          <p className={styles.note}>
-            Behaviour cards: shape not confirmed; use 571 × 850 until a scan arrives.
-          </p>
         </section>
 
         <section className={styles.section}>
@@ -121,6 +123,18 @@ export function StylePage() {
                 label={type === 'boss' ? 'Boss · accent' : undefined}
               />
             ))}
+          </div>
+          <Eyebrow tone="muted">Badge tones</Eyebrow>
+          <div className={styles.badges}>
+            <TypeBadge type="treasure" label="Common" tone="common" />
+            <TypeBadge type="treasure" label="Rare" tone="rare" />
+            <TypeBadge type="treasure" label="Legendary" tone="legendary" />
+            <TypeBadge type="treasure" label="Boss drop" tone="bossDrop" />
+            <TypeBadge type="treasure" label="Starter" />
+            <TypeBadge type="boss" label="Mini boss" tone="miniBoss" />
+            <TypeBadge type="boss" label="Main boss" tone="mainBoss" />
+            <TypeBadge type="behaviour" label="Heat up" tone="heatUp" />
+            <TypeBadge type="encounter" label="Boss" tone="bossEncounter" />
           </div>
         </section>
 

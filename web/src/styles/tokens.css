@@ -41,6 +41,11 @@
   --badge-behaviour: #7fa7c4;
   --badge-encounter: #93b58d;
   --badge-event: #c79ad6;
+  /* Badge tones within a type (owner, 10 Nov): rarity, boss drops, heat-up cards. */
+  --badge-common: var(--muted);
+  --badge-rare: #7fa7c4;
+  --badge-legendary: #e2b54e;
+  --badge-ember: #e08a3c;
 
   --level-1: #9fc3dd;
   --level-2: #7f9be0;
@@ -83,10 +88,10 @@
   --card-radius-closeup: 4.5% / 3%;
   --ratio-treasure: 571 / 850;
   --ratio-event: 571 / 850;
-  --ratio-behaviour: 571 / 850; /* unconfirmed */
-  --ratio-enemy: 5 / 7;
-  --ratio-boss: 5 / 7;
-  --ratio-encounter: 188 / 320;
+  --ratio-behaviour: 611 / 850;
+  --ratio-enemy: 611 / 850;
+  --ratio-boss: 611 / 850;
+  --ratio-encounter: 7 / 12;
 
   /* Focus */
   --focus-ring: 2px solid var(--accent-text);
@@ -95,10 +100,13 @@
   /* Motion */
   --dur-hover: 180ms;
   --dur-lift: 250ms;
+  --dur-card-hover: 380ms; /* archive card lift and glow, one movement (owner, 10 Nov) */
   --dur-backdrop: 280ms;
   --dur-open: 420ms;
   --dur-flip: 1.05s;
   --ease-std: ease;
+  /* Starts at full speed and settles slowly: the lift and glow show on the first frames. */
+  --ease-lift: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-open: cubic-bezier(0.2, 0.9, 0.3, 1.05);
   --ease-flip: cubic-bezier(0.25, 1.08, 0.4, 1);
 }

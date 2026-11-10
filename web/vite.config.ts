@@ -15,8 +15,16 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
-      // Display (headings, nav, buttons) and body faces; the rest load on demand.
-      preloadFonts(['cormorant-garamond-latin-600-italic', 'eb-garamond-latin-400-normal']),
+      // Faces seen on first paint (titles, nav, headings and tabs, body, ledes, mono labels),
+      // so the page's text appears at once; the rest load on demand.
+      preloadFonts([
+        'cormorant-garamond-latin-600-italic',
+        'cormorant-garamond-latin-600-normal',
+        'cormorant-garamond-latin-700-normal',
+        'eb-garamond-latin-400-normal',
+        'eb-garamond-latin-400-italic',
+        'ibm-plex-mono-latin-400-normal',
+      ]),
       serveImages(join(dataDir, 'images')),
     ],
     resolve: {

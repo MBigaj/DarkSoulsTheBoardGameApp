@@ -32,3 +32,38 @@
 .event {
   color: var(--badge-event);
 }
+
+/* Tones within a type (owner, 10 Nov). */
+.common {
+  color: var(--badge-common);
+}
+
+.rare {
+  color: var(--badge-rare);
+}
+
+.legendary {
+  color: var(--badge-legendary);
+}
+
+/* Boss drop: crimson text and outline on a crimson-tinted fill. */
+.bossDrop {
+  color: var(--accent-text);
+  background: var(--tint);
+}
+
+/* Main boss: gold text, crimson outline, crimson-tinted fill. */
+.mainBoss {
+  color: var(--badge-legendary);
+  border-color: var(--accent-text);
+  background: var(--tint);
+}
+
+.miniBoss,
+.bossEncounter {
+  color: var(--badge-boss);
+}
+
+.heatUp {
+  color: var(--badge-ember);
+}
