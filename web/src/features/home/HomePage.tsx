@@ -1,9 +1,10 @@
 import { Link } from 'react-router';
-import { ArtSlot } from '@/shared/ui/ArtSlot';
 import { ButtonLink } from '@/shared/ui/Button';
 import { Eyebrow } from '@/shared/ui/Eyebrow';
-import { LATER, SETS, TOOLS } from './content';
+import { LATER, SETS, TOOLS, type CoreSet } from './content';
+import { HeroArt } from './HeroArt';
 import { ToolIcon } from './ToolIcon';
+import { Frame } from '@/shared/ui/Frame';
 import styles from './HomePage.module.css';
 
 export function HomePage() {
@@ -32,14 +33,7 @@ export function HomePage() {
               Forge an encounter
             </ButtonLink>
           </div>
-          <ArtSlot
-            className={styles.keyArt}
-            label="Key art"
-            note="[Licensed box art, supplied by owner]"
-            ratio="16 / 7"
-            framed
-            glow
-          />
+          <HeroArt className={styles.keyArt} />
         </div>
       </section>
 
@@ -93,7 +87,7 @@ export function HomePage() {
                 <span>Core set</span>
                 <span className={styles.setShort}>{set.short}</span>
               </span>
-              <ArtSlot label="Box art" ratio="4 / 5" framed decorative />
+              <SetArt set={set} />
               <div className={styles.setText}>
                 <h3 className={styles.setName}>
                   <Link to="/cards" className={styles.stretched}>
@@ -115,5 +109,33 @@ export function HomePage() {
         </ul>
       </section>
     </>
+  );
+}
+
+/** A set's art slot: one of its tiles, dimmed, with its main boss card in front. */
+function SetArt({ set }: { set: CoreSet }) {
+  return (
+    <Frame className={styles.setArt}>
+      <img
+        className={styles.setTile}
+        src={set.tile}
+        alt=""
+        width={720}
+        height={720}
+        loading="lazy"
+        decoding="async"
+      />
+      <span className={styles.setShade} />
+      <img
+        className={styles.setBoss}
+        src={set.boss}
+        alt={`${set.bossName} boss card`}
+        width={560}
+        height={779}
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+      />
+    </Frame>
   );
 }

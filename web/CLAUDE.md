@@ -53,6 +53,7 @@ test/fixtures/    committed test data, same layout as the store
 - `/cards`, `/cards/:type`, `/characters`, `/forge` and `/forge/:id` render placeholder pages (`features/*/…Page.tsx`) until FE-12, FE-15 and FE-19 replace those files. Archive tab slugs live in `features/archive/tabs.ts`; an unknown slug renders Not Found.
 - Import UI components from their own files (`@/shared/ui/Button`), not a barrel: a barrel pulls every component's CSS into each chunk.
 - Card text comes from `format.ts` (`statLine`, `badgeLabel`, `displayCodes`); card images from `CardFace`/`CardImage` with the card's `art`.
+- Page art from the mockup (not card scans from the store) lives beside its feature, e.g. `features/home/art/*.webp`, and is imported so Vite hashes it for long caching.
 - Accessibility: real buttons/links, 44px targets (rail pills 40px), visible focus ring, `aria-pressed` on toggles. Run axe on new pages.
 - Tests: only logic that can be wrong in our code (testing policy in the plan). Table-driven, edge cases first, next to the module. No snapshots, no CSS or copy tests, no tests for static pages.
 
