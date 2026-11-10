@@ -23,7 +23,7 @@
   inset: 0;
   background:
     radial-gradient(ellipse at 50% 100%, var(--hero-glow), transparent 60%),
-    linear-gradient(180deg, rgb(13 11 11 / 0.55), transparent 40%);
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 55%, transparent), transparent 40%);
 }
 
 /* Cards stand on the bottom edge and turn around their bottom centre. */

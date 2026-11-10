@@ -251,7 +251,11 @@
 .setShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgb(13 11 11 / 0.85), transparent 55%);
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--bg) 85%, transparent),
+    transparent 55%
+  );
 }
 
 .setBoss {
