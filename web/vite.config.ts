@@ -15,8 +15,12 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
-      // Display (headings, nav, buttons) and body faces; the rest load on demand.
-      preloadFonts(['cormorant-garamond-latin-600-italic', 'eb-garamond-latin-400-normal']),
+      // Display (headings, nav, buttons), body and lede (italic) faces; the rest load on demand.
+      preloadFonts([
+        'cormorant-garamond-latin-600-italic',
+        'eb-garamond-latin-400-normal',
+        'eb-garamond-latin-400-italic',
+      ]),
       serveImages(join(dataDir, 'images')),
     ],
     resolve: {

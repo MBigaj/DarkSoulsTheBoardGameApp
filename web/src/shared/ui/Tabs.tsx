@@ -5,7 +5,8 @@ import styles from './Tabs.module.css';
 export type TabItem<K extends string> = {
   id: K;
   label: string;
-  count?: number;
+  /** Shown in mono after the label; `null` keeps its space while the count loads. */
+  count?: number | null;
 };
 
 type TabsProps<K extends string> = {

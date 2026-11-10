@@ -72,12 +72,14 @@ export function StylePage() {
               label="571 × 850"
               sub="Treasure · Event"
             />
-            <Shape ratio="var(--ratio-enemy)" width={92} label="5 : 7" sub="Enemy · Boss" />
-            <Shape ratio="var(--ratio-encounter)" width={76} label="188 × 320" sub="Encounter" />
+            <Shape
+              ratio="var(--ratio-enemy)"
+              width={92}
+              label="611 × 850"
+              sub="Enemy · Boss · Behaviour"
+            />
+            <Shape ratio="var(--ratio-encounter)" width={76} label="7 : 12" sub="Encounter" />
           </div>
-          <p className={styles.note}>
-            Behaviour cards: shape not confirmed; use 571 × 850 until a scan arrives.
-          </p>
         </section>
 
         <section className={styles.section}>

@@ -72,9 +72,36 @@ describe('statLine', () => {
       { ...common, _id: 'tog-event-x', type: 'event', eventType: 'rendezvous' },
       'Rendezvous',
     ],
-    ['behaviour has none yet', { ...common, _id: 'tog-behaviour-x', type: 'behaviour' }, ''],
   ])('%s', (_name, card, line) => {
     expect(statLine(card)).toBe(line);
+  });
+});
+
+describe('statLine: behaviour cards name their boss', () => {
+  const names: Record<string, string> = { 'sc-boss-o': 'Ornstein', 'sc-boss-s': 'Smough' };
+  const nameOf = (id: string) => names[id];
+  const behaviour = (extra: object): TileCard => ({
+    ...common,
+    _id: 'sc-behaviour-x',
+    type: 'behaviour',
+    heatUp: false,
+    parts: [],
+    ...extra,
+  });
+  const part = (boss: string, heatUp: boolean) =>
+    ({ boss, heatUp }) as Extract<TileCard, { type: 'behaviour' }>['parts'][number];
+
+  it.each<[string, TileCard, string]>([
+    ['single card', behaviour({ boss: 'sc-boss-o' }), 'Ornstein'],
+    ['heat-up card', behaviour({ boss: 'sc-boss-o', heatUp: true }), 'Ornstein · Heat up'],
+    [
+      'combined card: both bosses, heat up if a half is',
+      behaviour({ parts: [part('sc-boss-o', false), part('sc-boss-s', true)] }),
+      'Ornstein & Smough · Heat up',
+    ],
+    ['unknown boss id shows nothing', behaviour({ boss: 'sc-boss-gone' }), ''],
+  ])('%s', (_name, card, line) => {
+    expect(statLine(card, nameOf)).toBe(line);
   });
 });
 
@@ -94,6 +121,16 @@ describe('badgeLabel', () => {
       'Mini boss',
     ],
     ['event', { ...common, _id: 'tog-event-x', type: 'event', eventType: 'immediate' }, 'Event'],
+    [
+      'heat-up behaviour',
+      { ...common, _id: 'tog-behaviour-x', type: 'behaviour', heatUp: true, parts: [] },
+      'Heat up',
+    ],
+    [
+      'boss encounter',
+      { ...common, _id: 'tog-encounter-x', type: 'encounter', boss: 'tog-boss-x', tiles: [{}] },
+      'Boss',
+    ],
   ])('%s', (_name, card, label) => {
     expect(badgeLabel(card)).toBe(label);
   });
@@ -108,6 +145,7 @@ describe('display codes and Card ID order', () => {
     { _id: 'tog-enemy-skeleton-beast', set: 'tog', type: 'enemy' },
     { _id: 'sc-treasure-axe', set: 'sc', type: 'treasure' },
     { _id: 'tog-treasure-fireball', set: 'tog', type: 'treasure' }, // listed twice
+    { _id: 'shared-treasure-ember', set: 'shared', type: 'treasure' },
   ] as const;
 
   it('numbers from 001 in _id order, restarting for each set and type', () => {
@@ -118,6 +156,7 @@ describe('display codes and Card ID order', () => {
       'sc-treasure-axe': 'SC-001',
       'sc-treasure-zweihander': 'SC-002',
       'tog-enemy-skeleton-beast': 'TOG-001',
+      'shared-treasure-ember': 'SH-001',
     });
   });
 

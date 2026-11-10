@@ -36,6 +36,8 @@
 }
 
 .count {
+  /* Room for three digits, so tabs don't move when counts arrive. */
+  min-width: 3ch;
   font-family: var(--font-mono);
   font-size: var(--fs-label);
   font-weight: 400;

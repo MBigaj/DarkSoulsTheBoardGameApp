@@ -83,10 +83,10 @@
   --card-radius-closeup: 4.5% / 3%;
   --ratio-treasure: 571 / 850;
   --ratio-event: 571 / 850;
-  --ratio-behaviour: 571 / 850; /* unconfirmed */
-  --ratio-enemy: 5 / 7;
-  --ratio-boss: 5 / 7;
-  --ratio-encounter: 188 / 320;
+  --ratio-behaviour: 611 / 850;
+  --ratio-enemy: 611 / 850;
+  --ratio-boss: 611 / 850;
+  --ratio-encounter: 7 / 12;
 
   /* Focus */
   --focus-ring: 2px solid var(--accent-text);

@@ -1,0 +1,103 @@
+/* ArchiveFinal tile: face, badge row, stat line. The link's ::after covers the whole tile. */
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text);
+  transition: transform var(--dur-lift) var(--ease-std);
+}
+
+/* Off-screen tiles skip rendering until scrolled near (large type pages). */
+.card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
+
+.tile > :first-child {
+  transition: filter var(--dur-lift) var(--ease-std);
+}
+
+.tile:hover {
+  transform: translateY(-6px) rotate(-0.5deg);
+}
+
+.tile:hover > :first-child {
+  filter: drop-shadow(0 18px 20px color-mix(in srgb, var(--glow) 82%, transparent));
+}
+
+.tile:has(.link:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.name {
+  margin: 0;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.row {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.code,
+.stat {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--muted);
+}
+
+.stat {
+  margin-top: -4px;
+}
+
+.skeletonFace {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--ratio-treasure);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  background-color: var(--panel);
+  background-image: repeating-linear-gradient(135deg, var(--hatch) 0 1px, transparent 1px 12px);
+}
+
+.skeletonFace[data-type='enemy'],
+.skeletonFace[data-type='boss'],
+.skeletonFace[data-type='behaviour'] {
+  aspect-ratio: var(--ratio-enemy);
+}
+
+.skeletonFace[data-type='encounter'] {
+  aspect-ratio: var(--ratio-encounter);
+}
+
+/* Same box as TypeBadge, so a tile doesn't change height when its card arrives. */
+.skeletonBadge {
+  width: 64px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+}
+
+/* motion.css stops transitions; the lift itself goes too. */
+@media (prefers-reduced-motion: reduce) {
+  .tile:hover {
+    transform: none;
+  }
+}
