@@ -2,7 +2,16 @@
 
 export interface RawEvent {
   _id: string;
-  set: "sc" | "tog" | "pwa";
+  /**
+   * shared = printed identically in more than one expansion
+   */
+  set: "sc" | "tog" | "pwa" | "shared";
+  /**
+   * shared cards only: every expansion the card is printed in
+   *
+   * @minItems 2
+   */
+  sets?: ["sc" | "tog" | "pwa", "sc" | "tog" | "pwa", ...("sc" | "tog" | "pwa")[]];
   type: "event";
   name: string;
   art: string | null;
@@ -11,7 +20,7 @@ export interface RawEvent {
    */
   eventType: "immediate" | "consumable" | "rendezvous";
   /**
-   * card text; party-size icon written as [party]
+   * card text; paragraphs separated by \n; player-count icon written as [party]; condition icons written as the condition name (Bleed, Poison, Frostbite, Stagger); dice icons written as 'a black/blue/orange die'
    */
   text: string;
 }

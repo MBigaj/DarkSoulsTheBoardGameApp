@@ -1,9 +1,14 @@
 {
-  "_id": "tog-treasure-ember",
-  "set": "tog",
+  "_id": "shared-treasure-ember",
+  "set": "shared",
+  "sets": [
+    "pwa",
+    "sc",
+    "tog"
+  ],
   "type": "treasure",
   "name": "Ember",
-  "art": "tog/treasure/ember.png",
+  "art": "shared/treasure/ember.png",
   "deck": "treasure",
   "rarity": "common",
   "equip": "consumable",

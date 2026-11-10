@@ -12,6 +12,9 @@
   "resist": 2,
   "deckSize": 5,
   "rules": [
-    "On heat-up, enemies killed in the encounter return."
+    {
+      "name": "The Gravelord's Call",
+      "text": "When Nito heats up, place any enemies that have been killed during this encounter on [skull node]."
+    }
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "_id": "pwa-event-fleeting-glory",
+  "set": "pwa",
+  "type": "event",
+  "name": "Fleeting Glory",
+  "art": "pwa/event/fleeting-glory.png",
+  "eventType": "consumable",
+  "text": "If a character would die during this encounter, remove all tokens from their endurance bar instead. If the party then completes this encounter, they do not gain the soul reward listed, then this card is discarded.\nIf a character does not die during this encounter, the party doubles the soul reward, then this card is discarded."
+}

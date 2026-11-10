@@ -7,14 +7,18 @@ export interface RawEnemy {
   name: string;
   art: string | null;
   /**
+   * miniatures of this enemy in the box (rulebook component list)
+   */
+  models: number;
+  /**
    * star; turn order, highest first
    */
   threat: number;
   health: number;
   /**
-   * ∞ = any model on the same tile
+   * ∞ = any model on the same tile; omitted when the card prints '–' (no attack)
    */
-  range: number | "infinite";
+  range?: number | "infinite";
   /**
    * split shield, left half
    */
@@ -23,6 +27,9 @@ export interface RawEnemy {
    * split shield, right half
    */
   resist: number;
+  /**
+   * dodge symbol on the card: how many dodge results a character needs to dodge this enemy's attacks (not the enemy's own dodge)
+   */
   dodgeDifficulty: number;
   /**
    * left to right
@@ -35,22 +42,28 @@ export interface RawEnemy {
   keywords?: string[];
 }
 export interface Action {
-  kind: "move" | "attack" | "turn";
   /**
-   * ring = nearest character · skull = aggro token holder; omitted on a boss move = move in the shown direction without changing facing
+   * resurrect (ToG hand symbol): place a Skeleton Soldier on the nearest spawn node
+   */
+  kind: "move" | "attack" | "turn" | "resurrect";
+  /**
+   * ring = nearest character · skull = aggro token holder; omitted on area attacks and on boss moves without a target
    */
   target?: "nearest" | "aggro";
+  /**
+   * 0 towards = turn to face the target without moving (boss)
+   */
   nodes?: number;
   /**
-   * move: number in the top arm = towards, bottom arm = away
+   * move: number in the top arm = towards, bottom = away, left/right arm = sideways relative to the boss's facing
    */
-  direction?: "towards" | "away";
+  direction?: "towards" | "away" | "left" | "right";
   /**
    * move: placed on the target's node
    */
   leap?: true;
   /**
-   * move: pushes characters it moves through · attack: pushes characters hit
+   * move: pushes characters it moves through (number on the icon = pushDamage) · attack: push icon top-left = pushes characters hit
    */
   push?: true;
   pushDamage?: number;
@@ -60,13 +73,16 @@ export interface Action {
    */
   damageType?: "physical" | "magical";
   /**
-   * attacks all characters on the target node
+   * symbol bottom-left of the attack (rulebook p.25 position 3): attacks all characters on the target node
    */
   nodeAttack?: true;
   /**
-   * boss: attacks all nodes in range in the arcs marked as attack arcs
+   * spiky symbol bottom-left of a boss attack: attacks every character in range in the arcs marked as attack arcs (green)
    */
   area?: true;
+  /**
+   * attack: conditions applied to characters hit · move with push: conditions applied to pushed characters
+   */
   conditions?: ("bleed" | "poison" | "frostbite" | "stagger")[];
   /**
    * boss only

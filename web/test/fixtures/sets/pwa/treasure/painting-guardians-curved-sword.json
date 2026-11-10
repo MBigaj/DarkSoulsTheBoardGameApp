@@ -1,0 +1,51 @@
+{
+  "_id": "pwa-treasure-painting-guardians-curved-sword",
+  "set": "pwa",
+  "type": "treasure",
+  "name": "Painting Guardian's Curved Sword",
+  "art": "pwa/treasure/painting-guardians-curved-sword.png",
+  "deck": "treasure",
+  "rarity": "rare",
+  "class": "deprived",
+  "equip": "hand",
+  "hands": 1,
+  "requirements": {
+    "strength": 0,
+    "dexterity": 26,
+    "intelligence": 26,
+    "faith": 26
+  },
+  "defence": {
+    "block": {},
+    "resist": {},
+    "dodge": 0
+  },
+  "upgradeSlots": 2,
+  "range": 0,
+  "attacks": [
+    {
+      "staminaCost": 0,
+      "dice": {
+        "black": 2
+      },
+      "damageType": "physical",
+      "move": 1,
+      "moveAfter": 1,
+      "conditions": [
+        "bleed"
+      ]
+    },
+    {
+      "staminaCost": 3,
+      "dice": {
+        "black": 3
+      },
+      "damageType": "physical",
+      "move": 1,
+      "moveAfter": 1,
+      "conditions": [
+        "bleed"
+      ]
+    }
+  ]
+}

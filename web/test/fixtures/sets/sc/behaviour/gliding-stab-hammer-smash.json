@@ -1,0 +1,62 @@
+{
+  "_id": "sc-behaviour-gliding-stab-hammer-smash",
+  "set": "sc",
+  "type": "behaviour",
+  "name": "Gliding Stab / Hammer Smash",
+  "art": "sc/behaviour/gliding-stab-hammer-smash.png",
+  "parts": [
+    {
+      "name": "Gliding Stab",
+      "boss": "sc-boss-dragon-slayer-ornstein",
+      "range": 1,
+      "dodgeDifficulty": 3,
+      "behaviour": [
+        {
+          "kind": "move",
+          "target": "aggro",
+          "nodes": 1,
+          "direction": "towards",
+          "push": true
+        },
+        {
+          "kind": "attack",
+          "target": "aggro",
+          "damage": 5,
+          "damageType": "physical"
+        }
+      ],
+      "arcs": {
+        "front": "neutral",
+        "left": "neutral",
+        "right": "neutral",
+        "back": "weak"
+      }
+    },
+    {
+      "name": "Hammer Smash",
+      "boss": "sc-boss-executioner-smough",
+      "range": 1,
+      "dodgeDifficulty": 1,
+      "behaviour": [
+        {
+          "kind": "move",
+          "nodes": 1,
+          "direction": "left",
+          "push": true
+        },
+        {
+          "kind": "attack",
+          "damage": 5,
+          "damageType": "physical",
+          "area": true
+        }
+      ],
+      "arcs": {
+        "front": "attack",
+        "left": "neutral",
+        "right": "weak",
+        "back": "neutral"
+      }
+    }
+  ]
+}

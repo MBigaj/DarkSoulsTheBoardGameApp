@@ -1,0 +1,71 @@
+{
+  "_id": "sc-encounter-dark-alleyway",
+  "set": "sc",
+  "type": "encounter",
+  "name": "Dark Alleyway",
+  "art": "sc/encounter/dark-alleyway.png",
+  "level": 1,
+  "flavour": "A narrow and twisting side street, leading to naught but a dead-end and a gleaming silver foe.",
+  "objective": "Kill the Silver Knight Swordsman.",
+  "goals": [
+    {
+      "kind": "kill",
+      "target": "sc-enemy-silver-knight-swordsman"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "souls",
+      "amount": 1,
+      "plusPlayers": true
+    },
+    {
+      "type": "draw",
+      "deck": "event",
+      "count": 1
+    }
+  ],
+  "specialRules": [
+    {
+      "text": "Reduce the node model limit to 2."
+    }
+  ],
+  "tiles": [
+    {
+      "tile": 1,
+      "at": [
+        0,
+        0
+      ],
+      "start": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          4
+        ]
+      ],
+      "setup": {
+        "primarySpawn": [
+          "sc-enemy-silver-knight-swordsman"
+        ],
+        "secondarySpawn": [
+          "sc-enemy-hollow-soldier",
+          "sc-enemy-crossbow-hollow"
+        ],
+        "primaryTerrain": [
+          "chest"
+        ],
+        "secondaryTerrain": [
+          "barrel"
+        ]
+      }
+    }
+  ]
+}

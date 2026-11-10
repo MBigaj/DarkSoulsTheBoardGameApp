@@ -1,0 +1,42 @@
+{
+  "_id": "pwa-treasure-crystal-hail",
+  "set": "pwa",
+  "type": "treasure",
+  "name": "Crystal Hail",
+  "art": "pwa/treasure/crystal-hail.png",
+  "deck": "treasure",
+  "rarity": "rare",
+  "class": "sorcerer",
+  "equip": "hand",
+  "hands": 1,
+  "requirements": {
+    "strength": 0,
+    "dexterity": 25,
+    "intelligence": 35,
+    "faith": 0
+  },
+  "defence": {
+    "block": {},
+    "resist": {},
+    "dodge": 0
+  },
+  "upgradeSlots": 0,
+  "range": "infinite",
+  "attacks": [
+    {
+      "staminaCost": 0,
+      "dice": {
+        "black": 2
+      },
+      "damageType": "magical"
+    },
+    {
+      "staminaCost": 5,
+      "dice": {
+        "black": 2
+      },
+      "damageType": "magical",
+      "special": "Make an attack against each enemy within range."
+    }
+  ]
+}

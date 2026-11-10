@@ -1,4 +1,5 @@
 /** Pure list helpers for mockApi: search, sort, keyset pagination and summaries. */
+import { cardSets } from '@/shared/lib/card-types';
 import { badRequest } from '../errors';
 import type { Card, CardSummary, SetCode, SortKey } from '../types';
 
@@ -19,7 +20,8 @@ export function matchesSearch(card: Card, q: string | undefined): boolean {
 
 /** Absent or empty means every set. */
 export function inSets(card: Card, sets: readonly SetCode[] | undefined): boolean {
-  return sets === undefined || sets.length === 0 || sets.includes(card.set);
+  if (sets === undefined || sets.length === 0) return true;
+  return cardSets(card).some((set) => sets.includes(set));
 }
 
 // The sort key always ends in `_id`, which is unique, so keyset pagination has a strict order.
@@ -113,7 +115,7 @@ export function toSummary(card: Card): CardSummary {
     case 'behaviour':
       return pick(card, [...COMMON, 'boss']);
     case 'encounter':
-      return { ...pick(card, [...COMMON, 'level']), tileCount: card.tiles.length };
+      return { ...pick(card, [...COMMON, 'level', 'boss']), tileCount: card.tiles.length };
     case 'event':
       return pick(card, [...COMMON, 'eventType']);
   }

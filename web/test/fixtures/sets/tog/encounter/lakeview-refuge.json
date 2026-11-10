@@ -7,6 +7,13 @@
   "level": 3,
   "flavour": "A forgotten shrine watches over the Lake of Ash. A dangerous place yes, but worth your time to ignite the shrine once more.",
   "objective": "Place the torch on the shrine node.",
+  "goals": [
+    {
+      "kind": "place",
+      "target": "torch",
+      "on": "shrine"
+    }
+  ],
   "rewards": [
     {
       "type": "souls",
@@ -19,7 +26,11 @@
     }
   ],
   "trial": {
-    "objective": "Kill the Skeleton Beast.",
+    "objective": "Kill the Skeleton Beast",
+    "goal": {
+      "kind": "kill",
+      "target": "tog-enemy-skeleton-beast"
+    },
     "rewards": [
       {
         "type": "souls",
@@ -35,7 +46,7 @@
       "keyword": "darkness"
     },
     {
-      "text": "The first time a character is placed on the same node as the torch token, spawn a Skeleton Beast on the torch's tile and Skeleton Soldiers on tile two."
+      "text": "The first time a character is placed on the same node as the torch token, spawn a Skeleton Beast on the torch's tile on [primary spawn node], and [party] Skeleton Soldiers on tile two, on [secondary spawn node]."
     }
   ],
   "tiles": [
@@ -45,7 +56,32 @@
         0,
         0
       ],
-      "startNodes": "top"
+      "start": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          4
+        ]
+      ],
+      "setup": {
+        "primarySpawn": [
+          "tog-enemy-necromancer"
+        ],
+        "secondarySpawn": [
+          "tog-enemy-skeleton-soldier",
+          "tog-enemy-skeleton-soldier"
+        ],
+        "primaryTerrain": [
+          "gravestone"
+        ]
+      }
     },
     {
       "tile": 2,
@@ -53,14 +89,40 @@
         1,
         0
       ],
-      "trapped": true
+      "trapped": true,
+      "setup": {
+        "primarySpawn": [
+          "tog-enemy-skeleton-archer"
+        ],
+        "secondarySpawn": [
+          "tog-enemy-skeleton-archer"
+        ],
+        "secondaryTerrain": [
+          "shrine"
+        ]
+      }
     },
     {
       "tile": 3,
       "at": [
         1,
         1
-      ]
+      ],
+      "setup": {
+        "primarySpawn": [
+          "tog-enemy-necromancer"
+        ],
+        "secondarySpawn": [
+          "tog-enemy-giant-skeleton-archer",
+          "tog-enemy-giant-skeleton-soldier"
+        ],
+        "primaryTerrain": [
+          "torch"
+        ],
+        "secondaryTerrain": [
+          "barrel"
+        ]
+      }
     }
   ]
 }

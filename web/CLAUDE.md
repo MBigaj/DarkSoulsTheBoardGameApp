@@ -17,7 +17,7 @@ npm ci
 npm run dev            # http://localhost:5173 (runs build:images first)
 npm run lint && npm run typecheck && npm test && npm run build
 npm run format         # Prettier; CI runs format:check
-npm run gen:types      # after a schema change in the data store
+npm run gen:types      # after a schema change in the store (DATA_DIR=…); drops cross-field oneOf/allOf
 npm run build:images   # PNG scans → public/images/*.webp (incremental, git-ignored)
 ```
 
@@ -27,7 +27,7 @@ Node 26 (`.nvmrc`). TypeScript is pinned to ~6.0 and ESLint to 9: typescript-esl
 ## Data
 
 - Mock mode (default) reads the card store: `DATA_DIR`, else `../../DSTBG_DATA` beside the repo, else `test/fixtures`. Fixtures (classes, sample encounters): `FIXTURES_DIR`, else `../data/fixtures`. See `scripts/data-paths.ts`.
-- Tests always use `test/fixtures` (12 real cards, all six types, edge cases). CI never needs the store.
+- Tests always use `test/fixtures`: byte-for-byte store copies (19 cards, all six types, shared cards, a boss encounter, the combined O&S card, null damage type). Refresh them from the store after a schema change. `src/test/fixture-cards.ts` loads them normalized. CI never needs the store.
 - `VITE_API_MODE=mock|http`; `VITE_API_HTTP=cards,dice` sends single groups over HTTP. `httpApi` (`shared/api/http/`) is the backend owner's.
 
 ## Folder map
@@ -36,10 +36,10 @@ Node 26 (`.nvmrc`). TypeScript is pinned to ~6.0 and ESLint to 9: typescript-esl
 src/app/          shell: router, Providers, AppShell (Navbar, Footer), RouteError, NotFound
 src/styles/       tokens.css (all design tokens), fonts, reset, base, motion (reduced motion)
 src/shared/ui/    design-system components, one file + CSS Module each
-src/shared/lib/   pure logic: dice.ts, format.ts, card-image.ts, card-types.ts, cx.ts
+src/shared/lib/   pure logic: dice.ts, format.ts, url-state.ts, card-image.ts, card-types.ts, cx.ts
 src/shared/api/   api.ts (Api interface + mock/http switch), types.ts, queries.ts (hooks),
                   normalize/, mock/ (mockApi + per-type lazy sources), http/, generated/ (do not edit)
-src/features/     one folder per page: home, style (dev only), archive, characters, forge
+src/features/     one folder per page: home, style (dev only), archive (filters/), characters, forge
 scripts/          gen-types, build-images, data-paths, preload-fonts (Vite plugin)
 test/fixtures/    committed test data, same layout as the store
 ```
@@ -49,6 +49,9 @@ test/fixtures/    committed test data, same layout as the store
 - Styling: CSS Modules + tokens from `tokens.css`. No inline colours or magic sizes when a token exists. Font sizes in rem.
 - Data: components use the hooks in `shared/api/queries.ts`, never `api` or `fetch` directly (ESLint blocks `fetch` outside `shared/api/http/`).
 - State: anything shareable (filters, tab, `?card=`) lives in the URL; `useReducer` per feature otherwise. No global store.
+- URL state: describe a page's state as fields (`list`, `tags`, `atLeast`, `atMost`, `range`, `choice`, `text` in `lib/url-state.ts`); `readParams`/`writeParams` keep values canonical and leave other params alone.
+- Archive filters: `features/archive/filters/<type>.ts` = fields + a pure `matches…`; `index.ts` has `typeFields`, `filterCards`, and the per-tab memory (`rememberFilters`, `tabSearch`). Set, search and sort (`commonFields`) carry across tabs; each type's own filters are restored from session memory. Options typed against a schema enum use `every<T>()([...])`, so a new enum value breaks the build.
+- Filter semantics (handoff): any of within a filter, all of across; absent field fails an active filter; `null` passes; bounds inclusive; attack dice = card uses every ticked die. Use the helpers in `filters/match.ts`.
 - Routes: one lazy chunk per page in `app/router.tsx`. Pages set their own `<title>`.
 - `/cards`, `/cards/:type`, `/characters`, `/forge` and `/forge/:id` render placeholder pages (`features/*/…Page.tsx`) until FE-12, FE-15 and FE-19 replace those files. Archive tab slugs live in `features/archive/tabs.ts`; an unknown slug renders Not Found.
 - Import UI components from their own files (`@/shared/ui/Button`), not a barrel: a barrel pulls every component's CSS into each chunk.
@@ -60,6 +63,7 @@ test/fixtures/    committed test data, same layout as the store
 ## Gotchas
 
 - `null` in card data means "unknown" and must survive normalizing; absent means "doesn't apply". Never default with `??` on a nullable field.
+- Shared cards have `set: 'shared'` and `sets: [...]`: use `cardSets(card)` for set filters and counts, never `card.set`. Boss encounters have `boss` and no `level`.
 - Navigation moves focus to `<main>`. To keep focus where it is (e.g. archive tabs), navigate with `state: { keepFocus: true }` (`KeepFocusState` in `AppShell`).
 - `<ScrollRestoration />` handles scroll: hash targets, top on a new page, restore on Back. Give anchor targets a `scroll-margin-top`.
 - `Dialog` closes on Escape, a backdrop click that _starts_ on the backdrop, and any native close; the parent owns `open`.
