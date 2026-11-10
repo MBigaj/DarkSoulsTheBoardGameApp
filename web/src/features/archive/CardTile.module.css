@@ -14,17 +14,34 @@
   contain-intrinsic-size: auto 320px;
 }
 
-.tile > :first-child {
-  /* Same timing as the lift, so the crimson rises with the card from the first frame. */
-  transition: filter var(--dur-card-hover) var(--ease-lift);
+/*
+ * The glow is a ready-made shadow behind the face that only fades in. Opacity runs on the
+ * compositor, so it shows on the first frame of the hover; a drop-shadow filter on a full-size
+ * scan has to be painted first, which is what made it lag.
+ */
+.face {
+  position: relative;
+  display: block;
+  isolation: isolate;
+}
+
+.face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--card-radius);
+  box-shadow: 0 18px 20px color-mix(in srgb, var(--glow) 82%, transparent);
+  opacity: 0;
+  transition: opacity var(--dur-card-hover) var(--ease-lift);
 }
 
 .tile:hover {
   transform: translateY(-6px) rotate(-0.5deg);
 }
 
-.tile:hover > :first-child {
-  filter: drop-shadow(0 18px 20px color-mix(in srgb, var(--glow) 82%, transparent));
+.tile:hover .face::before {
+  opacity: 1;
 }
 
 .tile:has(.link:focus-visible) {

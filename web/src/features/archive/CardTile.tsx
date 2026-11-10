@@ -21,7 +21,9 @@ export function CardTile({ card, code, nameOf }: CardTileProps) {
   next.set('card', card._id);
   return (
     <article className={cx(styles.tile, styles.card)}>
-      <CardFace name={card.name} type={card.type} art={card.art} />
+      <span className={styles.face}>
+        <CardFace name={card.name} type={card.type} art={card.art} />
+      </span>
       <h3 className={styles.name}>
         <Link
           className={styles.link}
