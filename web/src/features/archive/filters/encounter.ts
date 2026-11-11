@@ -1,7 +1,7 @@
 /** Encounter filters (handoff filter table, Encounter rows). */
 import type { Encounter, SpecialRuleKeyword } from '@/shared/api/types';
 import { list, type Values } from '@/shared/lib/url-state';
-import { anyOf, anyOfMany, every } from './match';
+import { allTicked, anyOf, anyOfMany, every } from './match';
 
 const INCLUDES = ['traps', 'chests', 'trial'] as const;
 export type EncounterInclude = (typeof INCLUDES)[number];
@@ -48,10 +48,11 @@ export function matchesEncounter(card: Encounter, f: EncounterFilters): boolean 
   const keywords = card.specialRules.flatMap((rule) =>
     rule.keyword === undefined ? [] : [rule.keyword],
   );
+  const found = includes(card);
   return (
     anyOf(f.level, card.boss === undefined ? card.level : 'boss') &&
     anyOf<number>(f.tiles, card.tiles.length) &&
-    anyOfMany(f.includes, includes(card)) &&
+    allTicked(f.includes, (option) => found.includes(option)) &&
     anyOfMany(f.keywords, keywords)
   );
 }

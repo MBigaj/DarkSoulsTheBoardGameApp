@@ -50,11 +50,18 @@ describe('treasure filters', () => {
     ],
     ['hands: two-handed', { hands: [2] }, ['tog:dragon-tooth']],
     ['status: bleed', { conditions: ['bleed'] }, ['pwa:painting-guardians-curved-sword']],
+    // Checkboxes: every ticked option.
     [
-      'features: node attack or move (move includes the shift after the dice)',
-      { features: ['nodeAttack', 'move'] },
-      ['pwa:painting-guardians-curved-sword', 'shared:fireball', 'tog:dragon-tooth'],
+      'features: node attack',
+      { features: ['nodeAttack'] },
+      ['shared:fireball', 'tog:dragon-tooth'],
     ],
+    [
+      'features: move (also the shift after the dice)',
+      { features: ['move'] },
+      ['pwa:painting-guardians-curved-sword'],
+    ],
+    ['features: node attack and move: no card has both', { features: ['nodeAttack', 'move'] }, []],
     [
       'defence: has block dice',
       { defence: ['block'] },
@@ -98,6 +105,14 @@ describe('treasure filters', () => {
     const filters = { ...emptyValues(typeFields.treasure), defence: ['block' as const] };
     expect(matchesTreasure(ember, filters)).toBe(false); // {} = no block dice
     expect(matchesTreasure(unknownBlock, filters)).toBe(true);
+    // Both boxes ticked: unknown block passes, but no resist dice still fails.
+    const both = { ...filters, defence: ['block' as const, 'resist' as const] };
+    expect(matchesTreasure(unknownBlock, both)).toBe(false);
+    const unknownBlockWithResist = {
+      ...unknownBlock,
+      defence: { ...unknownBlock.defence, resist: { black: 1 } },
+    };
+    expect(matchesTreasure(unknownBlockWithResist, both)).toBe(true);
   });
 
   it('attack dice: the card uses every ticked die, on any of its attacks', () => {
@@ -155,11 +170,8 @@ describe('encounter filters', () => {
     ['2 or 3 tiles', { tiles: [2, 3] }, ['tog:gravelord-nito', 'tog:lakeview-refuge']],
     ['traps', { includes: ['traps'] }, ['tog:lakeview-refuge']],
     ['chests (in any setup role)', { includes: ['chests'] }, ['sc:dark-alleyway']],
-    [
-      'chests or trial',
-      { includes: ['chests', 'trial'] },
-      ['sc:dark-alleyway', 'tog:lakeview-refuge'],
-    ],
+    ['checkboxes: traps and trial', { includes: ['traps', 'trial'] }, ['tog:lakeview-refuge']],
+    ['checkboxes: chests and trial: none has both', { includes: ['chests', 'trial'] }, []],
     ['special rule: darkness', { keywords: ['darkness'] }, ['tog:lakeview-refuge']],
     ['no card has the rule', { keywords: ['timer'] }, []],
     ['all of: level III and a chest', { level: [3], includes: ['chests'] }, []],

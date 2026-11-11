@@ -2,19 +2,31 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { NotFound } from '@/app/NotFound';
 import type { KeepFocusState } from '@/app/AppShell';
-import { useCatalog } from '@/shared/api/queries';
+import { useCatalog, useClasses } from '@/shared/api/queries';
 import type { CardType } from '@/shared/api/types';
 import { displayCodes, type NameOf } from '@/shared/lib/format';
 import { pickParams, readParams } from '@/shared/lib/url-state';
 import { PageHeader } from '@/shared/ui/PageHeader';
+import { Chip, ChipRow } from '@/shared/ui/Chip';
 import { Tabs } from '@/shared/ui/Tabs';
 import { ArchiveToolbar } from './ArchiveToolbar';
-import { cardsOfType, overview, PREVIEW, tabCounts } from './catalog';
-import { commonFields, rememberFilters, tabSearch, typeFields, type TypeFilters } from './filters';
+import { cardsOfType, overview, PREVIEW, setCounts, tabCounts } from './catalog';
+import { FilterRail } from './FilterRail';
+import { activeChips, toggleSet } from './rail';
+import {
+  commonFields,
+  rememberFilters,
+  tabSearch,
+  typeFields,
+  type CommonFilters,
+  type TypeFilters,
+} from './filters';
+import { CARD_TYPES } from '@/shared/lib/card-types';
+import { emptyValues } from '@/shared/lib/url-state';
 import { archiveMemory } from './memory';
 import { ARCHIVE_TABS, tabForSlug, type ArchiveTab } from './tabs';
 import { TypeSection } from './TypeSection';
-import { useCommonFilters } from './useArchiveParams';
+import { useCommonFilters, type Update } from './useArchiveParams';
 import styles from './ArchivePage.module.css';
 
 const ALL = 'all';
@@ -35,8 +47,9 @@ export function ArchivePage() {
 
 function Archive({ tab }: { tab: ArchiveTab | undefined }) {
   const navigate = useNavigate();
-  const { params, common, setCommon } = useCommonFilters();
+  const { params, common, setCommon, write } = useCommonFilters();
   const { cards, complete, error } = useCatalog(tab?.type);
+  const classes = useClasses().data ?? [];
 
   // Each type tab keeps its own filters for the session.
   const search = params.toString();
@@ -56,6 +69,21 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
   const counts = complete ? tabCounts(cards, common, filtersOf, codes) : undefined;
   const sections = tab ? [] : overview(cards, common, codes);
   const tabCards = tab ? cardsOfType(cards, tab.type, common, filtersOf(tab.type), codes) : [];
+
+  const typeFilters: Record<string, unknown> = tab ? filtersOf(tab.type) : {};
+  const setTypeFilters = (update: Update) => {
+    if (tab) write(typeFields[tab.type], update);
+  };
+  const classNames = new Map(classes.map((c) => [c.id, c.name]));
+  const chips = activeChips(common, tab?.type, typeFilters, (id) => classNames.get(id) ?? id);
+
+  /** Set and search, every type's remembered filters, and the open tab's filters. */
+  function clearAll() {
+    for (const type of CARD_TYPES) archiveMemory.save(type, new URLSearchParams());
+    const cleared: Partial<CommonFilters> = { sets: [], q: '' };
+    setCommon(cleared);
+    if (tab) write(typeFields[tab.type], emptyValues(typeFields[tab.type]));
+  }
 
   function openTab(id: typeof ALL | CardType) {
     const query =
@@ -79,6 +107,20 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
         }
       />
       <div className={styles.layout}>
+        <FilterRail
+          tab={tab}
+          sets={common.sets}
+          setCounts={complete ? setCounts(cards, tab?.type) : undefined}
+          onToggleSet={(set) => {
+            setCommon({ sets: toggleSet(common.sets, set) });
+          }}
+          typeLinks={ARCHIVE_TABS.map((t) => ({ tab: t, count: counts?.[t.type] }))}
+          onOpenType={openTab}
+          filters={typeFilters}
+          onChange={setTypeFilters}
+          classes={classes}
+          onReset={clearAll}
+        />
         <section className={styles.results} aria-label="Results" id="archive-results">
           <Tabs
             label="Card type"
@@ -101,6 +143,20 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
             placeholder={tab ? `Search ${tab.lower}` : 'Search every card by name or ID'}
             onChange={setCommon}
           />
+          {chips.length > 0 && (
+            <ChipRow onClearAll={clearAll}>
+              {chips.map((chip) => (
+                <Chip
+                  key={chip.id}
+                  label={chip.label}
+                  onRemove={() => {
+                    if (chip.clear.common) setCommon(chip.clear.common);
+                    if (chip.clear.filters) setTypeFilters(chip.clear.filters);
+                  }}
+                />
+              ))}
+            </ChipRow>
+          )}
           {error ? (
             <p className={styles.message}>The archive could not be loaded. Try again later.</p>
           ) : tab ? (

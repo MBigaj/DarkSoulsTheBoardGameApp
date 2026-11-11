@@ -80,7 +80,7 @@
   --gutter: 24px;
   --rail-width: 280px; /* 260–300px */
   --tap-min: 44px;
-  --pill-min: 40px;
+  --pill-min: 44px; /* touch target rule: 44px everywhere */
   --button-min: 48px;
 
   /* Cards */

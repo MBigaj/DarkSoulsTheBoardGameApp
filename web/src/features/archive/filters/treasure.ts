@@ -8,7 +8,7 @@ import {
   tags,
   type Values,
 } from '@/shared/lib/url-state';
-import { anyOf, anyOfMany, atLeast, atMost, every } from './match';
+import { allTicked, anyOf, anyOfMany, atLeast, atMost, every } from './match';
 
 const FEATURES = ['nodeAttack', 'push', 'shaft', 'repeat', 'move'] as const;
 export type AttackFeature = (typeof FEATURES)[number];
@@ -82,23 +82,15 @@ function matchesAttacks(card: Treasure, f: TreasureFilters): boolean {
     )
   )
     return false;
-  if (
-    !anyOfMany(
-      f.features,
-      FEATURES.filter((x) => attacks.some((a) => hasFeature(a, x))),
-    )
-  ) {
-    return false;
-  }
-  return true;
+  // Checkboxes: every ticked feature, each on any of the attacks.
+  return allTicked(f.features, (feature) => attacks.some((a) => hasFeature(a, feature)));
 }
 
-/** `null` block or resist dice (unknown) keep the card visible. */
+/** Checkboxes: every ticked kind of defence dice. `null` dice (unknown) keep the card visible. */
 function matchesDefence(card: Treasure, f: TreasureFilters): boolean {
-  if (f.defence.length === 0) return true;
   const { block, resist } = card.defence;
   const has = (dice: typeof block) => (dice === null ? null : Object.keys(dice).length > 0);
-  return f.defence.some((kind) => has(kind === 'block' ? block : resist) !== false);
+  return allTicked(f.defence, (kind) => has(kind === 'block' ? block : resist));
 }
 
 export function matchesTreasure(card: Treasure, f: TreasureFilters): boolean {
