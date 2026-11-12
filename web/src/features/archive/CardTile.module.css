@@ -49,6 +49,18 @@
   --tile-glow: color-mix(in srgb, var(--badge-starter) 70%, transparent);
 }
 
+.card[data-tone='level1'] {
+  --tile-glow: color-mix(in srgb, var(--level-1) 50%, transparent);
+}
+
+.card[data-tone='level2'] {
+  --tile-glow: color-mix(in srgb, var(--level-2) 70%, transparent);
+}
+
+.card[data-tone='level3'] {
+  --tile-glow: color-mix(in srgb, var(--level-3) 70%, transparent);
+}
+
 .card[data-tone='rare'] {
   --tile-glow: color-mix(in srgb, var(--badge-rare) 70%, transparent);
 }

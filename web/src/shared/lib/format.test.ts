@@ -55,17 +55,17 @@ describe('statLine', () => {
     [
       'encounter, one tile',
       { ...common, _id: 'tog-encounter-x', type: 'encounter', level: 1, tiles: [{}] },
-      'Level I · 1 tile',
+      '1 tile',
     ],
     [
       'encounter, several tiles',
       { ...common, _id: 'tog-encounter-y', type: 'encounter', level: 3, tiles: [{}, {}, {}] },
-      'Level III · 3 tiles',
+      '3 tiles',
     ],
     [
       'boss encounter, no level',
       { ...common, _id: 'tog-encounter-z', type: 'encounter', boss: 'tog-boss-x', tiles: [{}, {}] },
-      'Boss · 2 tiles',
+      '2 tiles',
     ],
     [
       'event',
@@ -152,6 +152,11 @@ describe('badge', () => {
       'plain behaviour',
       { ...common, _id: 'tog-behaviour-y', type: 'behaviour', heatUp: false, parts: [] },
       { label: 'Behaviour' },
+    ],
+    [
+      'encounter: its level',
+      { ...common, _id: 'tog-encounter-y', type: 'encounter', level: 2, tiles: [{}] },
+      { label: 'Level II', tone: 'level2' },
     ],
     [
       'boss encounter',

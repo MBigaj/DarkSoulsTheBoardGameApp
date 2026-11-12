@@ -38,6 +38,19 @@
   color: var(--badge-starter);
 }
 
+/* Encounter levels: the canvas level-ring colours, which match the level icon (owner, 12 Nov). */
+.level1 {
+  color: var(--level-1);
+}
+
+.level2 {
+  color: var(--level-2);
+}
+
+.level3 {
+  color: var(--level-3);
+}
+
 .common {
   color: var(--badge-common);
 }
