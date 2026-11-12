@@ -29,6 +29,7 @@ function notImplemented(method: keyof Api): ApiError {
 export const httpApi: Api = {
   listCards: () => Promise.reject(notImplemented('listCards')),
   getCard: () => Promise.reject(notImplemented('getCard')),
+  listBacks: () => Promise.reject(notImplemented('listBacks')),
   getDice: () => Promise.reject(notImplemented('getDice')),
   listClasses: () => Promise.reject(notImplemented('listClasses')),
   generateEncounter: () => Promise.reject(notImplemented('generateEncounter')),

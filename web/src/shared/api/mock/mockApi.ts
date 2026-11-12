@@ -75,6 +75,11 @@ export const mockApi: Api = {
     return card;
   },
 
+  async listBacks() {
+    await latency();
+    return (await import('./sources/backs')).default;
+  },
+
   async getDice() {
     await latency();
     const dice = (await import('./sources/dice')).default;

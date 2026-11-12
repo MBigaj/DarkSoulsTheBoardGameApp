@@ -1,0 +1,15 @@
+{
+  "_id": "tog-back-behaviour-black-knight",
+  "set": "tog",
+  "art": "backs/tog/behaviour-black-knight.png",
+  "for": [
+    {
+      "type": "behaviour",
+      "boss": "tog-boss-black-knight"
+    },
+    {
+      "type": "boss",
+      "card": "tog-boss-black-knight"
+    }
+  ]
+}

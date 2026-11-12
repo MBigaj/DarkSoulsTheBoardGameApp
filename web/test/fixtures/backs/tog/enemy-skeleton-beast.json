@@ -1,0 +1,11 @@
+{
+  "_id": "tog-back-enemy-skeleton-beast",
+  "set": "tog",
+  "art": "backs/tog/enemy-skeleton-beast.png",
+  "for": [
+    {
+      "type": "enemy",
+      "card": "tog-enemy-skeleton-beast"
+    }
+  ]
+}

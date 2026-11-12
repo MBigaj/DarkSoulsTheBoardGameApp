@@ -1,0 +1,11 @@
+{
+  "_id": "tog-back-enemy-giant-skeleton-archer",
+  "set": "tog",
+  "art": "backs/tog/enemy-giant-skeleton-archer.png",
+  "for": [
+    {
+      "type": "enemy",
+      "card": "tog-enemy-giant-skeleton-archer"
+    }
+  ]
+}

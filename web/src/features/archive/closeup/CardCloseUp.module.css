@@ -1,0 +1,187 @@
+/* Handoff "Card close-up" (ArchiveFinal .lb). The dialog is the column and its backdrop. */
+
+/* Its children are the dialog's own flex items, so a click between them lands on the backdrop. */
+.content {
+  display: contents;
+}
+
+.stage {
+  perspective: 1600px;
+  animation: card-in var(--dur-open) var(--ease-open) both;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.8);
+  }
+}
+
+/* Width: min(88vw, 76vh × ratio, max width). */
+.card {
+  --ratio: var(--ratio-treasure);
+  --max-w: 560px;
+
+  position: relative;
+  width: min(88vw, calc(76vh * var(--ratio)), var(--max-w));
+  aspect-ratio: var(--ratio);
+  transform-style: preserve-3d;
+  transition: transform var(--dur-flip) var(--ease-flip);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.card[data-dragging] {
+  transition: none;
+  cursor: grabbing;
+}
+
+.card[data-type='event'] {
+  --ratio: var(--ratio-event);
+}
+
+.card[data-type='enemy'] {
+  --ratio: var(--ratio-enemy);
+}
+
+.card[data-type='boss'] {
+  --ratio: var(--ratio-boss);
+}
+
+.card[data-type='behaviour'] {
+  --ratio: var(--ratio-behaviour);
+}
+
+.card[data-type='encounter'] {
+  --ratio: var(--ratio-encounter);
+  --max-w: 520px;
+}
+
+.side {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--card-radius-closeup);
+  backface-visibility: hidden;
+  box-shadow:
+    0 50px 120px -40px var(--glow),
+    0 30px 60px -30px rgb(0 0 0 / 90%);
+}
+
+.side[data-back] {
+  transform: rotateY(180deg);
+}
+
+/* The face fills the box; its own ratio class would fight the box's. */
+.face {
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+.backImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.loading,
+.placeholderBack {
+  position: absolute;
+  inset: 0;
+  background: var(--panel2);
+}
+
+.placeholderBack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(45deg, var(--hatch) 0 2px, transparent 2px 12px), var(--panel2);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* Text passes clicks through to the backdrop (canvas). */
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.875rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.missing {
+  margin: 0;
+  font-size: var(--fs-lede);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action {
+  min-height: var(--tap-min);
+  padding: 0 18px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    color var(--dur-hover) var(--ease-std);
+}
+
+.action:hover {
+  border-color: var(--ornament);
+  color: var(--text);
+}

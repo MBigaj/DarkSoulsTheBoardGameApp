@@ -11,6 +11,7 @@ export const queryKeys = {
   firstPage: (type: CardType | 'all') => ['cards', 'first', type] as const,
   catalog: (version: string) => ['cards', 'catalog', version] as const,
   card: (id: string) => ['cards', 'detail', id] as const,
+  backs: ['backs'] as const,
   dice: ['dice'] as const,
   classes: ['classes'] as const,
   encounter: (id: string) => ['encounters', id] as const,
@@ -51,6 +52,14 @@ export function useCard(id: string | null) {
     queryKey: queryKeys.card(id ?? ''),
     queryFn: () => api.getCard(id ?? ''),
     enabled: id !== null,
+  });
+}
+
+export function useBacks() {
+  return useQuery({
+    queryKey: queryKeys.backs,
+    queryFn: () => api.listBacks(),
+    staleTime: Infinity,
   });
 }
 

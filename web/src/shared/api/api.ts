@@ -8,6 +8,7 @@
  */
 import type {
   Card,
+  CardBack,
   CardListQuery,
   CardPage,
   ClassDef,
@@ -21,6 +22,8 @@ export interface Api {
   listCards(query: CardListQuery): Promise<CardPage>;
   /** The full card, for the close-up. 404 → ApiError. */
   getCard(id: string): Promise<Card>;
+  /** Every card back; the client picks a card's with `backFor`. */
+  listBacks(): Promise<CardBack[]>;
   getDice(): Promise<DiceTable>;
   listClasses(): Promise<ClassDef[]>;
   generateEncounter(request: ForgeRequest): Promise<ForgedEncounter>;
@@ -32,6 +35,7 @@ export type EndpointGroup = 'cards' | 'dice' | 'classes' | 'encounters';
 const GROUP: Record<keyof Api, EndpointGroup> = {
   listCards: 'cards',
   getCard: 'cards',
+  listBacks: 'cards',
   getDice: 'dice',
   listClasses: 'classes',
   generateEncounter: 'encounters',
@@ -58,6 +62,7 @@ function implementation(method: keyof Api): Promise<Api> {
 export const api: Api = {
   listCards: async (query) => (await implementation('listCards')).listCards(query),
   getCard: async (id) => (await implementation('getCard')).getCard(id),
+  listBacks: async () => (await implementation('listBacks')).listBacks(),
   getDice: async () => (await implementation('getDice')).getDice(),
   listClasses: async () => (await implementation('listClasses')).listClasses(),
   generateEncounter: async (request) =>

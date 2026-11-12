@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { NotFound } from '@/app/NotFound';
 import type { KeepFocusState } from '@/app/AppShell';
 import { useCatalog, useClasses } from '@/shared/api/queries';
@@ -35,7 +35,10 @@ import { archiveMemory } from './memory';
 import { ARCHIVE_TABS, tabForSlug, type ArchiveTab } from './tabs';
 import { TypeSection } from './TypeSection';
 import { useCommonFilters, type Update } from './useArchiveParams';
+import type { CloseUpState } from './CardTile';
 import styles from './ArchivePage.module.css';
+
+const CardCloseUp = lazy(() => import('./closeup/CardCloseUp'));
 
 const ALL = 'all';
 const KEEP: KeepFocusState = { keepFocus: true };
@@ -55,6 +58,7 @@ export function ArchivePage() {
 
 function Archive({ tab }: { tab: ArchiveTab | undefined }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { params, common, setCommon, write } = useCommonFilters();
   const { cards, complete, error } = useCatalog(tab?.type);
   const classes = useClasses().data ?? [];
@@ -70,6 +74,26 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
     const names = new Map(cards.map((card) => [card._id, card.name]));
     return (id) => names.get(id);
   }, [cards]);
+
+  const cardId = params.get('card');
+  const cached = useMemo(
+    () => (cardId === null ? undefined : cards.find((card) => card._id === cardId)),
+    [cards, cardId],
+  );
+
+  /** Opened from a tile: Back. Opened from a link: drop `?card=` in place. */
+  function closeCard() {
+    if ((location.state as CloseUpState | null)?.closeUp) {
+      void navigate(-1);
+      return;
+    }
+    const next = new URLSearchParams(params);
+    next.delete('card');
+    void navigate(
+      { search: next.toString() },
+      { replace: true, preventScrollReset: true, state: KEEP },
+    );
+  }
 
   // The open tab's filters come from the URL, the others' from session memory.
   const filtersOf = <T extends CardType>(type: T): TypeFilters<T> =>
@@ -224,6 +248,18 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
           )}
         </section>
       </div>
+      {cardId !== null && (
+        <Suspense fallback={null}>
+          <CardCloseUp
+            key={cardId}
+            id={cardId}
+            cached={cached}
+            code={complete ? codes.get(cardId) : undefined}
+            nameOf={nameOf}
+            onClose={closeCard}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

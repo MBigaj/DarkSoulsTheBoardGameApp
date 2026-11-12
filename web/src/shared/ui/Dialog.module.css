@@ -8,6 +8,12 @@
   background: transparent;
   color: var(--text);
   overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* The page behind a modal doesn't scroll. */
+:global(html):has(.dialog[open]) {
+  overflow: hidden;
 }
 
 .dialog[open] {

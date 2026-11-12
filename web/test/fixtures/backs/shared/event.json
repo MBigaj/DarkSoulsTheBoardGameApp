@@ -1,0 +1,15 @@
+{
+  "_id": "shared-back-event",
+  "set": "shared",
+  "sets": [
+    "tog",
+    "pwa",
+    "sc"
+  ],
+  "art": "backs/shared/event.png",
+  "for": [
+    {
+      "type": "event"
+    }
+  ]
+}

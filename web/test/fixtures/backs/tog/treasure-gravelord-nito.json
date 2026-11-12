@@ -1,0 +1,12 @@
+{
+  "_id": "tog-back-treasure-gravelord-nito",
+  "set": "tog",
+  "art": "backs/tog/treasure-gravelord-nito.png",
+  "for": [
+    {
+      "type": "treasure",
+      "deck": "boss",
+      "boss": "tog-boss-gravelord-nito"
+    }
+  ]
+}

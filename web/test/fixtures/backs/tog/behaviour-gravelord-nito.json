@@ -1,0 +1,15 @@
+{
+  "_id": "tog-back-behaviour-gravelord-nito",
+  "set": "tog",
+  "art": "backs/tog/behaviour-gravelord-nito.png",
+  "for": [
+    {
+      "type": "behaviour",
+      "boss": "tog-boss-gravelord-nito"
+    },
+    {
+      "type": "boss",
+      "card": "tog-boss-gravelord-nito"
+    }
+  ]
+}

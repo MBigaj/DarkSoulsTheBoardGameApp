@@ -1,0 +1,12 @@
+{
+  "_id": "tog-back-treasure-black-knight",
+  "set": "tog",
+  "art": "backs/tog/treasure-black-knight.png",
+  "for": [
+    {
+      "type": "treasure",
+      "deck": "boss",
+      "boss": "tog-boss-black-knight"
+    }
+  ]
+}

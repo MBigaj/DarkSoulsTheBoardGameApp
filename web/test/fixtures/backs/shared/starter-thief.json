@@ -1,0 +1,15 @@
+{
+  "_id": "shared-back-starter-thief",
+  "set": "shared",
+  "sets": [
+    "tog"
+  ],
+  "art": "backs/shared/starter-thief.png",
+  "for": [
+    {
+      "type": "treasure",
+      "deck": "starter",
+      "class": "thief"
+    }
+  ]
+}
