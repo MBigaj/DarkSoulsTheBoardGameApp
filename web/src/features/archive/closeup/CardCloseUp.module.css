@@ -17,13 +17,16 @@
   }
 }
 
-/* Width: min(88vw, 76vh × ratio, max width). */
+/*
+ * Width: min(88vw, (screen height − 340px) × ratio, max width). The 380px keeps the name, buttons
+ * and gaps on screen, plus room for the near edge, which grows ~15% mid-flip (owner, 12 Nov).
+ */
 .card {
   --ratio: var(--ratio-treasure);
   --max-w: 560px;
 
   position: relative;
-  width: min(88vw, calc(76vh * var(--ratio)), var(--max-w));
+  width: max(160px, min(88vw, calc((100dvh - 380px) * var(--ratio)), var(--max-w)));
   aspect-ratio: var(--ratio);
   transform-style: preserve-3d;
   transition: transform var(--dur-flip) var(--ease-flip);
