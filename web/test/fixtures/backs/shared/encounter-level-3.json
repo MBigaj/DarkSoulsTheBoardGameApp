@@ -1,0 +1,16 @@
+{
+  "_id": "shared-back-encounter-level-3",
+  "set": "shared",
+  "sets": [
+    "tog",
+    "pwa",
+    "sc"
+  ],
+  "art": "backs/shared/encounter-level-3.png",
+  "for": [
+    {
+      "type": "encounter",
+      "level": 3
+    }
+  ]
+}

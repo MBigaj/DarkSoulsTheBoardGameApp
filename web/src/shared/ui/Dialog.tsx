@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { cx } from '@/shared/lib/cx';
 import styles from './Dialog.module.css';
 
@@ -30,16 +30,35 @@ export function Dialog({
   // A backdrop click must start on the backdrop: a drag from the card that ends there doesn't count.
   const downOnBackdrop = useRef(false);
 
+  // Whatever had focus before opening (the tile's link) gets it back on close or unmount
+  // (e.g. the Back button removes the dialog). Browsers restore it natively, but not on unmount.
+  // Read on the first render, before the dialog takes focus: a dialog that mounts open (the
+  // close-up) has no earlier moment. StrictMode's extra effect run can't overwrite it.
+  const [focusedAtMount] = useState(() =>
+    document.activeElement instanceof HTMLElement ? document.activeElement : null,
+  );
+  const opener = useRef(focusedAtMount);
+
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
     if (open && !dialog.open) {
+      const focused = document.activeElement;
+      if (focused instanceof HTMLElement && !dialog.contains(focused)) opener.current = focused;
       dialog.showModal();
       initialFocusRef?.current?.focus();
     } else if (!open && dialog.open) {
       dialog.close();
+      restoreFocus(opener);
     }
   }, [open, initialFocusRef]);
+
+  useEffect(
+    () => () => {
+      restoreFocus(opener);
+    },
+    [],
+  );
 
   return (
     // Escape goes through the native cancel event, so the click handler needs no key twin.
@@ -67,4 +86,9 @@ export function Dialog({
       {children}
     </dialog>
   );
+}
+
+function restoreFocus(opener: { current: HTMLElement | null }) {
+  const element = opener.current;
+  if (element?.isConnected) element.focus({ preventScroll: true });
 }

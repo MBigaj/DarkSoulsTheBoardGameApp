@@ -1,0 +1,11 @@
+{
+  "_id": "sc-back-behaviour-ornstein-and-smough",
+  "set": "sc",
+  "art": "backs/sc/behaviour-ornstein-and-smough.png",
+  "for": [
+    {
+      "type": "behaviour",
+      "combined": true
+    }
+  ]
+}

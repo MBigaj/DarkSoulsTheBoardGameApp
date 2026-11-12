@@ -4,6 +4,7 @@
  */
 import type { CardSet, CardType, Die, SetCode } from '@/shared/lib/card-types';
 import type {
+  RawBack,
   RawBehaviour,
   RawBoss,
   RawClass,
@@ -186,3 +187,6 @@ export type ForgedEncounter = {
   enemies: { enemyId: string; tile: number }[];
   terrain: { name: string; tile: number }[];
 };
+
+/** A deck's card back (`backs/{set}/*.json`); `backFor` in lib/backs.ts picks a card's. */
+export type CardBack = RawBack;

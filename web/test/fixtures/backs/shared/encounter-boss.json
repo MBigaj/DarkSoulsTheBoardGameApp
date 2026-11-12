@@ -1,0 +1,16 @@
+{
+  "_id": "shared-back-encounter-boss",
+  "set": "shared",
+  "sets": [
+    "tog",
+    "pwa",
+    "sc"
+  ],
+  "art": "backs/shared/encounter-boss.png",
+  "for": [
+    {
+      "type": "encounter",
+      "boss": true
+    }
+  ]
+}

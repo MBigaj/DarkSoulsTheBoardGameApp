@@ -9,7 +9,9 @@ import styles from './CardTile.module.css';
 
 type CardTileProps = { card: Card; code: string | undefined; nameOf: NameOf };
 
-const KEEP: KeepFocusState = { keepFocus: true };
+/** Pushed by a tile, so closing the close-up can go Back instead of adding a history entry. */
+export type CloseUpState = KeepFocusState & { closeUp?: boolean };
+const OPEN: CloseUpState = { keepFocus: true, closeUp: true };
 
 /**
  * Card face, badge, display code and stat line. The whole tile is one link to `?card=<_id>`
@@ -30,7 +32,7 @@ export function CardTile({ card, code, nameOf }: CardTileProps) {
           className={styles.link}
           to={{ search: next.toString() }}
           preventScrollReset
-          state={KEEP}
+          state={OPEN}
           aria-haspopup="dialog"
         >
           <span className="visually-hidden">{card.name}</span>

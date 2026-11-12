@@ -26,7 +26,7 @@ Node 26 (`.nvmrc`). TypeScript is pinned to ~6.0 and ESLint to 9: typescript-esl
 ## Data
 
 - Mock mode (default) reads the card store: `DATA_DIR`, else `../../DSTBG_DATA` beside the repo, else `test/fixtures`. Classes come from the store's `classes/*.json`. Fixtures (sample encounters): `FIXTURES_DIR`, else `../data/fixtures`. See `scripts/data-paths.ts`.
-- Tests always use `test/fixtures`: byte-for-byte store copies (19 cards, all six types, shared cards, a boss encounter, the combined O&S card, null damage type). Refresh them from the store after a schema change. `src/test/fixture-cards.ts` loads them normalized. CI never needs the store.
+- Tests always use `test/fixtures`: byte-for-byte store copies (19 cards, all six types, shared cards, a boss encounter, the combined O&S card, null damage type; the backs those cards use). Refresh them from the store after a schema change. `src/test/fixture-cards.ts` loads them normalized. CI never needs the store.
 - `VITE_API_MODE=mock|http`; `VITE_API_HTTP=cards,dice` sends single groups over HTTP. `httpApi` (`shared/api/http/`) is the backend owner's.
 
 ## Folder map
@@ -35,7 +35,7 @@ Node 26 (`.nvmrc`). TypeScript is pinned to ~6.0 and ESLint to 9: typescript-esl
 src/app/          shell: router, Providers, AppShell (Navbar, Footer), RouteError, NotFound
 src/styles/       tokens.css (all design tokens), fonts, reset, base, motion (reduced motion)
 src/shared/ui/    design-system components, one file + CSS Module each
-src/shared/lib/   pure logic: dice.ts, format.ts, url-state.ts, card-image.ts, card-types.ts, cx.ts
+src/shared/lib/   pure logic: dice.ts, format.ts, url-state.ts, backs.ts, card-image.ts, card-types.ts, cx.ts
 src/shared/api/   api.ts (Api interface + mock/http switch), types.ts, queries.ts (hooks),
                   normalize/, mock/ (mockApi + per-type lazy sources), http/, generated/ (do not edit)
 src/features/     one folder per page: home, style (dev only), archive (filters/), characters, forge
@@ -54,8 +54,9 @@ test/fixtures/    committed test data, same layout as the store
 - Filter semantics (canvas): pills = any of; checkboxes (attack features, defence dice, encounter includes) = every ticked; dice = card uses every ticked die; filters combine with all of; absent field fails an active filter; `null` passes; bounds inclusive. Use the helpers in `filters/match.ts`.
 - Routes: one lazy chunk per page in `app/router.tsx`. Pages set their own `<title>`.
 - `/characters`, `/forge` and `/forge/:id` render placeholder pages (`features/*/…Page.tsx`) until FE-15 and FE-19 replace those files.
-- Archive: `ArchivePage` (tabs, toolbar, sections) → `TypeSection` → `CardTile`. Tab slugs, labels and blurbs live in `features/archive/tabs.ts`; an unknown slug renders Not Found. Everything shown is derived in `archive/catalog.ts` (overview, `cardsOfType`, tab and set counts). Counts and "View all" appear once the catalog is `complete`; until then skeleton tiles hold the grid slots (keyed by slot, so nothing shifts). A tile is one stretched link to `?card=<_id>` (close-up in FE-14).
+- Archive: `ArchivePage` (tabs, toolbar, sections) → `TypeSection` → `CardTile`. Tab slugs, labels and blurbs live in `features/archive/tabs.ts`; an unknown slug renders Not Found. Everything shown is derived in `archive/catalog.ts` (overview, `cardsOfType`, tab and set counts). Counts and "View all" appear once the catalog is `complete`; until then skeleton tiles hold the grid slots (keyed by slot, so nothing shifts). A tile is one stretched link to `?card=<_id>`, which opens the close-up.
 - Rail: `FilterRail` renders `archive/rail.ts` (groups, filters, option labels per type; class options from `useClasses`) and `activeChips` gives the chip labels and what each clears. Sets: an empty `set` param means all three; the last ticked set can't be unticked. Options that would leave no cards are greyed out: `availableOptions` (catalog.ts) over `railFacets` (rail.ts), judged with everything else selected; ticked options stay clickable. Boss drop is a Rarity option (`rarity=boss`), not a Deck one. Pills of kind `data` take their options from the page (`DataOptions`: classes from `useClasses`, bosses from the catalog); behaviour cards filter by boss (a combined card counts for both) and by behaviour / heat up. "Clear all" / "Reset all" clear sets, search, the open tab's filters and every tab's remembered filters.
+- Close-up: `archive/closeup/CardCloseUp` (lazy chunk) renders over the archive while `?card=` is set; the card comes from the catalog when cached, else `useCard`. A tile pushes `?card=` with `state.closeUp`, so closing goes Back; a deep link closes by dropping the param in place. Flip maths: `settleTarget()` and `sideAt()` in `useFlip.ts` (unit-tested); the drag writes the transform straight to the element and `data-dragging` turns the settle transition off. Escape and ←/→ are handled on keydown inside the dialog. The back is the deck's real back: `backFor(card, backs)` in `lib/backs.ts` (most specific `for` entry wins; `useBacks` → `listBacks`); placeholder if none or the image is missing.
 - Import UI components from their own files (`@/shared/ui/Button`), not a barrel: a barrel pulls every component's CSS into each chunk.
 - Filter rail: beside the results above 900px; at 900px and below it wraps above them inside one `<details>` ("Filters (N active)", N = active chips), closed on load. `NARROW` in `FilterRail.tsx` and the CSS media query must match; `.results` flex-basis (500px) keeps the two side by side down to 901px.
 - Hover glow is crimson; Legendary, Mini boss (gold), Rare (blue), Heat up (fire crimson), Starter (ember orange), Common (light grey) and encounter Level I–III (the `--level-N` ring colours) glow in their badge colour; enemies glow in a darkened Enemy tag colour, events in the Event tag colour (`data-tone` / `data-type` on the tile, `--tile-glow` in `CardTile.module.css`).
@@ -70,7 +71,7 @@ test/fixtures/    committed test data, same layout as the store
 - Shared cards have `set: 'shared'` and `sets: [...]`: use `cardSets(card)` for set filters and counts, never `card.set`. Boss encounters have `boss` and no `level`.
 - Navigation moves focus to `<main>`. To keep focus where it is (e.g. archive tabs), navigate with `state: { keepFocus: true }` (`KeepFocusState` in `AppShell`).
 - `<ScrollRestoration />` handles scroll: hash targets, top on a new page, restore on Back. Give anchor targets a `scroll-margin-top`.
-- `Dialog` closes on Escape, a backdrop click that _starts_ on the backdrop, and any native close; the parent owns `open`.
+- `Dialog` closes on Escape, a backdrop click that _starts_ on the backdrop, and any native close; the parent owns `open`. It gives focus back to whatever had it before opening, also when it unmounts (Back). Clicks between its children land on the dialog, so they count as backdrop clicks (the close-up's content is `display: contents`). jsdom has no `showModal`: `test/setup.ts` stubs it.
 - URL writes go through `useCommonFilters().write`, which builds on the previous write and takes a function of the latest values for toggles. Writing from render-time values loses updates when two writes land before a re-render (quick clicks, "Clear all").
 - `text` URL fields are stored trimmed. A debounced input that syncs from the URL must not reset its draft when the URL value is just its own trimmed write (`ArchiveToolbar`), or typed spaces vanish.
 - The Cormorant subset has no small caps: use uppercase at a smaller size instead of `font-variant: small-caps`.

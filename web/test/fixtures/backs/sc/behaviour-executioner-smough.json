@@ -1,0 +1,15 @@
+{
+  "_id": "sc-back-behaviour-executioner-smough",
+  "set": "sc",
+  "art": "backs/sc/behaviour-executioner-smough.png",
+  "for": [
+    {
+      "type": "behaviour",
+      "boss": "sc-boss-executioner-smough"
+    },
+    {
+      "type": "boss",
+      "card": "sc-boss-executioner-smough"
+    }
+  ]
+}

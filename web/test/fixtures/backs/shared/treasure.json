@@ -1,0 +1,31 @@
+{
+  "_id": "shared-back-treasure",
+  "set": "shared",
+  "sets": [
+    "tog",
+    "pwa",
+    "sc"
+  ],
+  "art": "backs/shared/treasure.png",
+  "for": [
+    {
+      "type": "treasure",
+      "deck": "treasure"
+    },
+    {
+      "type": "treasure",
+      "deck": "boss",
+      "boss": "sc-boss-titanite-demon"
+    },
+    {
+      "type": "treasure",
+      "deck": "boss",
+      "boss": "sc-boss-dragon-slayer-ornstein"
+    },
+    {
+      "type": "treasure",
+      "deck": "boss",
+      "boss": "sc-boss-executioner-smough"
+    }
+  ]
+}
