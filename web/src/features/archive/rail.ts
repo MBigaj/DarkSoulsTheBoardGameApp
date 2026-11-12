@@ -8,13 +8,17 @@ import type { Facet } from './catalog';
 import type { CommonFilters, TypeFilters } from './filters';
 
 type Value = string | number;
+
+/** Data-driven option lists, filled by the page: `{ id, name }` per option. */
+export type DataSource = 'classes' | 'bosses';
+export type DataOptions = Record<DataSource, readonly { id: string; name: string }[]>;
 type Key<T extends CardType> = keyof TypeFilters<T> & string;
 
 export type RailFilter<T extends CardType = CardType> =
   /** Any of the options. */
   | { kind: 'pills'; key: Key<T>; label: string; options: readonly (readonly [Value, string])[] }
-  /** Pills whose options come from the data (class slugs from `classes/*.json`). */
-  | { kind: 'classes'; key: Key<T>; label: string }
+  /** Pills whose options come from the data: classes (`classes/*.json`) or bosses (catalog). */
+  | { kind: 'data'; key: Key<T>; label: string; source: DataSource }
   /** Every ticked option. */
   | { kind: 'checks'; key: Key<T>; label: string; options: readonly (readonly [Value, string])[] }
   /** Card uses every ticked die. */
@@ -63,7 +67,7 @@ const treasure: readonly RailGroup<'treasure'>[] = [
           ['boss', 'Boss drop'],
         ],
       },
-      { kind: 'classes', key: 'class', label: 'Class' },
+      { kind: 'data', key: 'class', label: 'Class', source: 'classes' },
       {
         kind: 'pills',
         key: 'equip',
@@ -199,7 +203,24 @@ const RAIL: { [T in CardType]: readonly RailGroup<T>[] } = {
       ],
     },
   ],
-  behaviour: [],
+  behaviour: [
+    {
+      title: 'Behaviour deck',
+      open: true,
+      filters: [
+        { kind: 'data', key: 'boss', label: 'Boss', source: 'bosses' },
+        {
+          kind: 'pills',
+          key: 'kind',
+          label: 'Card',
+          options: [
+            ['behaviour', 'Behaviour'],
+            ['heatUp', 'Heat up'],
+          ],
+        },
+      ],
+    },
+  ],
   encounter: [
     {
       title: 'Encounter',
@@ -284,7 +305,7 @@ export function railFor<T extends CardType>(type: T): readonly RailGroup<T>[] {
 }
 
 /** The rail's option lists for `availableOptions` (sliders aren't greyed out). */
-export function railFacets(type: CardType, classIds: readonly string[]): Facet[] {
+export function railFacets(type: CardType, data: DataOptions): Facet[] {
   const groups: readonly RailGroup[] = railFor(type);
   return groups.flatMap((group) =>
     group.filters.flatMap((filter): Facet[] => {
@@ -298,8 +319,8 @@ export function railFacets(type: CardType, classIds: readonly string[]): Facet[]
               every: filter.kind === 'checks',
             },
           ];
-        case 'classes':
-          return [{ key: filter.key, values: classIds, every: false }];
+        case 'data':
+          return [{ key: filter.key, values: data[filter.source].map((o) => o.id), every: false }];
         case 'dice':
           return [{ key: filter.key, values: DICE, every: true }];
         default:
@@ -336,7 +357,7 @@ type Values = Record<string, unknown>;
 export function selectedCount(filter: RailFilter, values: Values): number {
   switch (filter.kind) {
     case 'pills':
-    case 'classes':
+    case 'data':
     case 'checks':
     case 'dice':
       return (values[filter.key] as readonly unknown[]).length;
@@ -365,7 +386,8 @@ export function activeChips(
   common: CommonFilters,
   type: CardType | undefined,
   filters: Values,
-  className: (slug: string) => string,
+  /** Name of a data option (class or boss) by id. */
+  optionName: (id: string) => string,
 ): ActiveChip[] {
   const chips: ActiveChip[] = [];
   const shown = shownSets(common.sets);
@@ -389,10 +411,10 @@ export function activeChips(
       if (selectedCount(filter, filters) === 0) continue;
       switch (filter.kind) {
         case 'pills':
-        case 'classes': {
+        case 'data': {
           const picked = filters[filter.key] as readonly Value[];
           const labels = picked.map((v) =>
-            filter.kind === 'pills' ? optionLabel(filter, v) : className(String(v)),
+            filter.kind === 'pills' ? optionLabel(filter, v) : optionName(String(v)),
           );
           chips.push({
             id: filter.key,

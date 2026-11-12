@@ -12,6 +12,7 @@ import {
   selectedCount,
   SET_NAMES,
   shownSets,
+  type DataOptions,
   type RailFilter,
   type RailGroup,
 } from './rail';
@@ -32,8 +33,8 @@ type FilterRailProps = {
   onOpenType: (type: CardType) => void;
   filters: Values;
   onChange: (update: Update) => void;
-  /** Class pills: slug and name, from the classes data. */
-  classes: readonly { id: string; name: string }[];
+  /** Options for data-driven pills (classes, bosses). */
+  data: DataOptions;
   /** Options that would leave cards, per filter key; the rest are greyed out. All while loading. */
   available: ReadonlyMap<string, ReadonlySet<unknown>> | undefined;
   onReset: () => void;
@@ -49,7 +50,7 @@ export function FilterRail({
   onOpenType,
   filters,
   onChange,
-  classes,
+  data,
   available,
   onReset,
 }: FilterRailProps) {
@@ -104,10 +105,6 @@ export function FilterRail({
         </FilterField>
       )}
 
-      {tab && groups.length === 0 && (
-        <p className={styles.later}>Filters for behaviour decks come later.</p>
-      )}
-
       {groups.map((group) => (
         <FilterGroup
           // Remount per type, so each type starts from its own default open groups.
@@ -122,7 +119,7 @@ export function FilterRail({
               filter={filter}
               values={filters}
               onChange={onChange}
-              classes={classes}
+              data={data}
               available={available}
             />
           ))}
@@ -136,7 +133,7 @@ type FilterProps = {
   filter: RailFilter;
   values: Values;
   onChange: (update: Update) => void;
-  classes: readonly { id: string; name: string }[];
+  data: DataOptions;
   available: ReadonlyMap<string, ReadonlySet<unknown>> | undefined;
 };
 
@@ -144,15 +141,17 @@ function toggle<T>(list: readonly T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
-function Filter({ filter, values, onChange, classes, available }: FilterProps) {
+function Filter({ filter, values, onChange, data, available }: FilterProps) {
   /** Greyed out: ticking it would leave no cards. */
   const unavailable = (key: string, value: unknown) => available?.get(key)?.has(value) === false;
   switch (filter.kind) {
     case 'pills':
-    case 'classes': {
+    case 'data': {
       const picked = values[filter.key] as readonly (string | number)[];
       const options =
-        filter.kind === 'pills' ? filter.options : classes.map((c) => [c.id, c.name] as const);
+        filter.kind === 'pills'
+          ? filter.options
+          : data[filter.source].map((o) => [o.id, o.name] as const);
       return (
         <FilterField label={filter.label}>
           <div className={styles.pills}>

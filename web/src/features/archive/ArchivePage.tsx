@@ -10,9 +10,17 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 import { Chip, ChipRow } from '@/shared/ui/Chip';
 import { Tabs } from '@/shared/ui/Tabs';
 import { ArchiveToolbar } from './ArchiveToolbar';
-import { availableOptions, cardsOfType, overview, PREVIEW, setCounts, tabCounts } from './catalog';
+import {
+  availableOptions,
+  cardsOfType,
+  overview,
+  PREVIEW,
+  setCounts,
+  sortCards,
+  tabCounts,
+} from './catalog';
 import { FilterRail } from './FilterRail';
-import { activeChips, railFacets, toggleSet } from './rail';
+import { activeChips, railFacets, toggleSet, type DataOptions } from './rail';
 import {
   commonFields,
   rememberFilters,
@@ -74,8 +82,15 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
   const setTypeFilters = (update: Update) => {
     if (tab) write(typeFields[tab.type], update);
   };
-  const classNames = new Map(classes.map((c) => [c._id, c.name]));
-  const chips = activeChips(common, tab?.type, typeFilters, (id) => classNames.get(id) ?? id);
+  const data: DataOptions = {
+    classes: classes.map((c) => ({ id: c._id, name: c.name })),
+    bosses: sortCards(
+      cards.filter((card) => card.type === 'boss'),
+      'name',
+    ).map((boss) => ({ id: boss._id, name: boss.name })),
+  };
+  const optionNames = new Map([...data.classes, ...data.bosses].map((o) => [o.id, o.name]));
+  const chips = activeChips(common, tab?.type, typeFilters, (id) => optionNames.get(id) ?? id);
 
   /** Set and search, every type's remembered filters, and the open tab's filters. */
   function clearAll() {
@@ -118,7 +133,7 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
           onOpenType={openTab}
           filters={typeFilters}
           onChange={setTypeFilters}
-          classes={classes.map((c) => ({ id: c._id, name: c.name }))}
+          data={data}
           available={
             complete && tab
               ? availableOptions(
@@ -126,10 +141,7 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
                   tab.type,
                   common,
                   filtersOf(tab.type),
-                  railFacets(
-                    tab.type,
-                    classes.map((c) => c._id),
-                  ),
+                  railFacets(tab.type, data),
                   codes,
                 )
               : undefined

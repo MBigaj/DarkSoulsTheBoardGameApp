@@ -110,7 +110,12 @@ describe('setCounts', () => {
 });
 
 describe('availableOptions', () => {
-  const facets = (type: CardType) => railFacets(type, ['cleric', 'deprived', 'thief', 'warrior']);
+  const ids = (list: string[]) => list.map((id) => ({ id, name: id }));
+  const facets = (type: CardType) =>
+    railFacets(type, {
+      classes: ids(['cleric', 'deprived', 'thief', 'warrior']),
+      bosses: ids(['sc-boss-dragon-slayer-ornstein', 'tog-boss-black-knight']),
+    });
   const available = <T extends CardType>(
     type: T,
     extra: Partial<TypeFilters<T>>,

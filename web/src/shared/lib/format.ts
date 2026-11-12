@@ -85,7 +85,8 @@ export function statLine(card: TileCard, nameOf: NameOf = () => undefined): stri
   }
 }
 
-function isHeatUp(card: Pick<Behaviour, 'heatUp' | 'parts'>): boolean {
+/** A heat-up card, or a combined card with a heat-up half. */
+export function isHeatUp(card: Pick<Behaviour, 'heatUp' | 'parts'>): boolean {
   return card.heatUp || card.parts.some((part) => part.heatUp);
 }
 

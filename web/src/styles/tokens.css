@@ -38,14 +38,14 @@
   --badge-treasure: #c9a45c;
   --badge-enemy: #b3aa9a;
   --badge-boss: var(--accent-text);
-  --badge-behaviour: #7fa7c4;
+  --badge-behaviour: #d8cf8f; /* off-yellow (owner, 12 Nov) */
   --badge-encounter: #93b58d;
   --badge-event: #c79ad6;
   /* Badge tones within a type (owner, 10 Nov): rarity, boss drops, heat-up cards. */
   --badge-common: var(--muted);
   --badge-rare: #7fa7c4;
   --badge-legendary: #e2b54e;
-  --badge-ember: #e08a3c;
+  --badge-heat: #e4483b; /* heat up: fire crimson (owner, 12 Nov) */
 
   --level-1: #9fc3dd;
   --level-2: #7f9be0;

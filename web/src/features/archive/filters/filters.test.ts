@@ -3,6 +3,7 @@ import type { CardType } from '@/shared/api/types';
 import { emptyValues } from '@/shared/lib/url-state';
 import { fixture, fixtureCards } from '@/test/fixture-cards';
 import { commonFields, filterCards, typeFields, type CommonFilters, type TypeFilters } from '.';
+import { matchesBehaviour } from './behaviour';
 import { matchesTreasure } from './treasure';
 
 const noCommon = emptyValues(commonFields);
@@ -189,8 +190,25 @@ describe('event and behaviour filters', () => {
     ]);
   });
 
-  it('behaviour decks have no filters: every card passes', () => {
-    expect(pass('behaviour', {})).toEqual(['sc:gliding-stab-hammer-smash', 'tog:heavy-slash']);
+  it('behaviour: by boss; a combined card belongs to both of its bosses', () => {
+    expect(pass('behaviour', { boss: ['tog-boss-black-knight'] })).toEqual(['tog:heavy-slash']);
+    expect(pass('behaviour', { boss: ['sc-boss-executioner-smough'] })).toEqual([
+      'sc:gliding-stab-hammer-smash',
+    ]);
+    expect(pass('behaviour', { boss: ['tog-boss-gravelord-nito'] })).toEqual([]);
+  });
+
+  it('behaviour: regular or heat up; a combined card is heat up if a half is', () => {
+    expect(pass('behaviour', { kind: ['behaviour'] })).toHaveLength(2);
+    expect(pass('behaviour', { kind: ['heatUp'] })).toEqual([]);
+    const filters = { ...emptyValues(typeFields.behaviour), kind: ['heatUp' as const] };
+    const slash = fixture('behaviour', 'tog-behaviour-heavy-slash');
+    expect(matchesBehaviour({ ...slash, heatUp: true }, filters)).toBe(true);
+    const combined = fixture('behaviour', 'sc-behaviour-gliding-stab-hammer-smash');
+    const [top, bottom] = combined.parts;
+    if (!top || !bottom) throw new Error('combined fixture has two parts');
+    const halfHeated = { ...combined, parts: [top, { ...bottom, heatUp: true }] };
+    expect(matchesBehaviour(halfHeated, filters)).toBe(true);
   });
 });
 
