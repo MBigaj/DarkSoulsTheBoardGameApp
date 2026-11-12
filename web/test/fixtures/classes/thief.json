@@ -1,0 +1,39 @@
+{
+  "_id": "thief",
+  "name": "Thief",
+  "art": "classes/thief.png",
+  "sets": [
+    "tog"
+  ],
+  "taunt": 3,
+  "heroicAbility": {
+    "name": "Lucky Break",
+    "text": "This character heals 2 damage and recovers 2 stamina, then flip their luck token to the ready side."
+  },
+  "stats": {
+    "strength": [
+      9,
+      16,
+      24,
+      33
+    ],
+    "dexterity": [
+      13,
+      21,
+      31,
+      40
+    ],
+    "intelligence": [
+      10,
+      18,
+      27,
+      36
+    ],
+    "faith": [
+      8,
+      15,
+      23,
+      31
+    ]
+  }
+}

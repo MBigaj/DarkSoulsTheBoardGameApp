@@ -2,8 +2,9 @@
  * The filter rail per card type (ArchiveFinal): groups, their filters and option labels, plus
  * the active-filter chips. The fields and matching live in `filters/`; this is presentation.
  */
-import { SET_CODES, type CardType, type SetCode } from '@/shared/lib/card-types';
+import { DICE, SET_CODES, type CardType, type SetCode } from '@/shared/lib/card-types';
 import type { Bounds } from '@/shared/lib/url-state';
+import type { Facet } from './catalog';
 import type { CommonFilters, TypeFilters } from './filters';
 
 type Value = string | number;
@@ -49,7 +50,6 @@ const treasure: readonly RailGroup<'treasure'>[] = [
         options: [
           ['starter', 'Starter'],
           ['treasure', 'Treasure'],
-          ['boss', 'Boss drop'],
         ],
       },
       {
@@ -60,6 +60,7 @@ const treasure: readonly RailGroup<'treasure'>[] = [
           ['common', 'Common'],
           ['rare', 'Rare'],
           ['legendary', 'Legendary'],
+          ['boss', 'Boss drop'],
         ],
       },
       { kind: 'classes', key: 'class', label: 'Class' },
@@ -280,6 +281,32 @@ const RAIL: { [T in CardType]: readonly RailGroup<T>[] } = {
 
 export function railFor<T extends CardType>(type: T): readonly RailGroup<T>[] {
   return RAIL[type];
+}
+
+/** The rail's option lists for `availableOptions` (sliders aren't greyed out). */
+export function railFacets(type: CardType, classIds: readonly string[]): Facet[] {
+  const groups: readonly RailGroup[] = railFor(type);
+  return groups.flatMap((group) =>
+    group.filters.flatMap((filter): Facet[] => {
+      switch (filter.kind) {
+        case 'pills':
+        case 'checks':
+          return [
+            {
+              key: filter.key,
+              values: filter.options.map(([v]) => v),
+              every: filter.kind === 'checks',
+            },
+          ];
+        case 'classes':
+          return [{ key: filter.key, values: classIds, every: false }];
+        case 'dice':
+          return [{ key: filter.key, values: DICE, every: true }];
+        default:
+          return [];
+      }
+    }),
+  );
 }
 
 export const SET_NAMES: Record<SetCode, { name: string; short: string }> = {

@@ -1,8 +1,8 @@
 import type { ClassDef } from '../../types';
 
-// Phase 1 fixture until the data store has classes.
-const files = import.meta.glob<ClassDef[]>('@fixtures/classes.json', {
+/** Class dashboards from the store (`classes/*.json`), in name order. */
+const files = import.meta.glob<ClassDef>('@data/classes/*.json', {
   eager: true,
   import: 'default',
 });
-export default Object.values(files)[0] ?? [];
+export default Object.values(files).sort((a, b) => a.name.localeCompare(b.name));

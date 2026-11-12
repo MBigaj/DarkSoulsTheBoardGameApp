@@ -38,10 +38,11 @@ describe('treasure filters', () => {
 
   it.each<[string, Partial<TypeFilters<'treasure'>>, string[]]>([
     // any of the options within one filter
+    ['deck: starter', { deck: ['starter'] }, ['tog:bandit-knife']],
     [
-      'deck: starter or boss',
-      { deck: ['starter', 'boss'] },
-      ['tog:bandit-knife', 'tog:blue-titanite'],
+      'rarity: boss drop is a rarity, any of with legendary',
+      { rarity: ['legendary', 'boss'] },
+      ['tog:blue-titanite', 'tog:dragon-tooth'],
     ],
     [
       'class: thief or cleric',
@@ -72,10 +73,11 @@ describe('treasure filters', () => {
   });
 
   it('a field that does not apply hides the card while its filter is active', () => {
-    // Starter and boss cards have no rarity, generic cards no class, armour no hands or range.
-    expect(pass('treasure', { rarity: ['common', 'rare', 'legendary'] })).not.toContain(
+    // Starter cards have no rarity, generic cards no class, armour no hands or range.
+    expect(pass('treasure', { rarity: ['common', 'rare', 'legendary', 'boss'] })).not.toContain(
       'tog:bandit-knife',
     );
+    // A boss drop only passes as "Boss drop", whatever else is printed.
     expect(pass('treasure', { rarity: ['common', 'rare', 'legendary'] })).not.toContain(
       'tog:blue-titanite',
     );
@@ -209,7 +211,7 @@ describe('core set and search', () => {
       'tog:bandit-knife',
       'tog:blue-titanite',
     ]);
-    expect(pass('treasure', { deck: ['boss'] }, { q: 'tog-treasure-b' })).toEqual([
+    expect(pass('treasure', { rarity: ['boss'] }, { q: 'tog-treasure-b' })).toEqual([
       'tog:blue-titanite',
     ]);
   });

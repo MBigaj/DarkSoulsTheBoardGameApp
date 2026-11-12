@@ -1,0 +1,39 @@
+{
+  "_id": "warrior",
+  "name": "Warrior",
+  "art": "classes/warrior.png",
+  "sets": [
+    "sc"
+  ],
+  "taunt": 9,
+  "heroicAbility": {
+    "name": "Berserk Charge",
+    "text": "This character's next attack gains the area of effect symbol (damage all enemies on the target node) and does not cost stamina. Before making the attack, they can be placed in an adjacent node."
+  },
+  "stats": {
+    "strength": [
+      16,
+      23,
+      32,
+      40
+    ],
+    "dexterity": [
+      9,
+      16,
+      25,
+      35
+    ],
+    "intelligence": [
+      8,
+      15,
+      23,
+      30
+    ],
+    "faith": [
+      9,
+      16,
+      25,
+      35
+    ]
+  }
+}

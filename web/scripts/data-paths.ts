@@ -18,7 +18,7 @@ export function resolveDataDir(): string {
 }
 
 /**
- * Phase 1 fixtures that aren't in the store yet (classes, forged encounters), shared with the
+ * Phase 1 fixtures that aren't in the store yet (forged encounters), shared with the
  * backend seed. FIXTURES_DIR wins; otherwise the repo's data/fixtures; otherwise the test fixtures.
  */
 export function resolveFixturesDir(): string {

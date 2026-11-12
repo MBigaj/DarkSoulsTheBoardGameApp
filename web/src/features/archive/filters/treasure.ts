@@ -14,8 +14,12 @@ const FEATURES = ['nodeAttack', 'push', 'shaft', 'repeat', 'move'] as const;
 export type AttackFeature = (typeof FEATURES)[number];
 
 export const treasureFields = {
-  deck: list('deck', every<Treasure['deck']>()(['starter', 'treasure', 'boss'])),
-  rarity: list('rarity', every<NonNullable<Treasure['rarity']>>()(['common', 'rare', 'legendary'])),
+  /** Boss drops are a rarity in the rail (owner, 12 Nov), so Deck is starter or treasure only. */
+  deck: list('deck', ['starter', 'treasure'] as const),
+  rarity: list('rarity', [
+    ...every<NonNullable<Treasure['rarity']>>()(['common', 'rare', 'legendary']),
+    'boss',
+  ] as const),
   /** Class slugs, as in `classes/*.json`; the rail lists the classes from the data. */
   class: tags('class'),
   equip: list('slot', every<Treasure['equip']>()(['hand', 'armour', 'upgrade', 'consumable'])),
@@ -98,7 +102,7 @@ export function matchesTreasure(card: Treasure, f: TreasureFilters): boolean {
   const range = card.range === 'infinite' ? RANGE_MAX : card.range;
   return (
     anyOf(f.deck, card.deck) &&
-    anyOf(f.rarity, card.rarity) &&
+    anyOf(f.rarity, card.deck === 'boss' ? 'boss' : card.rarity) &&
     anyOf(f.class, card.class) &&
     anyOf(f.equip, card.equip) &&
     anyOf(f.hands, card.hands) &&

@@ -1,4 +1,4 @@
-import type { CardType, Die, SetCode } from '@/shared/lib/card-types';
+import { DICE, type CardType, type Die, type SetCode } from '@/shared/lib/card-types';
 import type { Bounds } from '@/shared/lib/url-state';
 import { CheckRow } from '@/shared/ui/CheckRow';
 import { DiceToggle } from '@/shared/ui/DiceToggle';
@@ -34,6 +34,8 @@ type FilterRailProps = {
   onChange: (update: Update) => void;
   /** Class pills: slug and name, from the classes data. */
   classes: readonly { id: string; name: string }[];
+  /** Options that would leave cards, per filter key; the rest are greyed out. All while loading. */
+  available: ReadonlyMap<string, ReadonlySet<unknown>> | undefined;
   onReset: () => void;
 };
 
@@ -48,6 +50,7 @@ export function FilterRail({
   filters,
   onChange,
   classes,
+  available,
   onReset,
 }: FilterRailProps) {
   const shown = shownSets(sets);
@@ -120,6 +123,7 @@ export function FilterRail({
               values={filters}
               onChange={onChange}
               classes={classes}
+              available={available}
             />
           ))}
         </FilterGroup>
@@ -133,13 +137,16 @@ type FilterProps = {
   values: Values;
   onChange: (update: Update) => void;
   classes: readonly { id: string; name: string }[];
+  available: ReadonlyMap<string, ReadonlySet<unknown>> | undefined;
 };
 
 function toggle<T>(list: readonly T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
-function Filter({ filter, values, onChange, classes }: FilterProps) {
+function Filter({ filter, values, onChange, classes, available }: FilterProps) {
+  /** Greyed out: ticking it would leave no cards. */
+  const unavailable = (key: string, value: unknown) => available?.get(key)?.has(value) === false;
   switch (filter.kind) {
     case 'pills':
     case 'classes': {
@@ -153,6 +160,7 @@ function Filter({ filter, values, onChange, classes }: FilterProps) {
               <Pill
                 key={String(value)}
                 selected={picked.includes(value)}
+                disabled={unavailable(filter.key, value)}
                 onChange={() => {
                   onChange((latest) => ({
                     [filter.key]: toggle(latest[filter.key] as readonly unknown[], value),
@@ -175,6 +183,7 @@ function Filter({ filter, values, onChange, classes }: FilterProps) {
               <CheckRow
                 key={String(value)}
                 checked={picked.includes(value)}
+                disabled={unavailable(filter.key, value)}
                 label={label}
                 onChange={() => {
                   onChange((latest) => ({
@@ -193,6 +202,7 @@ function Filter({ filter, values, onChange, classes }: FilterProps) {
         <FilterField label={filter.label}>
           <DiceToggle
             selected={picked}
+            disabled={DICE.filter((die) => unavailable(filter.key, die))}
             onToggle={(die) => {
               onChange((latest) => ({
                 [filter.key]: toggle(latest[filter.key] as readonly unknown[], die),

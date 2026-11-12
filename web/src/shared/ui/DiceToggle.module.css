@@ -24,8 +24,12 @@
     color var(--dur-hover) var(--ease-std);
 }
 
-.die:hover {
+.die:hover:not(:disabled) {
   border-color: var(--ornament);
+}
+
+.die:disabled {
+  opacity: 0.45;
 }
 
 .die[aria-pressed='true'] {

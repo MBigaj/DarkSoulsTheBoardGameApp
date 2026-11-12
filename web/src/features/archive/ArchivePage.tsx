@@ -10,9 +10,9 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 import { Chip, ChipRow } from '@/shared/ui/Chip';
 import { Tabs } from '@/shared/ui/Tabs';
 import { ArchiveToolbar } from './ArchiveToolbar';
-import { cardsOfType, overview, PREVIEW, setCounts, tabCounts } from './catalog';
+import { availableOptions, cardsOfType, overview, PREVIEW, setCounts, tabCounts } from './catalog';
 import { FilterRail } from './FilterRail';
-import { activeChips, toggleSet } from './rail';
+import { activeChips, railFacets, toggleSet } from './rail';
 import {
   commonFields,
   rememberFilters,
@@ -74,7 +74,7 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
   const setTypeFilters = (update: Update) => {
     if (tab) write(typeFields[tab.type], update);
   };
-  const classNames = new Map(classes.map((c) => [c.id, c.name]));
+  const classNames = new Map(classes.map((c) => [c._id, c.name]));
   const chips = activeChips(common, tab?.type, typeFilters, (id) => classNames.get(id) ?? id);
 
   /** Set and search, every type's remembered filters, and the open tab's filters. */
@@ -112,13 +112,28 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
           sets={common.sets}
           setCounts={complete ? setCounts(cards, tab?.type) : undefined}
           onToggleSet={(set) => {
-            setCommon({ sets: toggleSet(common.sets, set) });
+            setCommon((latest) => ({ sets: toggleSet(latest.sets, set) }));
           }}
           typeLinks={ARCHIVE_TABS.map((t) => ({ tab: t, count: counts?.[t.type] }))}
           onOpenType={openTab}
           filters={typeFilters}
           onChange={setTypeFilters}
-          classes={classes}
+          classes={classes.map((c) => ({ id: c._id, name: c.name }))}
+          available={
+            complete && tab
+              ? availableOptions(
+                  cards,
+                  tab.type,
+                  common,
+                  filtersOf(tab.type),
+                  railFacets(
+                    tab.type,
+                    classes.map((c) => c._id),
+                  ),
+                  codes,
+                )
+              : undefined
+          }
           onReset={clearAll}
         />
         <section className={styles.results} aria-label="Results" id="archive-results">

@@ -35,8 +35,11 @@ export function useCommonFilters() {
   );
   const common = readParams(commonFields, params);
   const setCommon = useCallback(
-    (values: Partial<CommonFilters>) => {
-      write(commonFields, values);
+    (update: Partial<CommonFilters> | ((latest: CommonFilters) => Partial<CommonFilters>)) => {
+      write(
+        commonFields,
+        typeof update === 'function' ? (latest) => update(latest as CommonFilters) : update,
+      );
     },
     [write],
   );

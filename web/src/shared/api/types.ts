@@ -6,6 +6,7 @@ import type { CardSet, CardType, Die, SetCode } from '@/shared/lib/card-types';
 import type {
   RawBehaviour,
   RawBoss,
+  RawClass,
   RawEncounter,
   RawEnemy,
   RawEvent,
@@ -144,19 +145,11 @@ export type DiceTable = Record<Die | 'green', DieFaces>;
 
 export type Stat = 'strength' | 'dexterity' | 'intelligence' | 'faith';
 /** Base, Tier 1, Tier 2, Tier 3. */
-export type StatTrack = [base: number, tier1: number, tier2: number, tier3: number];
-
-export type ClassDef = {
-  id: string;
-  name: string;
-  sets: SetCode[];
-  /** null when the track isn't printed (Thief); `statsNote` says why. */
-  stats: Record<Stat, StatTrack> | null;
-  statsNote?: string;
-  /** null until the class dashboard data exists. */
-  heroicAction: string | null;
-  taunt: number | null;
-};
+/**
+ * Class dashboard (`classes/*.json` in the store, not a card): taunt, heroic ability and stat
+ * tracks [base, tier 1, tier 2, tier 3]. `_id` matches `class` on treasure cards.
+ */
+export type ClassDef = RawClass;
 
 export type EncounterLevel = 1 | 2 | 3;
 export type Objective = 'slay' | 'survive' | 'exit';

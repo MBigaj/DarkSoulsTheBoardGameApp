@@ -25,7 +25,7 @@ Node 26 (`.nvmrc`). TypeScript is pinned to ~6.0 and ESLint to 9: typescript-esl
 
 ## Data
 
-- Mock mode (default) reads the card store: `DATA_DIR`, else `../../DSTBG_DATA` beside the repo, else `test/fixtures`. Fixtures (classes, sample encounters): `FIXTURES_DIR`, else `../data/fixtures`. See `scripts/data-paths.ts`.
+- Mock mode (default) reads the card store: `DATA_DIR`, else `../../DSTBG_DATA` beside the repo, else `test/fixtures`. Classes come from the store's `classes/*.json`. Fixtures (sample encounters): `FIXTURES_DIR`, else `../data/fixtures`. See `scripts/data-paths.ts`.
 - Tests always use `test/fixtures`: byte-for-byte store copies (19 cards, all six types, shared cards, a boss encounter, the combined O&S card, null damage type). Refresh them from the store after a schema change. `src/test/fixture-cards.ts` loads them normalized. CI never needs the store.
 - `VITE_API_MODE=mock|http`; `VITE_API_HTTP=cards,dice` sends single groups over HTTP. `httpApi` (`shared/api/http/`) is the backend owner's.
 
@@ -55,7 +55,7 @@ test/fixtures/    committed test data, same layout as the store
 - Routes: one lazy chunk per page in `app/router.tsx`. Pages set their own `<title>`.
 - `/characters`, `/forge` and `/forge/:id` render placeholder pages (`features/*/…Page.tsx`) until FE-15 and FE-19 replace those files.
 - Archive: `ArchivePage` (tabs, toolbar, sections) → `TypeSection` → `CardTile`. Tab slugs, labels and blurbs live in `features/archive/tabs.ts`; an unknown slug renders Not Found. Everything shown is derived in `archive/catalog.ts` (overview, `cardsOfType`, tab and set counts). Counts and "View all" appear once the catalog is `complete`; until then skeleton tiles hold the grid slots (keyed by slot, so nothing shifts). A tile is one stretched link to `?card=<_id>` (close-up in FE-14).
-- Rail: `FilterRail` renders `archive/rail.ts` (groups, filters, option labels per type; class options from `useClasses`) and `activeChips` gives the chip labels and what each clears. Sets: an empty `set` param means all three; the last ticked set can't be unticked. "Clear all" / "Reset all" clear sets, search, the open tab's filters and every tab's remembered filters.
+- Rail: `FilterRail` renders `archive/rail.ts` (groups, filters, option labels per type; class options from `useClasses`) and `activeChips` gives the chip labels and what each clears. Sets: an empty `set` param means all three; the last ticked set can't be unticked. Options that would leave no cards are greyed out: `availableOptions` (catalog.ts) over `railFacets` (rail.ts), judged with everything else selected; ticked options stay clickable. Boss drop is a Rarity option (`rarity=boss`), not a Deck one. "Clear all" / "Reset all" clear sets, search, the open tab's filters and every tab's remembered filters.
 - Import UI components from their own files (`@/shared/ui/Button`), not a barrel: a barrel pulls every component's CSS into each chunk.
 - Card text comes from `format.ts` (`statLine` with a boss-name lookup for behaviour cards, `badge` → label + tone for `TypeBadge` (rarity, boss drop, heat up…; colours in `tokens.css`), `displayCodes`: `SH-` for shared cards); card images from `CardFace`/`CardImage` with the card's `art`. Search matches name, `_id` and display code.
 - No art is committed to the repo. Every image (card scans, tiles, page art) comes from the data store's `images/` folder: reference its path (`tiles/sc/3a.png`) and render it with `CardFace`/`CardImage` or `StoreImage`. Missing files render nothing.
