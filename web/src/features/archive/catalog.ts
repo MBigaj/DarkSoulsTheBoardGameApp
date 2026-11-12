@@ -80,3 +80,40 @@ export function setCounts(cards: readonly Card[], type?: CardType): Record<SetCo
   }
   return counts;
 }
+
+/** One option list in the rail: pills / classes are "any of", checks / dice "every ticked". */
+export type Facet = { key: string; values: readonly unknown[]; every: boolean };
+
+/**
+ * Options that would leave at least one card if ticked, given everything else selected: set,
+ * search and the type's other filters. Ticked options always count as available, so they can
+ * be unticked. The rail greys out the rest (owner, 12 Nov).
+ */
+export function availableOptions<T extends CardType>(
+  cards: readonly Card[],
+  type: T,
+  common: CommonFilters,
+  filters: TypeFilters<T>,
+  facets: readonly Facet[],
+  codes?: Codes,
+): Map<string, Set<unknown>> {
+  const available = new Map<string, Set<unknown>>();
+  for (const facet of facets) {
+    const current = (filters as Record<string, unknown>)[facet.key] as readonly unknown[];
+    const others = { ...filters, [facet.key]: [] } as TypeFilters<T>;
+    const base = filterCards(type, cards, common, others, codes);
+    const ok = new Set<unknown>();
+    for (const value of facet.values) {
+      if (current.includes(value)) {
+        ok.add(value);
+        continue;
+      }
+      // Any of: the option on its own. Every ticked: the option added to what's ticked.
+      const picked = facet.every ? [...current, value] : [value];
+      const trial = { ...others, [facet.key]: picked } as TypeFilters<T>;
+      if (filterCards(type, base, common, trial, codes).length > 0) ok.add(value);
+    }
+    available.set(facet.key, ok);
+  }
+  return available;
+}

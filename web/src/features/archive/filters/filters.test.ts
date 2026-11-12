@@ -3,6 +3,7 @@ import type { CardType } from '@/shared/api/types';
 import { emptyValues } from '@/shared/lib/url-state';
 import { fixture, fixtureCards } from '@/test/fixture-cards';
 import { commonFields, filterCards, typeFields, type CommonFilters, type TypeFilters } from '.';
+import { matchesBehaviour } from './behaviour';
 import { matchesTreasure } from './treasure';
 
 const noCommon = emptyValues(commonFields);
@@ -38,10 +39,11 @@ describe('treasure filters', () => {
 
   it.each<[string, Partial<TypeFilters<'treasure'>>, string[]]>([
     // any of the options within one filter
+    ['deck: starter', { deck: ['starter'] }, ['tog:bandit-knife']],
     [
-      'deck: starter or boss',
-      { deck: ['starter', 'boss'] },
-      ['tog:bandit-knife', 'tog:blue-titanite'],
+      'rarity: boss drop is a rarity, any of with legendary',
+      { rarity: ['legendary', 'boss'] },
+      ['tog:blue-titanite', 'tog:dragon-tooth'],
     ],
     [
       'class: thief or cleric',
@@ -50,11 +52,18 @@ describe('treasure filters', () => {
     ],
     ['hands: two-handed', { hands: [2] }, ['tog:dragon-tooth']],
     ['status: bleed', { conditions: ['bleed'] }, ['pwa:painting-guardians-curved-sword']],
+    // Checkboxes: every ticked option.
     [
-      'features: node attack or move (move includes the shift after the dice)',
-      { features: ['nodeAttack', 'move'] },
-      ['pwa:painting-guardians-curved-sword', 'shared:fireball', 'tog:dragon-tooth'],
+      'features: node attack',
+      { features: ['nodeAttack'] },
+      ['shared:fireball', 'tog:dragon-tooth'],
     ],
+    [
+      'features: move (also the shift after the dice)',
+      { features: ['move'] },
+      ['pwa:painting-guardians-curved-sword'],
+    ],
+    ['features: node attack and move: no card has both', { features: ['nodeAttack', 'move'] }, []],
     [
       'defence: has block dice',
       { defence: ['block'] },
@@ -65,10 +74,11 @@ describe('treasure filters', () => {
   });
 
   it('a field that does not apply hides the card while its filter is active', () => {
-    // Starter and boss cards have no rarity, generic cards no class, armour no hands or range.
-    expect(pass('treasure', { rarity: ['common', 'rare', 'legendary'] })).not.toContain(
+    // Starter cards have no rarity, generic cards no class, armour no hands or range.
+    expect(pass('treasure', { rarity: ['common', 'rare', 'legendary', 'boss'] })).not.toContain(
       'tog:bandit-knife',
     );
+    // A boss drop only passes as "Boss drop", whatever else is printed.
     expect(pass('treasure', { rarity: ['common', 'rare', 'legendary'] })).not.toContain(
       'tog:blue-titanite',
     );
@@ -98,6 +108,14 @@ describe('treasure filters', () => {
     const filters = { ...emptyValues(typeFields.treasure), defence: ['block' as const] };
     expect(matchesTreasure(ember, filters)).toBe(false); // {} = no block dice
     expect(matchesTreasure(unknownBlock, filters)).toBe(true);
+    // Both boxes ticked: unknown block passes, but no resist dice still fails.
+    const both = { ...filters, defence: ['block' as const, 'resist' as const] };
+    expect(matchesTreasure(unknownBlock, both)).toBe(false);
+    const unknownBlockWithResist = {
+      ...unknownBlock,
+      defence: { ...unknownBlock.defence, resist: { black: 1 } },
+    };
+    expect(matchesTreasure(unknownBlockWithResist, both)).toBe(true);
   });
 
   it('attack dice: the card uses every ticked die, on any of its attacks', () => {
@@ -155,11 +173,8 @@ describe('encounter filters', () => {
     ['2 or 3 tiles', { tiles: [2, 3] }, ['tog:gravelord-nito', 'tog:lakeview-refuge']],
     ['traps', { includes: ['traps'] }, ['tog:lakeview-refuge']],
     ['chests (in any setup role)', { includes: ['chests'] }, ['sc:dark-alleyway']],
-    [
-      'chests or trial',
-      { includes: ['chests', 'trial'] },
-      ['sc:dark-alleyway', 'tog:lakeview-refuge'],
-    ],
+    ['checkboxes: traps and trial', { includes: ['traps', 'trial'] }, ['tog:lakeview-refuge']],
+    ['checkboxes: chests and trial: none has both', { includes: ['chests', 'trial'] }, []],
     ['special rule: darkness', { keywords: ['darkness'] }, ['tog:lakeview-refuge']],
     ['no card has the rule', { keywords: ['timer'] }, []],
     ['all of: level III and a chest', { level: [3], includes: ['chests'] }, []],
@@ -175,8 +190,25 @@ describe('event and behaviour filters', () => {
     ]);
   });
 
-  it('behaviour decks have no filters: every card passes', () => {
-    expect(pass('behaviour', {})).toEqual(['sc:gliding-stab-hammer-smash', 'tog:heavy-slash']);
+  it('behaviour: by boss; a combined card belongs to both of its bosses', () => {
+    expect(pass('behaviour', { boss: ['tog-boss-black-knight'] })).toEqual(['tog:heavy-slash']);
+    expect(pass('behaviour', { boss: ['sc-boss-executioner-smough'] })).toEqual([
+      'sc:gliding-stab-hammer-smash',
+    ]);
+    expect(pass('behaviour', { boss: ['tog-boss-gravelord-nito'] })).toEqual([]);
+  });
+
+  it('behaviour: regular or heat up; a combined card is heat up if a half is', () => {
+    expect(pass('behaviour', { kind: ['behaviour'] })).toHaveLength(2);
+    expect(pass('behaviour', { kind: ['heatUp'] })).toEqual([]);
+    const filters = { ...emptyValues(typeFields.behaviour), kind: ['heatUp' as const] };
+    const slash = fixture('behaviour', 'tog-behaviour-heavy-slash');
+    expect(matchesBehaviour({ ...slash, heatUp: true }, filters)).toBe(true);
+    const combined = fixture('behaviour', 'sc-behaviour-gliding-stab-hammer-smash');
+    const [top, bottom] = combined.parts;
+    if (!top || !bottom) throw new Error('combined fixture has two parts');
+    const halfHeated = { ...combined, parts: [top, { ...bottom, heatUp: true }] };
+    expect(matchesBehaviour(halfHeated, filters)).toBe(true);
   });
 });
 
@@ -197,7 +229,7 @@ describe('core set and search', () => {
       'tog:bandit-knife',
       'tog:blue-titanite',
     ]);
-    expect(pass('treasure', { deck: ['boss'] }, { q: 'tog-treasure-b' })).toEqual([
+    expect(pass('treasure', { rarity: ['boss'] }, { q: 'tog-treasure-b' })).toEqual([
       'tog:blue-titanite',
     ]);
   });

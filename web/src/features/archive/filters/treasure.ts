@@ -8,14 +8,18 @@ import {
   tags,
   type Values,
 } from '@/shared/lib/url-state';
-import { anyOf, anyOfMany, atLeast, atMost, every } from './match';
+import { allTicked, anyOf, anyOfMany, atLeast, atMost, every } from './match';
 
 const FEATURES = ['nodeAttack', 'push', 'shaft', 'repeat', 'move'] as const;
 export type AttackFeature = (typeof FEATURES)[number];
 
 export const treasureFields = {
-  deck: list('deck', every<Treasure['deck']>()(['starter', 'treasure', 'boss'])),
-  rarity: list('rarity', every<NonNullable<Treasure['rarity']>>()(['common', 'rare', 'legendary'])),
+  /** Boss drops are a rarity in the rail (owner, 12 Nov), so Deck is starter or treasure only. */
+  deck: list('deck', ['starter', 'treasure'] as const),
+  rarity: list('rarity', [
+    ...every<NonNullable<Treasure['rarity']>>()(['common', 'rare', 'legendary']),
+    'boss',
+  ] as const),
   /** Class slugs, as in `classes/*.json`; the rail lists the classes from the data. */
   class: tags('class'),
   equip: list('slot', every<Treasure['equip']>()(['hand', 'armour', 'upgrade', 'consumable'])),
@@ -82,23 +86,15 @@ function matchesAttacks(card: Treasure, f: TreasureFilters): boolean {
     )
   )
     return false;
-  if (
-    !anyOfMany(
-      f.features,
-      FEATURES.filter((x) => attacks.some((a) => hasFeature(a, x))),
-    )
-  ) {
-    return false;
-  }
-  return true;
+  // Checkboxes: every ticked feature, each on any of the attacks.
+  return allTicked(f.features, (feature) => attacks.some((a) => hasFeature(a, feature)));
 }
 
-/** `null` block or resist dice (unknown) keep the card visible. */
+/** Checkboxes: every ticked kind of defence dice. `null` dice (unknown) keep the card visible. */
 function matchesDefence(card: Treasure, f: TreasureFilters): boolean {
-  if (f.defence.length === 0) return true;
   const { block, resist } = card.defence;
   const has = (dice: typeof block) => (dice === null ? null : Object.keys(dice).length > 0);
-  return f.defence.some((kind) => has(kind === 'block' ? block : resist) !== false);
+  return allTicked(f.defence, (kind) => has(kind === 'block' ? block : resist));
 }
 
 export function matchesTreasure(card: Treasure, f: TreasureFilters): boolean {
@@ -106,7 +102,7 @@ export function matchesTreasure(card: Treasure, f: TreasureFilters): boolean {
   const range = card.range === 'infinite' ? RANGE_MAX : card.range;
   return (
     anyOf(f.deck, card.deck) &&
-    anyOf(f.rarity, card.rarity) &&
+    anyOf(f.rarity, card.deck === 'boss' ? 'boss' : card.rarity) &&
     anyOf(f.class, card.class) &&
     anyOf(f.equip, card.equip) &&
     anyOf(f.hands, card.hands) &&

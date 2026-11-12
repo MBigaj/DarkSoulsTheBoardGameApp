@@ -19,6 +19,60 @@
  * compositor, so it shows on the first frame of the hover; a drop-shadow filter on a full-size
  * scan has to be painted first, which is what made it lag.
  */
+/*
+ * Glow colour: crimson, except special badges glow in their own colour (owner, 12 Nov).
+ * Boss drop and main boss are crimson already; plain badges keep crimson on purpose.
+ */
+.card {
+  --tile-glow: color-mix(in srgb, var(--glow) 82%, transparent);
+}
+
+/* Enemies: their badge colour, darkened towards the background. */
+.card[data-type='enemy'] {
+  --tile-glow: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--badge-enemy) 60%, var(--bg)) 60%,
+    transparent
+  );
+}
+
+.card[data-type='event'] {
+  --tile-glow: color-mix(in srgb, var(--badge-event) 60%, transparent);
+}
+
+.card[data-tone='legendary'],
+.card[data-tone='miniBoss'] {
+  --tile-glow: color-mix(in srgb, var(--badge-legendary) 70%, transparent);
+}
+
+.card[data-tone='common'] {
+  --tile-glow: color-mix(in srgb, var(--badge-common) 40%, transparent);
+}
+
+.card[data-tone='starter'] {
+  --tile-glow: color-mix(in srgb, var(--badge-starter) 70%, transparent);
+}
+
+.card[data-tone='level1'] {
+  --tile-glow: color-mix(in srgb, var(--level-1) 50%, transparent);
+}
+
+.card[data-tone='level2'] {
+  --tile-glow: color-mix(in srgb, var(--level-2) 70%, transparent);
+}
+
+.card[data-tone='level3'] {
+  --tile-glow: color-mix(in srgb, var(--level-3) 70%, transparent);
+}
+
+.card[data-tone='rare'] {
+  --tile-glow: color-mix(in srgb, var(--badge-rare) 70%, transparent);
+}
+
+.card[data-tone='heatUp'] {
+  --tile-glow: color-mix(in srgb, var(--badge-heat) 70%, transparent);
+}
+
 .face {
   position: relative;
   display: block;
@@ -31,7 +85,7 @@
   inset: 0;
   z-index: -1;
   border-radius: var(--card-radius);
-  box-shadow: 0 18px 20px color-mix(in srgb, var(--glow) 82%, transparent);
+  box-shadow: 0 18px 20px var(--tile-glow);
   opacity: 0;
   transition: opacity var(--dur-card-hover) var(--ease-lift);
 }

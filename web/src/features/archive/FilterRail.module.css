@@ -1,0 +1,171 @@
+/* ArchiveFinal filter dock. Sits left of the results and wraps above them on narrow screens. */
+/* 300px keeps "Filter archive" and "Reset all" on one line (handoff: rail 260–300px). */
+.rail {
+  flex: 1 1 300px;
+  max-width: 300px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 22px;
+}
+
+/* Wide screens: always open, no toggle row. */
+.summary {
+  display: none;
+}
+
+.head {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.heading {
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.reset {
+  min-height: var(--tap-min);
+  padding: 0 4px;
+  background: transparent;
+  border: 0;
+  color: var(--accent-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+
+.block {
+  gap: 8px;
+}
+
+.typeLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap-min);
+  padding: 0 10px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 1.0625rem;
+  transition: border-color var(--dur-hover) var(--ease-std);
+}
+
+.typeLink:hover {
+  border-color: var(--ornament);
+}
+
+.diamond {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  transform: rotate(45deg);
+  background: var(--badge-treasure);
+}
+
+.diamond[data-type='enemy'] {
+  background: var(--badge-enemy);
+}
+
+.diamond[data-type='boss'] {
+  background: var(--badge-boss);
+}
+
+.diamond[data-type='behaviour'] {
+  background: var(--badge-behaviour);
+}
+
+.diamond[data-type='encounter'] {
+  background: var(--badge-encounter);
+}
+
+.diamond[data-type='event'] {
+  background: var(--badge-event);
+}
+
+.typeLabel {
+  flex: 1;
+}
+
+.typeCount {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Wrapped above the results (narrow screens): full width. */
+@media (max-width: 900px) {
+  .rail {
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  /* One collapsed row above the cards; the chips row shows what's applied. */
+  .summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--tap-min);
+    padding: 6px 16px;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary::after {
+    content: '▾';
+    color: var(--muted);
+    transition: transform var(--dur-hover) var(--ease-std);
+  }
+
+  .fold[open] > .summary::after {
+    transform: rotate(180deg);
+  }
+
+  .fold[open] > .body {
+    border-top: 1px solid var(--line);
+  }
+}

@@ -34,6 +34,23 @@
 }
 
 /* Tones within a type (owner, 10 Nov). */
+.starter {
+  color: var(--badge-starter);
+}
+
+/* Encounter levels: the canvas level-ring colours, which match the level icon (owner, 12 Nov). */
+.level1 {
+  color: var(--level-1);
+}
+
+.level2 {
+  color: var(--level-2);
+}
+
+.level3 {
+  color: var(--level-3);
+}
+
 .common {
   color: var(--badge-common);
 }
@@ -46,24 +63,22 @@
   color: var(--badge-legendary);
 }
 
-/* Boss drop: crimson text and outline on a crimson-tinted fill. */
-.bossDrop {
+/* Boss drop and main boss: crimson text and outline on a crimson-tinted fill. */
+.bossDrop,
+.mainBoss {
   color: var(--accent-text);
   background: var(--tint);
 }
 
-/* Main boss: gold text, crimson outline, crimson-tinted fill. */
-.mainBoss {
+/* Mini boss: gold text and outline, like Legendary (owner, 12 Nov). */
+.miniBoss {
   color: var(--badge-legendary);
-  border-color: var(--accent-text);
-  background: var(--tint);
 }
 
-.miniBoss,
 .bossEncounter {
   color: var(--badge-boss);
 }
 
 .heatUp {
-  color: var(--badge-ember);
+  color: var(--badge-heat);
 }

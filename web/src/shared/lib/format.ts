@@ -11,6 +11,7 @@ import type {
 import type { CardType } from './card-types';
 
 const ROMAN = { 1: 'I', 2: 'II', 3: 'III' } as const;
+const LEVEL_TONE = { 1: 'level1', 2: 'level2', 3: 'level3' } as const;
 
 const REQUIREMENTS = [
   ['strength', 'STR'],
@@ -49,7 +50,7 @@ const capitalize = (word: string) => (word[0]?.toUpperCase() ?? '') + word.slice
  *   treasure  "STR 25 · DEX 15" (zero requirements left out), or "No requirements"
  *   enemy     "Threat 5 · Health 1"
  *   boss      "Main · Threat 9 · Health 30"
- *   encounter "Level III · 3 tiles", or "Boss · 2 tiles"
+ *   encounter "3 tiles" (the level is on the badge)
  *   event     its type, e.g. "Rendezvous"
  *   behaviour its boss, e.g. "Black Knight · Heat up" (both bosses on a combined card)
  */
@@ -68,7 +69,7 @@ export function statLine(card: TileCard, nameOf: NameOf = () => undefined): stri
     case 'encounter': {
       const count = card.tiles.length;
       const tiles = `${String(count)} ${count === 1 ? 'tile' : 'tiles'}`;
-      return card.level === undefined ? `Boss · ${tiles}` : `Level ${ROMAN[card.level]} · ${tiles}`;
+      return tiles; // the level (or Boss) is on the badge
     }
     case 'event':
       return capitalize(card.eventType);
@@ -85,12 +86,14 @@ export function statLine(card: TileCard, nameOf: NameOf = () => undefined): stri
   }
 }
 
-function isHeatUp(card: Pick<Behaviour, 'heatUp' | 'parts'>): boolean {
+/** A heat-up card, or a combined card with a heat-up half. */
+export function isHeatUp(card: Pick<Behaviour, 'heatUp' | 'parts'>): boolean {
   return card.heatUp || card.parts.some((part) => part.heatUp);
 }
 
 /** Colour of a badge within its type; none = the type's own colour. */
 export type BadgeTone =
+  | 'starter'
   | 'common'
   | 'rare'
   | 'legendary'
@@ -98,19 +101,22 @@ export type BadgeTone =
   | 'miniBoss'
   | 'mainBoss'
   | 'heatUp'
-  | 'bossEncounter';
+  | 'bossEncounter'
+  | 'level1'
+  | 'level2'
+  | 'level3';
 
 export type Badge = { label: string; tone?: BadgeTone };
 
 /**
  * The tile's badge: rarity, "Starter" or "Boss drop" (treasure), "Mini boss" / "Main boss",
- * "Heat up" (behaviour), "Boss" (boss encounter), else the type.
+ * "Heat up" (behaviour), "Level I–III" or "Boss" (encounter), else the type.
  */
 export function badge(card: TileCard): Badge {
   switch (card.type) {
     case 'treasure':
       if (card.deck === 'boss') return { label: 'Boss drop', tone: 'bossDrop' };
-      if (card.deck === 'starter') return { label: 'Starter' };
+      if (card.deck === 'starter') return { label: 'Starter', tone: 'starter' };
       return card.rarity
         ? { label: capitalize(card.rarity), tone: card.rarity }
         : { label: TYPE_LABEL.treasure };
@@ -123,9 +129,10 @@ export function badge(card: TileCard): Badge {
         ? { label: 'Heat up', tone: 'heatUp' }
         : { label: TYPE_LABEL.behaviour };
     case 'encounter':
-      return card.boss === undefined
+      if (card.boss !== undefined) return { label: 'Boss', tone: 'bossEncounter' };
+      return card.level === undefined
         ? { label: TYPE_LABEL.encounter }
-        : { label: 'Boss', tone: 'bossEncounter' };
+        : { label: `Level ${ROMAN[card.level]}`, tone: LEVEL_TONE[card.level] };
     default:
       return { label: TYPE_LABEL[card.type] };
   }

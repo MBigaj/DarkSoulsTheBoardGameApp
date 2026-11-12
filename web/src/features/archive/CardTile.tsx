@@ -17,10 +17,11 @@ const KEEP: KeepFocusState = { keepFocus: true };
  */
 export function CardTile({ card, code, nameOf }: CardTileProps) {
   const [params] = useSearchParams();
+  const tag = badge(card);
   const next = new URLSearchParams(params);
   next.set('card', card._id);
   return (
-    <article className={cx(styles.tile, styles.card)}>
+    <article className={cx(styles.tile, styles.card)} data-type={card.type} data-tone={tag.tone}>
       <span className={styles.face}>
         <CardFace name={card.name} type={card.type} art={card.art} />
       </span>
@@ -36,7 +37,7 @@ export function CardTile({ card, code, nameOf }: CardTileProps) {
         </Link>
       </h3>
       <p className={styles.row}>
-        <TypeBadge type={card.type} {...badge(card)} />
+        <TypeBadge type={card.type} {...tag} />
         {code !== undefined && <span className={styles.code}>{code}</span>}
       </p>
       <p className={styles.stat}>{statLine(card, nameOf)}</p>

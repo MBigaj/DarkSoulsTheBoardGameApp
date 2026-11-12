@@ -1,6 +1,6 @@
 /**
  * Filter semantics shared by every card type (handoff, "Card Archive"):
- * - options within one filter: any of; separate filters: all of;
+ * - options within one filter: any of (pills); checkboxes: all ticked; separate filters: all of;
  * - `undefined` = the field doesn't apply to this card: it fails an active filter;
  * - `null` = unknown: it passes, so the card stays visible;
  * - slider bounds are inclusive.
@@ -17,6 +17,14 @@ export function anyOf<T>(selected: readonly T[], value: T | null | undefined): b
 export function anyOfMany<T>(selected: readonly T[], values: readonly (T | null)[]): boolean {
   if (selected.length === 0) return true;
   return values.some((value) => value === null || selected.includes(value));
+}
+
+/**
+ * Checkboxes (canvas, owner 11 Nov): the card has every ticked option. `has` answers per option;
+ * `null` (unknown) passes.
+ */
+export function allTicked<T>(selected: readonly T[], has: (option: T) => boolean | null): boolean {
+  return selected.every((option) => has(option) !== false);
 }
 
 /** Inclusive bounds; an open side doesn't limit. */
