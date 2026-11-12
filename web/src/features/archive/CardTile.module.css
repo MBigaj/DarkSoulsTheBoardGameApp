@@ -36,6 +36,10 @@
   );
 }
 
+.card[data-type='event'] {
+  --tile-glow: color-mix(in srgb, var(--badge-event) 60%, transparent);
+}
+
 .card[data-tone='legendary'],
 .card[data-tone='miniBoss'] {
   --tile-glow: color-mix(in srgb, var(--badge-legendary) 70%, transparent);
