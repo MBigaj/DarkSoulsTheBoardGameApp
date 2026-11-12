@@ -11,7 +11,8 @@
 }
 
 .results {
-  flex: 999 1 560px;
+  /* Fits beside the rail down to 901px; at 900px and below the rail wraps above (FilterRail NARROW). */
+  flex: 999 1 500px;
   min-width: 0;
   display: flex;
   flex-direction: column;

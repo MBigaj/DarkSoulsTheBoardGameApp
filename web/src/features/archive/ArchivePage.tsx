@@ -147,6 +147,7 @@ function Archive({ tab }: { tab: ArchiveTab | undefined }) {
               : undefined
           }
           onReset={clearAll}
+          activeCount={chips.length}
         />
         <section className={styles.results} aria-label="Results" id="archive-results">
           <Tabs

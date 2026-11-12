@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { DICE, type CardType, type Die, type SetCode } from '@/shared/lib/card-types';
 import type { Bounds } from '@/shared/lib/url-state';
+import { useMediaQuery } from '@/shared/lib/use-media-query';
 import { CheckRow } from '@/shared/ui/CheckRow';
 import { DiceToggle } from '@/shared/ui/DiceToggle';
 import { FilterField, FilterGroup } from '@/shared/ui/FilterGroup';
@@ -38,7 +40,12 @@ type FilterRailProps = {
   /** Options that would leave cards, per filter key; the rest are greyed out. All while loading. */
   available: ReadonlyMap<string, ReadonlySet<unknown>> | undefined;
   onReset: () => void;
+  /** Active chips, shown on the collapsed rail ("Filters (2 active)"). */
+  activeCount: number;
 };
+
+/** Where the rail wraps above the results; keep in sync with the CSS. */
+const NARROW = '(max-width: 900px)';
 
 /** ArchiveFinal filter dock: core sets, the type list (All types) or the type's filter groups. */
 export function FilterRail({
@@ -53,78 +60,97 @@ export function FilterRail({
   data,
   available,
   onReset,
+  activeCount,
 }: FilterRailProps) {
+  // Narrow screens: the rail sits above the cards, so it starts as one collapsed row.
+  const narrow = useMediaQuery(NARROW);
+  const [open, setOpen] = useState(false);
   const shown = shownSets(sets);
   const groups: readonly RailGroup[] = tab ? railFor(tab.type) : [];
   return (
     <aside className={styles.rail} aria-label="Filters">
-      <div className={styles.head}>
-        <span className={styles.heading}>Filter archive</span>
-        <button type="button" className={styles.reset} onClick={onReset}>
-          Reset all
-        </button>
-      </div>
-
-      <FilterField label="Core set" className={styles.block}>
-        {RAIL_SETS.map((set) => {
-          const on = shown.includes(set);
-          return (
-            <CheckRow
-              key={set}
-              size="lg"
-              checked={on}
-              // The last ticked set stays: "no set" can't show anything.
-              disabled={on && shown.length === 1}
-              label={SET_NAMES[set].name}
-              count={setCounts?.[set]}
-              onChange={() => {
-                onToggleSet(set);
-              }}
-            />
-          );
-        })}
-      </FilterField>
-
-      {!tab && (
-        <FilterField label="Card type" className={styles.block}>
-          {typeLinks.map(({ tab: link, count }) => (
-            <button
-              key={link.type}
-              type="button"
-              className={styles.typeLink}
-              onClick={() => {
-                onOpenType(link.type);
-              }}
-            >
-              <span className={styles.diamond} data-type={link.type} aria-hidden="true" />
-              <span className={styles.typeLabel}>{link.label}</span>
-              <span className={styles.typeCount}>{count === undefined ? '' : String(count)} →</span>
+      <details
+        className={styles.fold}
+        open={!narrow || open}
+        onToggle={(event) => {
+          if (narrow) setOpen(event.currentTarget.open);
+        }}
+      >
+        <summary className={styles.summary}>
+          Filters{activeCount > 0 ? ` (${String(activeCount)} active)` : ''}
+        </summary>
+        <div className={styles.body}>
+          <div className={styles.head}>
+            <span className={styles.heading}>Filter archive</span>
+            <button type="button" className={styles.reset} onClick={onReset}>
+              Reset all
             </button>
-          ))}
-          <span className={styles.hint}>Open a card type for filters that fit it.</span>
-        </FilterField>
-      )}
+          </div>
 
-      {groups.map((group) => (
-        <FilterGroup
-          // Remount per type, so each type starts from its own default open groups.
-          key={`${tab?.type ?? ''}-${group.title}`}
-          title={group.title}
-          defaultOpen={group.open}
-          count={group.filters.reduce((sum, filter) => sum + selectedCount(filter, filters), 0)}
-        >
-          {group.filters.map((filter) => (
-            <Filter
-              key={filter.kind === 'max' ? filter.label : filter.key}
-              filter={filter}
-              values={filters}
-              onChange={onChange}
-              data={data}
-              available={available}
-            />
+          <FilterField label="Core set" className={styles.block}>
+            {RAIL_SETS.map((set) => {
+              const on = shown.includes(set);
+              return (
+                <CheckRow
+                  key={set}
+                  size="lg"
+                  checked={on}
+                  // The last ticked set stays: "no set" can't show anything.
+                  disabled={on && shown.length === 1}
+                  label={SET_NAMES[set].name}
+                  count={setCounts?.[set]}
+                  onChange={() => {
+                    onToggleSet(set);
+                  }}
+                />
+              );
+            })}
+          </FilterField>
+
+          {!tab && (
+            <FilterField label="Card type" className={styles.block}>
+              {typeLinks.map(({ tab: link, count }) => (
+                <button
+                  key={link.type}
+                  type="button"
+                  className={styles.typeLink}
+                  onClick={() => {
+                    onOpenType(link.type);
+                  }}
+                >
+                  <span className={styles.diamond} data-type={link.type} aria-hidden="true" />
+                  <span className={styles.typeLabel}>{link.label}</span>
+                  <span className={styles.typeCount}>
+                    {count === undefined ? '' : String(count)} →
+                  </span>
+                </button>
+              ))}
+              <span className={styles.hint}>Open a card type for filters that fit it.</span>
+            </FilterField>
+          )}
+
+          {groups.map((group) => (
+            <FilterGroup
+              // Remount per type, so each type starts from its own default open groups.
+              key={`${tab?.type ?? ''}-${group.title}`}
+              title={group.title}
+              defaultOpen={group.open}
+              count={group.filters.reduce((sum, filter) => sum + selectedCount(filter, filters), 0)}
+            >
+              {group.filters.map((filter) => (
+                <Filter
+                  key={filter.kind === 'max' ? filter.label : filter.key}
+                  filter={filter}
+                  values={filters}
+                  onChange={onChange}
+                  data={data}
+                  available={available}
+                />
+              ))}
+            </FilterGroup>
           ))}
-        </FilterGroup>
-      ))}
+        </div>
+      </details>
     </aside>
   );
 }
