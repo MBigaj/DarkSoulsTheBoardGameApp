@@ -92,6 +92,7 @@ export function isHeatUp(card: Pick<Behaviour, 'heatUp' | 'parts'>): boolean {
 
 /** Colour of a badge within its type; none = the type's own colour. */
 export type BadgeTone =
+  | 'starter'
   | 'common'
   | 'rare'
   | 'legendary'
@@ -111,7 +112,7 @@ export function badge(card: TileCard): Badge {
   switch (card.type) {
     case 'treasure':
       if (card.deck === 'boss') return { label: 'Boss drop', tone: 'bossDrop' };
-      if (card.deck === 'starter') return { label: 'Starter' };
+      if (card.deck === 'starter') return { label: 'Starter', tone: 'starter' };
       return card.rarity
         ? { label: capitalize(card.rarity), tone: card.rarity }
         : { label: TYPE_LABEL.treasure };

@@ -34,6 +34,10 @@
 }
 
 /* Tones within a type (owner, 10 Nov). */
+.starter {
+  color: var(--badge-starter);
+}
+
 .common {
   color: var(--badge-common);
 }

@@ -126,7 +126,7 @@ describe('badge', () => {
     [
       'starter: no rarity, type colour',
       treasure(req(0, 0, 0, 0), { deck: 'starter', rarity: undefined }),
-      { label: 'Starter' },
+      { label: 'Starter', tone: 'starter' },
     ],
     [
       'mini boss',

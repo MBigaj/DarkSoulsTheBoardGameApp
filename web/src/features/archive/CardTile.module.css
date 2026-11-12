@@ -33,7 +33,11 @@
 }
 
 .card[data-tone='common'] {
-  --tile-glow: color-mix(in srgb, var(--badge-common) 55%, transparent);
+  --tile-glow: color-mix(in srgb, var(--badge-common) 40%, transparent);
+}
+
+.card[data-tone='starter'] {
+  --tile-glow: color-mix(in srgb, var(--badge-starter) 70%, transparent);
 }
 
 .card[data-tone='rare'] {
