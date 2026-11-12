@@ -21,7 +21,7 @@ export function CardTile({ card, code, nameOf }: CardTileProps) {
   const next = new URLSearchParams(params);
   next.set('card', card._id);
   return (
-    <article className={cx(styles.tile, styles.card)} data-tone={tag.tone}>
+    <article className={cx(styles.tile, styles.card)} data-type={card.type} data-tone={tag.tone}>
       <span className={styles.face}>
         <CardFace name={card.name} type={card.type} art={card.art} />
       </span>

@@ -27,6 +27,15 @@
   --tile-glow: color-mix(in srgb, var(--glow) 82%, transparent);
 }
 
+/* Enemies: their badge colour, darkened towards the background. */
+.card[data-type='enemy'] {
+  --tile-glow: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--badge-enemy) 60%, var(--bg)) 60%,
+    transparent
+  );
+}
+
 .card[data-tone='legendary'],
 .card[data-tone='miniBoss'] {
   --tile-glow: color-mix(in srgb, var(--badge-legendary) 70%, transparent);
