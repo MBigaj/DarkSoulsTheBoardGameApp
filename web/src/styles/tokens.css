@@ -42,7 +42,7 @@
   --badge-encounter: #93b58d;
   --badge-event: #c79ad6;
   /* Badge tones within a type (owner, 10 Nov): rarity, boss drops, heat-up cards. */
-  --badge-common: var(--muted);
+  --badge-common: #c9c5bf; /* light grey, badge and glow (owner, 12 Nov) */
   --badge-rare: #7fa7c4;
   --badge-legendary: #e2b54e;
   --badge-heat: #e4483b; /* heat up: fire crimson (owner, 12 Nov) */

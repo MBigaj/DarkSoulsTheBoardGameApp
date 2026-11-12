@@ -32,6 +32,10 @@
   --tile-glow: color-mix(in srgb, var(--badge-legendary) 70%, transparent);
 }
 
+.card[data-tone='common'] {
+  --tile-glow: color-mix(in srgb, var(--badge-common) 55%, transparent);
+}
+
 .card[data-tone='rare'] {
   --tile-glow: color-mix(in srgb, var(--badge-rare) 70%, transparent);
 }
