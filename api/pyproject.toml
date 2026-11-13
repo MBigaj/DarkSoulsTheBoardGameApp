@@ -1,0 +1,61 @@
+[project]
+name = "bonfire-api"
+version = "0.1.0"
+description = "Bonfire Ledger API: card catalog and encounter forge for Dark Souls: The Board Game"
+readme = "README.md"
+authors = [{ name = "MBigaj", email = "mikolaj.bigaj.00@gmail.com" }]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.162.2",
+    "pydantic-settings>=2.16.2",
+    "pymongo>=4.19.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# Import name differs from the distribution name ("bonfire-api").
+module-name = "bonfire"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W",   # pycodestyle
+  "F",        # pyflakes
+  "I",        # import sorting
+  "B",        # bugbear: likely bugs
+  "UP",       # pyupgrade: modern syntax for the target version
+  "SIM",      # simplifications
+  "ASYNC",    # async pitfalls (blocking calls in async code)
+  "RUF",      # ruff-specific checks
+]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+files = ["src", "tests"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "-q"]
