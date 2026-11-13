@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from bonfire.core.config import Settings, get_settings
 from bonfire.core.db import mongo_client
-from bonfire.core.errors import register_error_handlers
+from bonfire.errors import register_error_handlers
 from bonfire.router import api_router
 
 API_PREFIX = "/api/v1"
