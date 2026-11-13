@@ -1,5 +1,8 @@
 """Application factory: builds the FastAPI app from Settings.
 
+Patterns: Application Factory (create_app builds a fresh app, so tests pass their
+own Settings) and a lifespan context manager that owns startup and shutdown.
+
 Run locally:  uv run uvicorn bonfire.main:create_app --factory --reload
 """
 
@@ -8,9 +11,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pymongo import AsyncMongoClient
 
 from bonfire.core.config import Settings, get_settings
+from bonfire.core.db import mongo_client
 from bonfire.core.errors import register_error_handlers
 from bonfire.router import api_router
 
@@ -22,18 +25,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        # One client per process: it owns the connection pool. Connecting is lazy,
-        # so startup doesn't fail when Mongo is down; /health reports it instead.
-        client: AsyncMongoClient[dict[str, object]] = AsyncMongoClient(
-            settings.mongo_uri.get_secret_value(),
-            serverSelectionTimeoutMS=settings.mongo_timeout_ms,
-        )
-        app.state.mongo_client = client
-        app.state.db = client[settings.mongo_db]
+        # Startup: open the one client (lazy, so a Mongo outage doesn't block)
+        mongo_client.connect(settings)
         try:
             yield
         finally:
-            await client.close()
+            await mongo_client.close()
 
     app = FastAPI(
         title="Bonfire Ledger API",
