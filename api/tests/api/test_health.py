@@ -9,6 +9,8 @@ pytestmark = pytest.mark.anyio
 
 
 class FakeDb:
+    """Stands in for AsyncDatabase: only the ping the repository sends."""
+
     def __init__(self, *, up: bool) -> None:
         self.up = up
 
@@ -18,20 +20,29 @@ class FakeDb:
         return {"ok": 1}
 
 
-async def test_health_ok_when_mongo_answers(app: FastAPI, client: AsyncClient) -> None:
+async def test_ready_ok_when_mongo_answers(app: FastAPI, client: AsyncClient) -> None:
     app.dependency_overrides[get_db] = lambda: FakeDb(up=True)
 
-    res = await client.get("/api/v1/health")
+    res = await client.get("/api/v1/health/ready")
 
     assert res.status_code == 200
     assert res.json() == {"status": "ok"}
 
 
-async def test_health_is_503_problem_when_mongo_is_down(app: FastAPI, client: AsyncClient) -> None:
+async def test_ready_is_503_problem_when_mongo_is_down(app: FastAPI, client: AsyncClient) -> None:
     app.dependency_overrides[get_db] = lambda: FakeDb(up=False)
 
-    res = await client.get("/api/v1/health")
+    res = await client.get("/api/v1/health/ready")
 
     assert res.status_code == 503
     assert res.headers["content-type"] == "application/problem+json"
     assert res.json()["detail"] == "Database unavailable"
+
+
+async def test_live_stays_200_when_mongo_is_down(app: FastAPI, client: AsyncClient) -> None:
+    app.dependency_overrides[get_db] = lambda: FakeDb(up=False)
+
+    res = await client.get("/api/v1/health/live")
+
+    assert res.status_code == 200
+    assert res.json() == {"status": "ok"}
