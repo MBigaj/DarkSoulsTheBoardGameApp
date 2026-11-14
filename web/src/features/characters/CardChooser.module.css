@@ -1,0 +1,139 @@
+.panel {
+  width: min(100%, 1040px);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.head,
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.foot {
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: var(--fs-heading);
+  letter-spacing: var(--track-heading);
+}
+
+.close {
+  min-height: var(--tap-min);
+  padding: 0 18px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    color var(--dur-hover) var(--ease-std);
+}
+
+.close:hover:not(:disabled) {
+  border-color: var(--ornament);
+  color: var(--text);
+}
+
+.close:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.search {
+  flex: 1 1 220px;
+  min-height: var(--tap-min);
+  padding: 0 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-small);
+}
+
+.allClasses {
+  flex: none;
+  width: auto;
+  padding-right: 14px;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Same plain 4px lift as the builder slots. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--dur-lift) var(--ease-std),
+    border-color var(--dur-hover) var(--ease-std);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card[aria-pressed='true'] {
+  border-color: var(--accent-text);
+  background: var(--tint);
+}
+
+.name {
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+
+.none {
+  font-style: italic;
+  color: var(--muted);
+}

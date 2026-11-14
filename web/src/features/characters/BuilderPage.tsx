@@ -1,8 +1,11 @@
-import { useEffect, useMemo } from 'react';
-import { useClasses } from '@/shared/api/queries';
-import type { ClassDef } from '@/shared/api/types';
+import { useEffect, useMemo, useState } from 'react';
+import { useCatalog, useClasses } from '@/shared/api/queries';
+import type { ClassDef, Treasure } from '@/shared/api/types';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { soulsSpent } from './builder/builderReducer';
+import { cardIn, starterKit, type Gear, type GearSlot } from './builder/gear';
+import { CardChooser } from './CardChooser';
+import { Equipment } from './Equipment';
 import { useBuilder } from './builder/useBuilder';
 import { ClassCard } from './ClassCard';
 import { PartyRoster } from './PartyRoster';
@@ -11,7 +14,7 @@ import styles from './BuilderPage.module.css';
 
 const PANEL_ID = 'builder-slot-panel';
 
-/** Character Builder (CharactersFinal): party, class card and stat progression. */
+/** Character Builder (CharactersFinal): party, class card, stat progression and equipment. */
 export function BuilderPage() {
   const classes = useClasses();
   return (
@@ -41,6 +44,30 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
     dispatch({ type: 'syncClasses', ids: classes.map((cls) => cls._id) });
   }, [classes, dispatch]);
 
+  // Treasure from the catalog (complete = every card): starter kits, the chooser, card faces.
+  const catalog = useCatalog('treasure');
+  const treasure = useMemo(
+    () =>
+      catalog.complete
+        ? catalog.cards.filter((card): card is Treasure => card.type === 'treasure')
+        : [],
+    [catalog.cards, catalog.complete],
+  );
+  const cardById = useMemo(() => new Map(treasure.map((card) => [card._id, card])), [treasure]);
+  const kits = useMemo(
+    (): Record<string, Gear> | null =>
+      treasure.length === 0
+        ? null
+        : Object.fromEntries(classes.map((c) => [c._id, starterKit(c._id, treasure)])),
+    [classes, treasure],
+  );
+  // Slots without gear get their starter kit; saved cards the catalog lost are dropped.
+  useEffect(() => {
+    if (kits) dispatch({ type: 'fillGear', kits, known: new Set(cardById.keys()) });
+  }, [kits, cardById, dispatch]);
+
+  const [choosing, setChoosing] = useState<GearSlot | null>(null);
+
   // Until that repair lands (one render), nothing renders for a party with an unknown class.
   const slotClasses = state.slots.flatMap((slot) => byId.get(slot.classId) ?? []);
   const slot = state.slots[state.active];
@@ -57,7 +84,7 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
           dispatch({ type: 'selectSlot', slot: index });
         }}
         onPickClass={(classId) => {
-          dispatch({ type: 'setClass', classId });
+          dispatch({ type: 'setClass', classId, kit: kits?.[classId] ?? null });
         }}
         panelId={PANEL_ID}
       />
@@ -79,8 +106,32 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
               dispatch({ type: 'reset' });
             }}
           />
+          <Equipment
+            gear={slot.gear}
+            cardOf={(id) => cardById.get(id)}
+            onChoose={setChoosing}
+            onTwoHanded={(on) => {
+              dispatch({ type: 'setTwoHanded', on });
+            }}
+          />
         </div>
       </div>
+      {choosing && slot.gear && (
+        <CardChooser
+          slot={choosing}
+          classId={cls._id}
+          className={cls.name}
+          treasure={treasure}
+          current={cardIn(slot.gear, choosing)}
+          onPick={(card) => {
+            dispatch({ type: 'equip', slot: choosing, card });
+            setChoosing(null);
+          }}
+          onClose={() => {
+            setChoosing(null);
+          }}
+        />
+      )}
     </>
   );
 }

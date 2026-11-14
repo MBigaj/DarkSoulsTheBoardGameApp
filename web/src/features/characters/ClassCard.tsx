@@ -25,17 +25,19 @@ export function ClassCard({ cls, souls, stamina }: ClassCardProps) {
   return (
     <Frame as="section" aria-label="Class" className={styles.card}>
       <figure className={styles.board}>
-        <div className={styles.boardBox}>
-          {cls.art && (
-            <StoreImage
-              art={cls.art}
-              alt={`${cls.name} class board`}
-              width={1000}
-              height={800}
-              priority
-              className={styles.boardImage}
-            />
-          )}
+        <div className={styles.boardShadow}>
+          <div className={styles.boardBox}>
+            {cls.art && (
+              <StoreImage
+                art={cls.art}
+                alt={`${cls.name} class board`}
+                width={1000}
+                height={800}
+                priority
+                className={styles.boardImage}
+              />
+            )}
+          </div>
         </div>
         <figcaption className={styles.caption}>
           Class board · taunt, heroic ability, stat tracks

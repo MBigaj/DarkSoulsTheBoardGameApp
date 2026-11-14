@@ -1,4 +1,6 @@
-/** Character Builder state: four party slots, each a class and its bought stat tiers. Pure. */
+/** Character Builder state: four party slots, each a class, its bought stat tiers and its gear. Pure. */
+
+import { dropUnknown, equip, setTwoHanded, type Gear, type GearCard, type GearSlot } from './gear';
 
 export const STATS = ['strength', 'dexterity', 'intelligence', 'faith'] as const;
 export type Stat = (typeof STATS)[number];
@@ -12,13 +14,22 @@ export const TIER_COST: readonly number[] = [0, 2, 4, 8];
 
 export const SLOT_COUNT = 4;
 
-export type PartySlot = { classId: string; tiers: Tiers };
+/** `gear: null` = not set up yet: the class's starter kit goes in once the catalog is loaded. */
+export type PartySlot = { classId: string; tiers: Tiers; gear: Gear | null };
 export type BuilderState = { active: number; slots: readonly PartySlot[] };
 
 export type BuilderAction =
   | { type: 'selectSlot'; slot: number }
-  /** The active slot's class. A new class starts from its base stats. */
-  | { type: 'setClass'; classId: string }
+  /** The active slot's class. A new class starts from its base stats and `kit` (null until the catalog loads). */
+  | { type: 'setClass'; classId: string; kit: Gear | null }
+  /** A card into one of the active slot's gear slots (null empties it); see `equip` in gear.ts. */
+  | { type: 'equip'; slot: GearSlot; card: GearCard | null }
+  | { type: 'setTwoHanded'; on: boolean }
+  /**
+   * The catalog is loaded: slots without gear get their class's starter kit, and saved card ids the
+   * catalog doesn't have are dropped.
+   */
+  | { type: 'fillGear'; kits: Readonly<Record<string, Gear>>; known: ReadonlySet<string> }
   /** Buy up to `tier` (every lower tier comes with it); a lower tier than owned sells back down. */
   | { type: 'setTier'; stat: Stat; tier: Tier }
   /** The active slot back to base stats. */
@@ -35,7 +46,10 @@ export const DEFAULT_PARTY = ['warrior', 'sorcerer', 'cleric', 'thief'] as const
 const BASE: Tiers = { strength: 0, dexterity: 0, intelligence: 0, faith: 0 };
 
 export function initialBuilder(): BuilderState {
-  return { active: 0, slots: DEFAULT_PARTY.map((classId) => ({ classId, tiers: BASE })) };
+  return {
+    active: 0,
+    slots: DEFAULT_PARTY.map((classId) => ({ classId, tiers: BASE, gear: null })),
+  };
 }
 
 /** Souls spent on one stat at `tier`: tiers are bought in order, so all the ones below count. */
@@ -62,8 +76,20 @@ export function builderReducer(state: BuilderState, action: BuilderAction): Buil
         : state;
     case 'setClass':
       return updateActive(state, (slot) =>
-        slot.classId === action.classId ? slot : { classId: action.classId, tiers: BASE },
+        slot.classId === action.classId
+          ? slot
+          : { classId: action.classId, tiers: BASE, gear: action.kit },
       );
+    case 'equip':
+      return updateActive(state, (slot) =>
+        slot.gear ? { ...slot, gear: equip(slot.gear, action.slot, action.card) } : slot,
+      );
+    case 'setTwoHanded':
+      return updateActive(state, (slot) =>
+        slot.gear ? { ...slot, gear: setTwoHanded(slot.gear, action.on) } : slot,
+      );
+    case 'fillGear':
+      return fillGear(state, action.kits, action.known);
     case 'setTier':
       return updateActive(state, (slot) => ({
         ...slot,
@@ -86,9 +112,25 @@ function syncClasses(state: BuilderState, ids: readonly string[]): BuilderState 
       if (known.has(slot.classId)) return slot;
       // The canvas class for this slot if the store has it, else the first one.
       const preferred = DEFAULT_PARTY[i];
-      return { classId: preferred && known.has(preferred) ? preferred : first, tiers: BASE };
+      return {
+        classId: preferred && known.has(preferred) ? preferred : first,
+        tiers: BASE,
+        gear: null,
+      };
     }),
   };
+}
+
+function fillGear(
+  state: BuilderState,
+  kits: Readonly<Record<string, Gear>>,
+  known: ReadonlySet<string>,
+): BuilderState {
+  const slots = state.slots.map((slot) => {
+    const gear = slot.gear ? dropUnknown(slot.gear, known) : (kits[slot.classId] ?? null);
+    return gear === slot.gear ? slot : { ...slot, gear };
+  });
+  return slots.every((slot, i) => slot === state.slots[i]) ? state : { ...state, slots };
 }
 
 const isTier = (value: unknown): value is Tier =>
@@ -104,7 +146,20 @@ function parseSlot(value: unknown): PartySlot | null {
     if (!isTier(tier)) return null;
     parsed[stat] = tier;
   }
-  return { classId, tiers: parsed };
+  return { classId, tiers: parsed, gear: parseGear((value as { gear?: unknown }).gear) };
+}
+
+const isId = (value: unknown): value is string | null =>
+  value === null || typeof value === 'string';
+
+/** Saved gear, or null (the starter kit goes back in) if it's missing or malformed. */
+function parseGear(value: unknown): Gear | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const { armour, left, right, backup, twoHanded } = value as Partial<Record<string, unknown>>;
+  if (!isId(armour) || !isId(left) || !isId(right) || typeof twoHanded !== 'boolean') return null;
+  if (!Array.isArray(backup) || backup.length !== 2 || !backup.every(isId)) return null;
+  const [b0, b1] = backup;
+  return { armour, left, right, backup: [b0 ?? null, b1 ?? null], twoHanded };
 }
 
 /**
