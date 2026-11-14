@@ -49,7 +49,8 @@ export function CardChooser({
   onClose,
 }: CardChooserProps) {
   const [query, setQuery] = useState('');
-  const [allClasses, setAllClasses] = useState(false);
+  // On by default (owner, 14 Nov): every class's cards; untick for generic + this class's own.
+  const [allClasses, setAllClasses] = useState(true);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const cards = useMemo(() => {
