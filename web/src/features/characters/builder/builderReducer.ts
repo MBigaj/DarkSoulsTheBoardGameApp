@@ -22,7 +22,12 @@ export type BuilderAction =
   /** Buy up to `tier` (every lower tier comes with it); a lower tier than owned sells back down. */
   | { type: 'setTier'; stat: Stat; tier: Tier }
   /** The active slot back to base stats. */
-  | { type: 'reset' };
+  | { type: 'reset' }
+  /**
+   * The classes the store has. A slot whose class isn't among them (a saved party from an older
+   * store) gets a known class and base stats, so the state never holds an id nothing can show.
+   */
+  | { type: 'syncClasses'; ids: readonly string[] };
 
 /** The canvas party. */
 export const DEFAULT_PARTY = ['warrior', 'sorcerer', 'cleric', 'thief'] as const;
@@ -66,7 +71,24 @@ export function builderReducer(state: BuilderState, action: BuilderAction): Buil
       }));
     case 'reset':
       return updateActive(state, (slot) => ({ ...slot, tiers: BASE }));
+    case 'syncClasses':
+      return syncClasses(state, action.ids);
   }
+}
+
+function syncClasses(state: BuilderState, ids: readonly string[]): BuilderState {
+  const known = new Set(ids);
+  const [first] = ids;
+  if (first === undefined || state.slots.every((slot) => known.has(slot.classId))) return state;
+  return {
+    ...state,
+    slots: state.slots.map((slot, i) => {
+      if (known.has(slot.classId)) return slot;
+      // The canvas class for this slot if the store has it, else the first one.
+      const preferred = DEFAULT_PARTY[i];
+      return { classId: preferred && known.has(preferred) ? preferred : first, tiers: BASE };
+    }),
+  };
 }
 
 const isTier = (value: unknown): value is Tier =>

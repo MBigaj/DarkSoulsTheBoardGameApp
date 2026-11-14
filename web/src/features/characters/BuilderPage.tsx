@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useClasses } from '@/shared/api/queries';
 import type { ClassDef } from '@/shared/api/types';
 import { PageHeader } from '@/shared/ui/PageHeader';
-import { soulsSpent, type PartySlot } from './builder/builderReducer';
+import { soulsSpent } from './builder/builderReducer';
 import { useBuilder } from './builder/useBuilder';
 import { ClassCard } from './ClassCard';
 import { PartyRoster } from './PartyRoster';
@@ -36,20 +36,23 @@ export function BuilderPage() {
 function Builder({ classes }: { classes: readonly ClassDef[] }) {
   const [state, dispatch] = useBuilder();
   const byId = useMemo(() => new Map(classes.map((cls) => [cls._id, cls])), [classes]);
-  // A saved class the store no longer has shows as the first class until another is picked.
-  const fallback = classes[0] as ClassDef;
-  const classOf = (slot: PartySlot) => byId.get(slot.classId) ?? fallback;
+  // A saved party can name a class the store no longer has: repair the state, not just the view.
+  useEffect(() => {
+    dispatch({ type: 'syncClasses', ids: classes.map((cls) => cls._id) });
+  }, [classes, dispatch]);
+
+  // Until that repair lands (one render), nothing renders for a party with an unknown class.
+  const slotClasses = state.slots.flatMap((slot) => byId.get(slot.classId) ?? []);
   const slot = state.slots[state.active];
-  if (!slot) return null;
-  const cls = classOf(slot);
+  const cls = slotClasses[state.active];
+  if (slotClasses.length !== state.slots.length || !slot || !cls) return null;
 
   return (
     <>
       <PartyRoster
-        slots={state.slots}
         active={state.active}
         classes={classes}
-        classOf={classOf}
+        slotClasses={slotClasses}
         onSelectSlot={(index) => {
           dispatch({ type: 'selectSlot', slot: index });
         }}

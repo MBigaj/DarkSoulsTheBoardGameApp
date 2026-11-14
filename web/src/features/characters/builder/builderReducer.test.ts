@@ -73,6 +73,38 @@ describe('builderReducer: party', () => {
   });
 });
 
+describe('builderReducer: classes the store has', () => {
+  const ids = ['cleric', 'herald', 'sorcerer', 'thief', 'warrior'];
+
+  it('a slot with an unknown class gets a known one and base stats, in the state itself', () => {
+    const saved: BuilderState = {
+      active: 1,
+      slots: [
+        { classId: 'gone', tiers: { strength: 2, dexterity: 0, intelligence: 0, faith: 0 } },
+        ...initialBuilder().slots.slice(1),
+      ],
+    };
+    const state = builderReducer(saved, { type: 'syncClasses', ids });
+    expect(state.slots[0]).toEqual({ classId: 'warrior', tiers: initialBuilder().slots[0]?.tiers });
+    expect(state.slots.slice(1)).toEqual(saved.slots.slice(1));
+    expect(state.active).toBe(1);
+  });
+
+  it('falls back to the first class when the slot’s default isn’t in the store either', () => {
+    const state = builderReducer(initialBuilder(), {
+      type: 'syncClasses',
+      ids: ['herald', 'thief'],
+    });
+    expect(state.slots.map((s) => s.classId)).toEqual(['herald', 'herald', 'herald', 'thief']);
+  });
+
+  it('changes nothing when every class is known, or no classes are listed', () => {
+    const state = initialBuilder();
+    expect(builderReducer(state, { type: 'syncClasses', ids })).toBe(state);
+    expect(builderReducer(state, { type: 'syncClasses', ids: [] })).toBe(state);
+  });
+});
+
 describe('parseBuilder (saved party)', () => {
   it('reads back what it saved', () => {
     const state = run({ type: 'selectSlot', slot: 3 }, { type: 'setTier', stat: 'faith', tier: 3 });

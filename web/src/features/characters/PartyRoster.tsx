@@ -1,17 +1,16 @@
 import { useRef, type KeyboardEvent } from 'react';
 import type { ClassDef } from '@/shared/api/types';
 import { StoreImage } from '@/shared/ui/StoreImage';
-import type { PartySlot } from './builder/builderReducer';
 import { classSets } from './classes';
 import styles from './PartyRoster.module.css';
 
 const ROMAN = ['I', 'II', 'III', 'IV'];
 
 type PartyRosterProps = {
-  slots: readonly PartySlot[];
   active: number;
   classes: readonly ClassDef[];
-  classOf: (slot: PartySlot) => ClassDef;
+  /** Each slot's class, in slot order. */
+  slotClasses: readonly ClassDef[];
   onSelectSlot: (slot: number) => void;
   onPickClass: (classId: string) => void;
   /** id of the panel the slot tabs control (class card and stats). */
@@ -20,19 +19,18 @@ type PartyRosterProps = {
 
 /** Party: four slot tabs (arrow keys move and select) and the class picker for the selected slot. */
 export function PartyRoster({
-  slots,
   active,
   classes,
-  classOf,
+  slotClasses,
   onSelectSlot,
   onPickClass,
   panelId,
 }: PartyRosterProps) {
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const activeClass = slots[active] && classOf(slots[active]);
+  const activeClass = slotClasses[active];
 
   function onKeyDown(event: KeyboardEvent, index: number) {
-    const last = slots.length - 1;
+    const last = slotClasses.length - 1;
     const next = {
       ArrowRight: index === last ? 0 : index + 1,
       ArrowLeft: index === 0 ? last : index - 1,
@@ -53,8 +51,7 @@ export function PartyRoster({
         <span>Select a slot, then choose its class</span>
       </div>
       <div role="tablist" aria-label="Party slots" className={styles.slots}>
-        {slots.map((slot, i) => {
-          const cls = classOf(slot);
+        {slotClasses.map((cls, i) => {
           const selected = i === active;
           return (
             <button
@@ -83,6 +80,7 @@ export function PartyRoster({
               </span>
               <span className={styles.slotText}>
                 <span className={styles.slotName}>{cls.name}</span>
+                <span className="visually-hidden">, </span>
                 <span className={styles.slotMeta}>
                   Slot {ROMAN[i]} · {classSets(cls, 'short')}
                 </span>
@@ -108,6 +106,8 @@ export function PartyRoster({
             }}
           >
             {cls.name}
+            {/* Name and set tag sit flush: the hidden comma keeps them two words when read out. */}
+            <span className="visually-hidden">, </span>
             <span className={styles.classSets}>{classSets(cls, 'short')}</span>
           </button>
         ))}
