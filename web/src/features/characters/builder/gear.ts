@@ -107,7 +107,23 @@ export function equip(gear: Gear, slot: GearSlot, card: GearCard | null): Gear {
     next =
       card.hands === 2 ? freeLeftHand({ ...next, twoHanded: true }) : { ...next, twoHanded: false };
   }
+  // An empty right hand (its card moved to backup, or the slot was emptied) holds nothing two-handed.
+  if (next.right === null) next = { ...next, twoHanded: false };
   return pruneUpgrades(next);
+}
+
+/** Going two-handed would drop the left-hand card: there's one, and both backups are full. */
+export function leftHandWouldDrop(gear: Gear): boolean {
+  return gear.left !== null && gear.backup[0] !== null && gear.backup[1] !== null;
+}
+
+/**
+ * Cards in `before` that `after` no longer holds, other than `replaced` (the card the player swapped
+ * out on purpose). Non-empty only when going two-handed dropped the left-hand card; the page says so.
+ */
+export function cardsLost(before: Gear, after: Gear, replaced: string | null): string[] {
+  const held = cardsInGear(after);
+  return [...cardsInGear(before)].filter((id) => id !== replaced && !held.has(id));
 }
 
 /** The toggle. Turning it on frees the left hand; the page locks it on for a two-handed card. */

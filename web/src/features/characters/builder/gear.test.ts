@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { Treasure } from '@/shared/api/types';
 import {
   attachUpgrade,
+  cardsLost,
+  leftHandWouldDrop,
   detachUpgrade,
   dropUnknown,
   EMPTY_GEAR,
@@ -145,6 +147,31 @@ describe('equip', () => {
     );
     expect(moved).toMatchObject({ right: 'dagger', backup: [null, null] });
     expect(equip(gear, 'armour', null).armour).toBeNull();
+  });
+
+  it('the two-handed card leaving the right hand turns two-handed off', () => {
+    const two = equip(gear, 'right', card('halberd', 'physical', 2));
+    const moved = equip(two, 'backup1', card('halberd', 'physical', 2));
+    expect(moved).toMatchObject({ right: null, twoHanded: false });
+    expect(equip(two, 'right', null)).toMatchObject({ right: null, twoHanded: false });
+    // The left hand takes a card again.
+    expect(equip(moved, 'left', card('buckler', 'shield', 1)).left).toBe('buckler');
+  });
+
+  it('says which card going two-handed would drop, and when', () => {
+    const full: Gear = { ...gear, backup: ['bow', 'flame'] };
+    expect(leftHandWouldDrop(full)).toBe(true);
+    expect(leftHandWouldDrop(gear)).toBe(false);
+    expect(leftHandWouldDrop({ ...full, left: null })).toBe(false);
+    const after = equip(full, 'right', card('greatsword', 'physical', 2));
+    expect(cardsLost(full, after, 'axe')).toEqual(['shield']);
+    // A swap that drops nothing else: only the replaced card leaves, and that's on purpose.
+    expect(cardsLost(gear, equip(gear, 'right', card('dagger', 'physical', 1)), 'axe')).toEqual([]);
+    // The two-handed card came from a backup, freeing a slot: nothing lost.
+    const fromBackup = { ...full, backup: ['greatsword', 'flame'] as const };
+    expect(
+      cardsLost(fromBackup, equip(fromBackup, 'right', card('greatsword', 'physical', 2)), 'axe'),
+    ).toEqual([]);
   });
 
   it('backup cards never count as equipped', () => {

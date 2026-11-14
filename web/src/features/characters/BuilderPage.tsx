@@ -5,6 +5,8 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 import { soulsSpent } from './builder/builderReducer';
 import {
   cardIn,
+  cardsLost,
+  equip,
   freeUpgradeSlots,
   starterKit,
   upgradeCost,
@@ -96,6 +98,9 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
   );
 
   /** The open dialog: a card for a slot, an upgrade for a card, or an upgrade's details. */
+  /** What the last equip dropped, for the active slot; shown until dismissed or the slot changes. */
+  const [notice, setNotice] = useState<{ slot: number; text: string } | null>(null);
+
   const [choosing, setChoosing] = useState<
     | { kind: 'slot'; slot: GearSlot }
     | { kind: 'upgrade'; hostId: string }
@@ -157,6 +162,10 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
             onInspectUpgrade={(host, upgrade) => {
               setChoosing({ kind: 'details', hostId: host._id, upgradeId: upgrade._id });
             }}
+            notice={notice?.slot === state.active ? notice.text : null}
+            onDismissNotice={() => {
+              setNotice(null);
+            }}
             onRemoveUpgrade={(host, upgrade) => {
               dispatch({ type: 'detachUpgrade', hostId: host._id, upgradeId: upgrade._id });
               focusUpgradesOf(host._id);
@@ -174,6 +183,26 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
           className={cls.name}
           treasure={treasure}
           onPick={(card) => {
+            if (slot.gear) {
+              // A two-handed card with both backups full drops the left-hand card: say so.
+              const gear = slot.gear;
+              const lost = cardsLost(
+                gear,
+                equip(gear, choosing.slot, card),
+                cardIn(gear, choosing.slot),
+              ).flatMap((id) => cardById.get(id) ?? []);
+              const withUpgrades = lost.some((c) => (gear.upgrades[c._id]?.length ?? 0) > 0);
+              setNotice(
+                lost.length > 0
+                  ? {
+                      slot: state.active,
+                      text: `${lost.map((c) => c.name).join(', ')} came off${
+                        withUpgrades ? ', with its upgrades' : ''
+                      }: both backup slots were full.`,
+                    }
+                  : null,
+              );
+            }
             dispatch({ type: 'equip', slot: choosing.slot, card });
             setChoosing(null);
           }}
