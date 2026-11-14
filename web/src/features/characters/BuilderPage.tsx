@@ -3,8 +3,16 @@ import { useCatalog, useClasses } from '@/shared/api/queries';
 import type { ClassDef, Treasure } from '@/shared/api/types';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { soulsSpent } from './builder/builderReducer';
-import { cardIn, starterKit, type Gear, type GearSlot } from './builder/gear';
+import {
+  cardIn,
+  freeUpgradeSlots,
+  starterKit,
+  upgradeCost,
+  type Gear,
+  type GearSlot,
+} from './builder/gear';
 import { CardChooser } from './CardChooser';
+import { UpgradeDetails } from './UpgradeDetails';
 import { Equipment } from './Equipment';
 import { useBuilder } from './builder/useBuilder';
 import { ClassCard } from './ClassCard';
@@ -13,6 +21,18 @@ import { StatProgression } from './StatProgression';
 import styles from './BuilderPage.module.css';
 
 const PANEL_ID = 'builder-slot-panel';
+
+/**
+ * After an upgrade comes off, its row (and the button that had focus) is gone: focus the card's
+ * first upgrade control instead, once React has drawn the change.
+ */
+function focusUpgradesOf(hostId: string) {
+  requestAnimationFrame(() => {
+    document
+      .querySelector<HTMLElement>(`[data-upgrades-of="${CSS.escape(hostId)}"] button`)
+      ?.focus();
+  });
+}
 
 /** Character Builder (CharactersFinal): party, class card, stat progression and equipment. */
 export function BuilderPage() {
@@ -66,7 +86,26 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
     if (kits) dispatch({ type: 'fillGear', kits, known: new Set(cardById.keys()) });
   }, [kits, cardById, dispatch]);
 
-  const [choosing, setChoosing] = useState<GearSlot | null>(null);
+  // Slots each upgrade card takes, for the reducer's free-slot check.
+  const costs = useMemo(
+    () =>
+      Object.fromEntries(
+        treasure.filter((card) => card.equip === 'upgrade').map((c) => [c._id, upgradeCost(c)]),
+      ),
+    [treasure],
+  );
+
+  /** The open dialog: a card for a slot, an upgrade for a card, or an upgrade's details. */
+  const [choosing, setChoosing] = useState<
+    | { kind: 'slot'; slot: GearSlot }
+    | { kind: 'upgrade'; hostId: string }
+    | { kind: 'details'; hostId: string; upgradeId: string }
+    | null
+  >(null);
+
+  const dialogHost =
+    choosing && choosing.kind !== 'slot' ? cardById.get(choosing.hostId) : undefined;
+  const dialogUpgrade = choosing?.kind === 'details' ? cardById.get(choosing.upgradeId) : undefined;
 
   // Until that repair lands (one render), nothing renders for a party with an unknown class.
   const slotClasses = state.slots.flatMap((slot) => byId.get(slot.classId) ?? []);
@@ -109,22 +148,33 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
           <Equipment
             gear={slot.gear}
             cardOf={(id) => cardById.get(id)}
-            onChoose={setChoosing}
+            onChoose={(gearSlot) => {
+              setChoosing({ kind: 'slot', slot: gearSlot });
+            }}
+            onAddUpgrade={(host) => {
+              setChoosing({ kind: 'upgrade', hostId: host._id });
+            }}
+            onInspectUpgrade={(host, upgrade) => {
+              setChoosing({ kind: 'details', hostId: host._id, upgradeId: upgrade._id });
+            }}
+            onRemoveUpgrade={(host, upgrade) => {
+              dispatch({ type: 'detachUpgrade', hostId: host._id, upgradeId: upgrade._id });
+              focusUpgradesOf(host._id);
+            }}
             onTwoHanded={(on) => {
               dispatch({ type: 'setTwoHanded', on });
             }}
           />
         </div>
       </div>
-      {choosing && slot.gear && (
+      {choosing?.kind === 'slot' && slot.gear && (
         <CardChooser
-          slot={choosing}
+          mode={{ kind: 'slot', slot: choosing.slot, current: cardIn(slot.gear, choosing.slot) }}
           classId={cls._id}
           className={cls.name}
           treasure={treasure}
-          current={cardIn(slot.gear, choosing)}
           onPick={(card) => {
-            dispatch({ type: 'equip', slot: choosing, card });
+            dispatch({ type: 'equip', slot: choosing.slot, card });
             setChoosing(null);
           }}
           onClose={() => {
@@ -132,6 +182,67 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
           }}
         />
       )}
+      {choosing?.kind === 'upgrade' && slot.gear && dialogHost && (
+        <UpgradeChooser
+          gear={slot.gear}
+          host={dialogHost}
+          costs={costs}
+          classId={cls._id}
+          className={cls.name}
+          treasure={treasure}
+          onPick={(upgrade, host) => {
+            dispatch({ type: 'attachUpgrade', host, upgrade, costs });
+            setChoosing(null);
+          }}
+          onClose={() => {
+            setChoosing(null);
+          }}
+        />
+      )}
+      {choosing?.kind === 'details' && dialogHost && dialogUpgrade && (
+        <UpgradeDetails
+          host={dialogHost}
+          upgrade={dialogUpgrade}
+          onRemove={() => {
+            dispatch({
+              type: 'detachUpgrade',
+              hostId: choosing.hostId,
+              upgradeId: choosing.upgradeId,
+            });
+            setChoosing(null);
+            focusUpgradesOf(choosing.hostId);
+          }}
+          onClose={() => {
+            setChoosing(null);
+          }}
+        />
+      )}
     </>
+  );
+}
+
+type UpgradeChooserProps = {
+  gear: Gear;
+  host: Treasure;
+  costs: Readonly<Record<string, number>>;
+  classId: string;
+  className: string;
+  treasure: readonly Treasure[];
+  onPick: (upgrade: Treasure, host: Treasure) => void;
+  onClose: () => void;
+};
+
+/** The chooser in upgrade mode for one card of the gear. */
+function UpgradeChooser({ gear, host, costs, onPick, ...rest }: UpgradeChooserProps) {
+  const attached = gear.upgrades[host._id] ?? [];
+  const free = freeUpgradeSlots(gear, host, (id) => costs[id] ?? 1);
+  return (
+    <CardChooser
+      {...rest}
+      mode={{ kind: 'upgrade', host, free, attached }}
+      onPick={(upgrade) => {
+        if (upgrade) onPick(upgrade, host);
+      }}
+    />
   );
 }

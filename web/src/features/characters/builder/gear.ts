@@ -9,6 +9,11 @@ export type Gear = {
   backup: readonly [string | null, string | null];
   /** The right hand uses both hands; the left hand is empty. */
   twoHanded: boolean;
+  /**
+   * Upgrade cards per host card (`_id` → upgrade `_id`s). Upgrades belong to the card, not the
+   * slot: they move with it and come off when it leaves the gear.
+   */
+  upgrades: Readonly<Record<string, readonly string[]>>;
 };
 
 export const GEAR_SLOTS = ['armour', 'left', 'right', 'backup0', 'backup1'] as const;
@@ -20,6 +25,7 @@ export const EMPTY_GEAR: Gear = {
   right: null,
   backup: [null, null],
   twoHanded: false,
+  upgrades: {},
 };
 
 /** What a card needs to know to be placed: its id, where it goes and how many hands. */
@@ -57,6 +63,22 @@ export function equippedIds(gear: Gear): string[] {
   return [gear.armour, gear.left, gear.right].filter((id): id is string => id !== null);
 }
 
+/** Every card in a slot (backups included), each once. */
+function cardsInGear(gear: Gear): Set<string> {
+  return new Set(GEAR_SLOTS.flatMap((slot) => cardIn(gear, slot) ?? []));
+}
+
+/** Upgrades of cards no longer in the gear come off. */
+function pruneUpgrades(gear: Gear): Gear {
+  const held = cardsInGear(gear);
+  const hosts = Object.keys(gear.upgrades);
+  if (hosts.every((host) => held.has(host))) return gear;
+  return {
+    ...gear,
+    upgrades: Object.fromEntries(Object.entries(gear.upgrades).filter(([host]) => held.has(host))),
+  };
+}
+
 /** The left-hand card goes to the first free backup slot (dropped if both are full); the left hand empties. */
 function freeLeftHand(gear: Gear): Gear {
   if (gear.left === null) return gear;
@@ -85,25 +107,98 @@ export function equip(gear: Gear, slot: GearSlot, card: GearCard | null): Gear {
     next =
       card.hands === 2 ? freeLeftHand({ ...next, twoHanded: true }) : { ...next, twoHanded: false };
   }
-  return next;
+  return pruneUpgrades(next);
 }
 
 /** The toggle. Turning it on frees the left hand; the page locks it on for a two-handed card. */
 export function setTwoHanded(gear: Gear, on: boolean): Gear {
-  return on ? freeLeftHand({ ...gear, twoHanded: true }) : { ...gear, twoHanded: false };
+  return on
+    ? pruneUpgrades(freeLeftHand({ ...gear, twoHanded: true }))
+    : { ...gear, twoHanded: false };
 }
 
-/** Saved ids the catalog no longer has become empty slots. */
+/** Saved ids the catalog no longer has become empty slots, and their upgrades come off. */
 export function dropUnknown(gear: Gear, known: ReadonlySet<string>): Gear {
   const keep = (id: string | null) => (id !== null && known.has(id) ? id : null);
-  const next: Gear = {
+  const lostUpgrade = Object.values(gear.upgrades).some((ids) => ids.some((id) => !known.has(id)));
+  const next = pruneUpgrades({
     ...gear,
     armour: keep(gear.armour),
     left: keep(gear.left),
     right: keep(gear.right),
     backup: [keep(gear.backup[0]), keep(gear.backup[1])],
+    upgrades: lostUpgrade
+      ? Object.fromEntries(
+          Object.entries(gear.upgrades).map(([host, ids]) => [
+            host,
+            ids.filter((id) => known.has(id)),
+          ]),
+        )
+      : gear.upgrades,
+  });
+  const same =
+    next.upgrades === gear.upgrades &&
+    GEAR_SLOTS.every((slot) => cardIn(next, slot) === cardIn(gear, slot));
+  return same ? gear : next;
+}
+
+/** A card that can carry upgrades: where it goes and how many slots it prints. */
+export type UpgradeHost = Pick<Treasure, '_id' | 'equip' | 'upgradeSlots'>;
+/** An upgrade card: what it fits and how many slots it takes. */
+export type UpgradeCard = Pick<Treasure, '_id' | 'equip' | 'upgradeTarget' | 'upgradeSlotCost'>;
+
+/** Slots an upgrade takes: 1 unless the card says more (Dragon Scale: 2). */
+export function upgradeCost(upgrade: Pick<Treasure, 'upgradeSlotCost'>): number {
+  return upgrade.upgradeSlotCost ?? 1;
+}
+
+/** Weapon upgrades go on hand cards (shields included), armour upgrades on armour. */
+export function fitsHost(
+  host: Pick<Treasure, 'equip'>,
+  upgrade: Pick<Treasure, 'equip' | 'upgradeTarget'>,
+): boolean {
+  if (upgrade.equip !== 'upgrade') return false;
+  if (upgrade.upgradeTarget === 'weapon') return host.equip === 'hand';
+  return upgrade.upgradeTarget === 'armour' && host.equip === 'armour';
+}
+
+/** Upgrade slots on `host` not taken; `costOf` gives each attached upgrade's cost. */
+export function freeUpgradeSlots(
+  gear: Gear,
+  host: UpgradeHost,
+  costOf: (id: string) => number,
+): number {
+  const used = (gear.upgrades[host._id] ?? []).reduce((sum, id) => sum + costOf(id), 0);
+  return host.upgradeSlots - used;
+}
+
+/**
+ * Attach an upgrade to a card in the gear, if it fits that card and its free slots. An upgrade
+ * already on another card moves (one copy); on this card it stays where it is.
+ */
+export function attachUpgrade(
+  gear: Gear,
+  host: UpgradeHost,
+  upgrade: UpgradeCard,
+  costOf: (id: string) => number,
+): Gear {
+  if (!cardsInGear(gear).has(host._id) || !fitsHost(host, upgrade)) return gear;
+  if (gear.upgrades[host._id]?.includes(upgrade._id)) return gear;
+  if (freeUpgradeSlots(gear, host, costOf) < upgradeCost(upgrade)) return gear;
+  const upgrades: Record<string, readonly string[]> = Object.fromEntries(
+    Object.entries(gear.upgrades).map(([id, ids]) => [id, ids.filter((u) => u !== upgrade._id)]),
+  );
+  upgrades[host._id] = [...(upgrades[host._id] ?? []), upgrade._id];
+  return { ...gear, upgrades };
+}
+
+export function detachUpgrade(gear: Gear, hostId: string, upgradeId: string): Gear {
+  const ids = gear.upgrades[hostId];
+  if (!ids?.includes(upgradeId)) return gear;
+  return {
+    ...gear,
+    upgrades: { ...gear.upgrades, [hostId]: ids.filter((id) => id !== upgradeId) },
   };
-  return GEAR_SLOTS.every((slot) => cardIn(next, slot) === cardIn(gear, slot)) ? gear : next;
 }
 
 type KitCard = Pick<Treasure, '_id' | 'deck' | 'class' | 'equip' | 'hands' | 'attacks'>;
@@ -137,5 +232,6 @@ export function starterKit(classId: string, treasure: readonly KitCard[]): Gear 
     right: right?._id ?? null,
     backup: [rest[0]?._id ?? null, rest[1]?._id ?? null],
     twoHanded,
+    upgrades: {},
   };
 }

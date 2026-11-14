@@ -68,11 +68,15 @@
   gap: 16px;
 }
 
-/* Builder slots: a plain 4px lift, no tilt or glow (owner). */
+/*
+ * Builder slots: a plain 4px lift, no tilt or glow (owner). Each slot is four rows of the parent
+ * grid (label, card, upgrades, button), so the buttons line up however many upgrades a slot shows.
+ */
 .slot {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  row-gap: 8px;
   transition: transform var(--dur-lift) var(--ease-std);
 }
 
@@ -168,4 +172,8 @@
   font-size: 0.9375rem;
   font-style: italic;
   color: var(--muted);
+}
+
+.upgradesCell {
+  min-width: 0;
 }

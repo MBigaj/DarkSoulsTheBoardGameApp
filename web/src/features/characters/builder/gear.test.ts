@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Treasure } from '@/shared/api/types';
 import {
+  attachUpgrade,
+  detachUpgrade,
   dropUnknown,
   EMPTY_GEAR,
   equip,
@@ -42,6 +44,7 @@ describe('starterKit', () => {
       left: 'b-shield',
       backup: ['a-flame', null],
       twoHanded: false,
+      upgrades: {},
     });
   });
 
@@ -103,6 +106,7 @@ describe('equip', () => {
     right: 'axe',
     backup: [null, null],
     twoHanded: false,
+    upgrades: {},
   };
 
   it('a two-handed weapon in the right hand empties the left hand into backup', () => {
@@ -164,5 +168,102 @@ describe('dropUnknown', () => {
       backup: ['bow', null],
     });
     expect(dropUnknown(gear, new Set(['robe', 'bow', 'gone', 'gone2']))).toBe(gear);
+  });
+});
+
+describe('upgrades', () => {
+  const host = (id: string, equip: 'hand' | 'armour', upgradeSlots: number) => ({
+    _id: id,
+    equip,
+    upgradeSlots,
+  });
+  const upgrade = (id: string, target: 'weapon' | 'armour', cost?: number) => ({
+    _id: id,
+    equip: 'upgrade' as const,
+    upgradeTarget: target,
+    ...(cost ? { upgradeSlotCost: cost } : {}),
+  });
+  const axe = host('axe', 'hand', 2);
+  const robe = host('robe', 'armour', 1);
+  const shield = host('shield', 'hand', 1);
+  const costs: Record<string, number> = { scale: 2 };
+  const costOf = (id: string) => costs[id] ?? 1;
+  const gear: Gear = {
+    armour: 'robe',
+    left: 'shield',
+    right: 'axe',
+    backup: [null, null],
+    twoHanded: false,
+    upgrades: {},
+  };
+
+  it('weapon upgrades go on hand cards (shields too), armour upgrades on armour', () => {
+    expect(attachUpgrade(gear, axe, upgrade('shard', 'weapon'), costOf).upgrades).toEqual({
+      axe: ['shard'],
+    });
+    expect(attachUpgrade(gear, shield, upgrade('shard', 'weapon'), costOf).upgrades).toEqual({
+      shield: ['shard'],
+    });
+    expect(attachUpgrade(gear, robe, upgrade('ring', 'armour'), costOf).upgrades).toEqual({
+      robe: ['ring'],
+    });
+    expect(attachUpgrade(gear, robe, upgrade('shard', 'weapon'), costOf)).toBe(gear);
+    expect(attachUpgrade(gear, axe, upgrade('ring', 'armour'), costOf)).toBe(gear);
+  });
+
+  it('only into free slots: a 2-slot upgrade needs both', () => {
+    const one = attachUpgrade(gear, axe, upgrade('shard', 'weapon'), costOf);
+    expect(attachUpgrade(one, axe, upgrade('scale', 'weapon', 2), costOf)).toBe(one);
+    expect(attachUpgrade(gear, axe, upgrade('scale', 'weapon', 2), costOf).upgrades).toEqual({
+      axe: ['scale'],
+    });
+    const full = attachUpgrade(one, axe, upgrade('gem', 'weapon'), costOf);
+    expect(attachUpgrade(full, axe, upgrade('ember', 'weapon'), costOf)).toBe(full);
+    expect(attachUpgrade(gear, host('club', 'hand', 0), upgrade('shard', 'weapon'), costOf)).toBe(
+      gear,
+    );
+  });
+
+  it('a card not in the gear takes none', () => {
+    expect(attachUpgrade(gear, host('other', 'hand', 2), upgrade('shard', 'weapon'), costOf)).toBe(
+      gear,
+    );
+  });
+
+  it('one copy: an upgrade on another card moves', () => {
+    const onAxe = attachUpgrade(gear, axe, upgrade('shard', 'weapon'), costOf);
+    const moved = attachUpgrade(onAxe, shield, upgrade('shard', 'weapon'), costOf);
+    expect(moved.upgrades).toEqual({ axe: [], shield: ['shard'] });
+  });
+
+  it('upgrades move with their card, and come off when it leaves the gear', () => {
+    const onShield = attachUpgrade(gear, shield, upgrade('shard', 'weapon'), costOf);
+    // Two-handed: the shield goes to backup, its upgrade with it.
+    const two = setTwoHanded(onShield, true);
+    expect(two.backup[0]).toBe('shield');
+    expect(two.upgrades).toEqual({ shield: ['shard'] });
+    // Swapped out: gone.
+    expect(equip(onShield, 'left', card('buckler', 'shield', 1)).upgrades).toEqual({});
+    expect(equip(onShield, 'left', null).upgrades).toEqual({});
+  });
+
+  it('detach removes one upgrade', () => {
+    const two = attachUpgrade(
+      attachUpgrade(gear, axe, upgrade('shard', 'weapon'), costOf),
+      axe,
+      upgrade('gem', 'weapon'),
+      costOf,
+    );
+    expect(detachUpgrade(two, 'axe', 'shard').upgrades).toEqual({ axe: ['gem'] });
+    expect(detachUpgrade(two, 'axe', 'nope')).toBe(two);
+  });
+
+  it('dropUnknown also drops upgrades the catalog lost', () => {
+    const withUps: Gear = { ...gear, upgrades: { axe: ['shard', 'gone'] } };
+    expect(dropUnknown(withUps, new Set(['robe', 'shield', 'axe', 'shard'])).upgrades).toEqual({
+      axe: ['shard'],
+    });
+    const lostHost: Gear = { ...gear, right: 'gone-axe', upgrades: { 'gone-axe': ['shard'] } };
+    expect(dropUnknown(lostHost, new Set(['robe', 'shield', 'shard'])).upgrades).toEqual({});
   });
 });

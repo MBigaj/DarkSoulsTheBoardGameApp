@@ -1,6 +1,7 @@
 import type { Treasure } from '@/shared/api/types';
 import { CardFace } from '@/shared/ui/CardFace';
 import { cardIn, type Gear, type GearSlot } from './builder/gear';
+import { Upgrades } from './Upgrades';
 import styles from './Equipment.module.css';
 
 /** Slots in canvas order: label, tag, kind. */
@@ -18,10 +19,21 @@ type EquipmentProps = {
   cardOf: (id: string) => Treasure | undefined;
   onChoose: (slot: GearSlot) => void;
   onTwoHanded: (on: boolean) => void;
+  onAddUpgrade: (host: Treasure) => void;
+  onInspectUpgrade: (host: Treasure, upgrade: Treasure) => void;
+  onRemoveUpgrade: (host: Treasure, upgrade: Treasure) => void;
 };
 
 /** Armour, both hands and two backup cards, plus the two-handed toggle. */
-export function Equipment({ gear, cardOf, onChoose, onTwoHanded }: EquipmentProps) {
+export function Equipment({
+  gear,
+  cardOf,
+  onChoose,
+  onTwoHanded,
+  onAddUpgrade,
+  onInspectUpgrade,
+  onRemoveUpgrade,
+}: EquipmentProps) {
   const twoHanded = gear?.twoHanded ?? false;
   const right = gear?.right ? cardOf(gear.right) : undefined;
   // A two-handed card keeps the toggle on; with a one-handed one it's the player's call.
@@ -92,6 +104,24 @@ export function Equipment({ gear, cardOf, onChoose, onTwoHanded }: EquipmentProp
                           : 'Empty'}
                     </span>
                   </span>
+                )}
+              </div>
+              <div className={styles.upgradesCell}>
+                {gear && card && !emptied && (
+                  <Upgrades
+                    host={card}
+                    attached={gear.upgrades[card._id] ?? []}
+                    cardOf={cardOf}
+                    onAdd={() => {
+                      onAddUpgrade(card);
+                    }}
+                    onInspect={(upgrade) => {
+                      onInspectUpgrade(card, upgrade);
+                    }}
+                    onRemove={(upgrade) => {
+                      onRemoveUpgrade(card, upgrade);
+                    }}
+                  />
                 )}
               </div>
               <button

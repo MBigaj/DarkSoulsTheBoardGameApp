@@ -137,3 +137,47 @@
   font-style: italic;
   color: var(--muted);
 }
+
+.card:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.card:disabled:hover {
+  transform: none;
+}
+
+.note {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.note[data-blocked] {
+  color: var(--accent-text);
+}
+
+/* Upgrade mode: the card being upgraded. */
+.target {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.targetFace {
+  flex: none;
+  width: 44px;
+}
+
+.targetMeta {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

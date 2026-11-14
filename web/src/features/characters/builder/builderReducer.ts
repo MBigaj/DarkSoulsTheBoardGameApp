@@ -1,6 +1,17 @@
 /** Character Builder state: four party slots, each a class, its bought stat tiers and its gear. Pure. */
 
-import { dropUnknown, equip, setTwoHanded, type Gear, type GearCard, type GearSlot } from './gear';
+import {
+  attachUpgrade,
+  detachUpgrade,
+  dropUnknown,
+  equip,
+  setTwoHanded,
+  type Gear,
+  type GearCard,
+  type GearSlot,
+  type UpgradeCard,
+  type UpgradeHost,
+} from './gear';
 
 export const STATS = ['strength', 'dexterity', 'intelligence', 'faith'] as const;
 export type Stat = (typeof STATS)[number];
@@ -25,6 +36,14 @@ export type BuilderAction =
   /** A card into one of the active slot's gear slots (null empties it); see `equip` in gear.ts. */
   | { type: 'equip'; slot: GearSlot; card: GearCard | null }
   | { type: 'setTwoHanded'; on: boolean }
+  /** An upgrade onto a card of the active slot's gear; `costs` = slots each upgrade card takes. */
+  | {
+      type: 'attachUpgrade';
+      host: UpgradeHost;
+      upgrade: UpgradeCard;
+      costs: Readonly<Record<string, number>>;
+    }
+  | { type: 'detachUpgrade'; hostId: string; upgradeId: string }
   /**
    * The catalog is loaded: slots without gear get their class's starter kit, and saved card ids the
    * catalog doesn't have are dropped.
@@ -87,6 +106,26 @@ export function builderReducer(state: BuilderState, action: BuilderAction): Buil
     case 'setTwoHanded':
       return updateActive(state, (slot) =>
         slot.gear ? { ...slot, gear: setTwoHanded(slot.gear, action.on) } : slot,
+      );
+    case 'attachUpgrade':
+      return updateActive(state, (slot) =>
+        slot.gear
+          ? {
+              ...slot,
+              gear: attachUpgrade(
+                slot.gear,
+                action.host,
+                action.upgrade,
+                (id) => action.costs[id] ?? 1,
+              ),
+            }
+          : slot,
+      );
+    case 'detachUpgrade':
+      return updateActive(state, (slot) =>
+        slot.gear
+          ? { ...slot, gear: detachUpgrade(slot.gear, action.hostId, action.upgradeId) }
+          : slot,
       );
     case 'fillGear':
       return fillGear(state, action.kits, action.known);
@@ -159,7 +198,23 @@ function parseGear(value: unknown): Gear | null {
   if (!isId(armour) || !isId(left) || !isId(right) || typeof twoHanded !== 'boolean') return null;
   if (!Array.isArray(backup) || backup.length !== 2 || !backup.every(isId)) return null;
   const [b0, b1] = backup;
-  return { armour, left, right, backup: [b0 ?? null, b1 ?? null], twoHanded };
+  return {
+    armour,
+    left,
+    right,
+    backup: [b0 ?? null, b1 ?? null],
+    twoHanded,
+    upgrades: parseUpgrades((value as { upgrades?: unknown }).upgrades),
+  };
+}
+
+/** Saved upgrades; missing (a save from before upgrades) or malformed → none. */
+function parseUpgrades(value: unknown): Gear['upgrades'] {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+  const valid = Object.values(value).every(
+    (ids) => Array.isArray(ids) && ids.every((id) => typeof id === 'string'),
+  );
+  return valid ? (value as Gear['upgrades']) : {};
 }
 
 /**

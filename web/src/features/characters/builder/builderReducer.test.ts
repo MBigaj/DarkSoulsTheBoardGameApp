@@ -155,6 +155,7 @@ describe('builderReducer: gear', () => {
     right: 'axe',
     backup: [null, null] as const,
     twoHanded: false,
+    upgrades: {},
   };
 
   it('fillGear gives slots without gear their class kit and drops unknown saved cards', () => {
@@ -191,6 +192,25 @@ describe('builderReducer: gear', () => {
     const emptied = builderReducer(state, { type: 'equip', slot: 'armour', card: null });
     expect(active(emptied).gear?.armour).toBeNull();
     expect(emptied.slots[0]?.gear).toBeNull();
+  });
+
+  it('attachUpgrade and detachUpgrade act on the active slot’s gear', () => {
+    const state = run({ type: 'setClass', classId: 'herald', kit });
+    const host = { _id: 'axe', equip: 'hand' as const, upgradeSlots: 1 };
+    const shard = { _id: 'shard', equip: 'upgrade' as const, upgradeTarget: 'weapon' as const };
+    const on = builderReducer(state, { type: 'attachUpgrade', host, upgrade: shard, costs: {} });
+    expect(active(on).gear?.upgrades).toEqual({ axe: ['shard'] });
+    const off = builderReducer(on, { type: 'detachUpgrade', hostId: 'axe', upgradeId: 'shard' });
+    expect(active(off).gear?.upgrades).toEqual({ axe: [] });
+  });
+
+  it('a saved party from before upgrades loads with none', () => {
+    const { upgrades: _none, ...old } = kit;
+    const saved = {
+      ...initialBuilder(),
+      slots: initialBuilder().slots.map((s) => ({ ...s, gear: old })),
+    };
+    expect(parseBuilder(saved)?.slots[0]?.gear?.upgrades).toEqual({});
   });
 
   it('a saved party keeps its gear; malformed gear comes back as null (kit again)', () => {
