@@ -1,4 +1,5 @@
 .panel {
+  position: relative;
   width: min(100%, 1040px);
   max-height: 100%;
   display: flex;
@@ -119,10 +120,6 @@
     border-color var(--dur-hover) var(--ease-std);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-}
-
 .card[aria-pressed='true'] {
   border-color: var(--accent-text);
   background: var(--tint);
@@ -141,10 +138,6 @@
 .card:disabled {
   opacity: 0.42;
   cursor: default;
-}
-
-.card:disabled:hover {
-  transform: none;
 }
 
 .note {
@@ -180,4 +173,69 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* The grid and its controls; under the zoomed card while one is shown. */
+.list {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+/* Room for the zoomed card even when the search leaves few cards. */
+.panel[data-zoomed] {
+  min-height: min(100%, 720px);
+}
+
+.cell {
+  position: relative;
+  transition: transform var(--dur-lift) var(--ease-std);
+}
+
+/* The card and its zoom button lift together. */
+.cell:hover {
+  transform: translateY(-4px);
+}
+
+.cell:has(.card:disabled):hover {
+  transform: none;
+}
+
+/* Corner zoom: a 44px target around a 30px ring on the card's top-right corner (owner, 14 Nov). */
+.zoomButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  cursor: zoom-in;
+}
+
+.zoomIcon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--ornament);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std);
+}
+
+.zoomButton:hover .zoomIcon,
+.zoomButton:focus-visible .zoomIcon {
+  border-color: var(--accent-text);
+  background: var(--tint);
 }
