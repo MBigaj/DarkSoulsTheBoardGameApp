@@ -54,7 +54,7 @@ describe('builderReducer: party', () => {
     const state = run(
       { type: 'selectSlot', slot: 1 },
       { type: 'setTier', stat: 'intelligence', tier: 2 },
-      { type: 'setClass', classId: 'herald' },
+      { type: 'setClass', classId: 'herald', kit: null },
     );
     expect(state.slots.map((s) => s.classId)).toEqual(['warrior', 'herald', 'cleric', 'thief']);
     expect(soulsSpent(active(state).tiers)).toBe(0);
@@ -63,7 +63,7 @@ describe('builderReducer: party', () => {
   it('picking the class it already has keeps the tiers', () => {
     const state = run(
       { type: 'setTier', stat: 'strength', tier: 1 },
-      { type: 'setClass', classId: 'warrior' },
+      { type: 'setClass', classId: 'warrior', kit: null },
     );
     expect(soulsSpent(active(state).tiers)).toBe(2);
   });
@@ -80,12 +80,20 @@ describe('builderReducer: classes the store has', () => {
     const saved: BuilderState = {
       active: 1,
       slots: [
-        { classId: 'gone', tiers: { strength: 2, dexterity: 0, intelligence: 0, faith: 0 } },
+        {
+          classId: 'gone',
+          tiers: { strength: 2, dexterity: 0, intelligence: 0, faith: 0 },
+          gear: null,
+        },
         ...initialBuilder().slots.slice(1),
       ],
     };
     const state = builderReducer(saved, { type: 'syncClasses', ids });
-    expect(state.slots[0]).toEqual({ classId: 'warrior', tiers: initialBuilder().slots[0]?.tiers });
+    expect(state.slots[0]).toEqual({
+      classId: 'warrior',
+      tiers: initialBuilder().slots[0]?.tiers,
+      gear: null,
+    });
     expect(state.slots.slice(1)).toEqual(saved.slots.slice(1));
     expect(state.active).toBe(1);
   });
@@ -137,5 +145,81 @@ describe('parseBuilder (saved party)', () => {
 
   it('an active slot out of range falls back to the first', () => {
     expect(parseBuilder({ ...initialBuilder(), active: 9 })?.active).toBe(0);
+  });
+});
+
+describe('builderReducer: gear', () => {
+  const kit = {
+    armour: 'robe',
+    left: 'shield',
+    right: 'axe',
+    backup: [null, null] as const,
+    twoHanded: false,
+    upgrades: {},
+  };
+
+  it('fillGear gives slots without gear their class kit and drops unknown saved cards', () => {
+    const start = initialBuilder();
+    const withSaved = builderReducer(
+      {
+        ...start,
+        slots: start.slots.map((s, i) => (i === 1 ? { ...s, gear: { ...kit, right: 'gone' } } : s)),
+      },
+      { type: 'fillGear', kits: { warrior: kit }, known: new Set(['robe', 'shield', 'axe']) },
+    );
+    expect(withSaved.slots[0]?.gear).toEqual(kit); // warrior: its kit
+    expect(withSaved.slots[1]?.gear).toMatchObject({ right: null, armour: 'robe' }); // saved, cleaned
+    expect(withSaved.slots[2]?.gear).toBeNull(); // cleric: no kit listed yet
+    const again = builderReducer(withSaved, {
+      type: 'fillGear',
+      kits: { warrior: kit },
+      known: new Set(['robe', 'shield', 'axe']),
+    });
+    expect(again).toBe(withSaved);
+  });
+
+  it('a new class brings its kit; equip and the toggle act on the active slot only', () => {
+    const state = run(
+      { type: 'selectSlot', slot: 2 },
+      { type: 'setClass', classId: 'herald', kit },
+      { type: 'setTwoHanded', on: true },
+    );
+    expect(active(state).gear).toMatchObject({
+      twoHanded: true,
+      left: null,
+      backup: ['shield', null],
+    });
+    const emptied = builderReducer(state, { type: 'equip', slot: 'armour', card: null });
+    expect(active(emptied).gear?.armour).toBeNull();
+    expect(emptied.slots[0]?.gear).toBeNull();
+  });
+
+  it('attachUpgrade and detachUpgrade act on the active slot’s gear', () => {
+    const state = run({ type: 'setClass', classId: 'herald', kit });
+    const host = { _id: 'axe', equip: 'hand' as const, upgradeSlots: 1 };
+    const shard = { _id: 'shard', equip: 'upgrade' as const, upgradeTarget: 'weapon' as const };
+    const on = builderReducer(state, { type: 'attachUpgrade', host, upgrade: shard, costs: {} });
+    expect(active(on).gear?.upgrades).toEqual({ axe: ['shard'] });
+    const off = builderReducer(on, { type: 'detachUpgrade', hostId: 'axe', upgradeId: 'shard' });
+    expect(active(off).gear?.upgrades).toEqual({ axe: [] });
+  });
+
+  it('a saved party from before upgrades loads with none', () => {
+    const { upgrades: _none, ...old } = kit;
+    const saved = {
+      ...initialBuilder(),
+      slots: initialBuilder().slots.map((s) => ({ ...s, gear: old })),
+    };
+    expect(parseBuilder(saved)?.slots[0]?.gear?.upgrades).toEqual({});
+  });
+
+  it('a saved party keeps its gear; malformed gear comes back as null (kit again)', () => {
+    const state = run({ type: 'setClass', classId: 'herald', kit });
+    expect(parseBuilder(JSON.parse(JSON.stringify(state)))).toEqual(state);
+    const broken = {
+      ...state,
+      slots: state.slots.map((s) => ({ ...s, gear: { ...kit, backup: ['x'] } })),
+    };
+    expect(parseBuilder(broken)?.slots.every((s) => s.gear === null)).toBe(true);
   });
 });

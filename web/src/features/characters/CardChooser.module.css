@@ -1,0 +1,241 @@
+.panel {
+  position: relative;
+  width: min(100%, 1040px);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.head,
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.foot {
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: var(--fs-heading);
+  letter-spacing: var(--track-heading);
+}
+
+.close {
+  min-height: var(--tap-min);
+  padding: 0 18px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    color var(--dur-hover) var(--ease-std);
+}
+
+.close:hover:not(:disabled) {
+  border-color: var(--ornament);
+  color: var(--text);
+}
+
+.close:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.search {
+  flex: 1 1 220px;
+  min-height: var(--tap-min);
+  padding: 0 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-small);
+}
+
+.allClasses {
+  flex: none;
+  width: auto;
+  padding-right: 14px;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Same plain 4px lift as the builder slots. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--dur-lift) var(--ease-std),
+    border-color var(--dur-hover) var(--ease-std);
+}
+
+.card[aria-pressed='true'] {
+  border-color: var(--accent-text);
+  background: var(--tint);
+}
+
+.name {
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+
+.none {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.card:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.note {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.note[data-blocked] {
+  color: var(--accent-text);
+}
+
+/* Upgrade mode: the card being upgraded. */
+.target {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.targetFace {
+  flex: none;
+  width: 44px;
+}
+
+.targetMeta {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* The grid and its controls; under the zoomed card while one is shown. */
+.list {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+/* Room for the zoomed card even when the search leaves few cards. */
+.panel[data-zoomed] {
+  min-height: min(100%, 720px);
+}
+
+.cell {
+  position: relative;
+  transition: transform var(--dur-lift) var(--ease-std);
+}
+
+/* The card and its zoom button lift together. */
+.cell:hover {
+  transform: translateY(-4px);
+}
+
+.cell:has(.card:disabled):hover {
+  transform: none;
+}
+
+/* Corner zoom: a 44px target around a 30px ring on the card's top-right corner (owner, 14 Nov). */
+.zoomButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  cursor: zoom-in;
+}
+
+.zoomIcon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--ornament);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std);
+}
+
+.zoomButton:hover .zoomIcon,
+.zoomButton:focus-visible .zoomIcon {
+  border-color: var(--accent-text);
+  background: var(--tint);
+}
