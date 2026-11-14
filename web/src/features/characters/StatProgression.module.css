@@ -1,0 +1,206 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.headSide {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.accent {
+  color: var(--accent-text);
+}
+
+.reset {
+  min-height: var(--tap-min);
+  padding: 0 4px;
+  background: transparent;
+  border: 0;
+  color: var(--accent-text);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
+.reset:hover {
+  color: var(--text);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 560px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 52px minmax(110px, 1.4fr) repeat(4, minmax(0, 1fr)) 80px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.row[data-header] {
+  padding: 0 0 6px;
+  border-top: 0;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tier {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap-min);
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std),
+    color var(--dur-hover) var(--ease-std);
+}
+
+.tier:hover {
+  border-color: var(--ornament);
+}
+
+.pip {
+  width: 8px;
+  height: 8px;
+  border: 1px solid currentcolor;
+}
+
+.tier[data-owned] {
+  background: var(--tint);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.tier[data-owned] .pip {
+  border-color: var(--border);
+  background: var(--accent);
+}
+
+.tier[aria-pressed='true'],
+.tier[aria-pressed='true'] .pip {
+  border-color: var(--accent-text);
+}
+
+.current {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 1.375rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  font-size: 0.9375rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* Section heading (canvas: Cormorant 700 caps 22px), not the italic page h2. */
+.title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: var(--fs-heading);
+  letter-spacing: var(--track-heading);
+}
+
+/* Phones: no sideways scroll. Each stat is two rows: code, name and current value, then the four tiers. */
+@media (max-width: 600px) {
+  .table {
+    min-width: 0;
+  }
+
+  .row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    row-gap: 6px;
+  }
+
+  .row[data-header] {
+    letter-spacing: 0.06em;
+  }
+
+  .code {
+    grid-area: 1 / 1;
+  }
+
+  .name {
+    grid-area: 1 / 2 / 2 / 4;
+  }
+
+  .current {
+    grid-area: 1 / 4;
+  }
+
+  .tier {
+    grid-row: 2;
+  }
+
+  .wideOnly {
+    display: none;
+  }
+}

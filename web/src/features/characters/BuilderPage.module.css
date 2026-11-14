@@ -1,0 +1,34 @@
+.main {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 32px var(--gutter) 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Left: class card, stats (equipment in FE-16). Right: the damage calculator (FE-17). */
+/* Holds the footer below the fold until the classes arrive, so it doesn't jump. */
+.main[data-loading] {
+  min-height: 100vh;
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.column {
+  flex: 999 1 640px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.note {
+  font-style: italic;
+  color: var(--muted);
+}

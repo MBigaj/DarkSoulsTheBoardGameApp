@@ -1,0 +1,144 @@
+.party {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.head,
+.pickerLabel,
+.slotMeta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 8px 12px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std);
+}
+
+.slot:hover {
+  border-color: var(--ornament);
+}
+
+.slot[aria-selected='true'] {
+  background: var(--tint);
+  border-color: var(--accent-text);
+}
+
+/* 44 × 48 window onto the class board's portrait (top left of every board). */
+.thumb {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 48px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel2);
+}
+
+.portrait {
+  position: absolute;
+  top: -1px;
+  left: -56px;
+  width: 314px;
+  max-width: none;
+  height: auto;
+}
+
+.slotText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.slotName {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1875rem;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.slotMeta {
+  letter-spacing: 0.12em;
+}
+
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.pickerLabel {
+  margin-right: 6px;
+}
+
+.classPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--pill-min);
+  padding: 0 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.0625rem;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std);
+}
+
+.classPill:hover {
+  border-color: var(--ornament);
+}
+
+.classSets {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--muted);
+}
+
+.classPill[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.classPill[aria-pressed='true'] .classSets {
+  color: var(--on-accent);
+}
