@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DICE, type CardType, type Die, type SetCode } from '@/shared/lib/card-types';
+import { DICE, SET_NAMES, type CardType, type Die, type SetCode } from '@/shared/lib/card-types';
 import type { Bounds } from '@/shared/lib/url-state';
 import { useMediaQuery } from '@/shared/lib/use-media-query';
 import { CheckRow } from '@/shared/ui/CheckRow';
@@ -12,7 +12,6 @@ import {
   RAIL_SETS,
   railFor,
   selectedCount,
-  SET_NAMES,
   shownSets,
   type DataOptions,
   type RailFilter,

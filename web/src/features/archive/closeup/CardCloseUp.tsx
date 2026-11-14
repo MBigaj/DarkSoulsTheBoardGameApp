@@ -2,13 +2,12 @@ import { useRef, useState, type KeyboardEvent } from 'react';
 import { useBacks, useCard } from '@/shared/api/queries';
 import type { Card, CardBack } from '@/shared/api/types';
 import { backFor } from '@/shared/lib/backs';
-import { CARD_TYPES, cardSets, type CardType } from '@/shared/lib/card-types';
+import { CARD_TYPES, cardSets, SET_NAMES, type CardType } from '@/shared/lib/card-types';
 import { imageUrl } from '@/shared/lib/card-image';
 import { badge, statLine, type NameOf } from '@/shared/lib/format';
 import { CardFace } from '@/shared/ui/CardFace';
 import { Dialog } from '@/shared/ui/Dialog';
 import { TypeBadge } from '@/shared/ui/TypeBadge';
-import { SET_NAMES } from '../rail';
 import { flipTransform, useFlip } from './useFlip';
 import styles from './CardCloseUp.module.css';
 

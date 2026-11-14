@@ -2,7 +2,7 @@
  * The filter rail per card type (ArchiveFinal): groups, their filters and option labels, plus
  * the active-filter chips. The fields and matching live in `filters/`; this is presentation.
  */
-import { DICE, SET_CODES, type CardType, type SetCode } from '@/shared/lib/card-types';
+import { DICE, SET_CODES, SET_NAMES, type CardType, type SetCode } from '@/shared/lib/card-types';
 import type { Bounds } from '@/shared/lib/url-state';
 import type { Facet } from './catalog';
 import type { CommonFilters, TypeFilters } from './filters';
@@ -329,12 +329,6 @@ export function railFacets(type: CardType, data: DataOptions): Facet[] {
     }),
   );
 }
-
-export const SET_NAMES: Record<SetCode, { name: string; short: string }> = {
-  tog: { name: 'Tomb of Giants', short: 'ToG' },
-  sc: { name: 'Sunless City', short: 'SC' },
-  pwa: { name: 'Painted World of Ariamis', short: 'PWA' },
-};
 
 /** Rail order (canvas): ToG, SC, PWA. */
 export const RAIL_SETS: readonly SetCode[] = ['tog', 'sc', 'pwa'];

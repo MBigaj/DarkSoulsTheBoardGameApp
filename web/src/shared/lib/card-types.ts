@@ -6,6 +6,13 @@ export type CardType = (typeof CARD_TYPES)[number];
 export const SET_CODES = ['sc', 'tog', 'pwa'] as const;
 export type SetCode = (typeof SET_CODES)[number];
 
+/** Display names: full, and the short code shown in tags ("ToG"). */
+export const SET_NAMES: Record<SetCode, { name: string; short: string }> = {
+  tog: { name: 'Tomb of Giants', short: 'ToG' },
+  sc: { name: 'Sunless City', short: 'SC' },
+  pwa: { name: 'Painted World of Ariamis', short: 'PWA' },
+};
+
 /** `set` on a card: a core set, or `shared` for a card printed in several (listed in `sets`). */
 export type CardSet = SetCode | 'shared';
 
