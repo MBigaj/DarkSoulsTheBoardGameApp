@@ -1,0 +1,95 @@
+# Git hooks: fast fixers and the secret scan on commit, the slower checks on push.
+# Set up once:  uv tool install pre-commit && pre-commit install
+# Run by hand:  pre-commit run --all-files                         (commit hooks)
+#               pre-commit run --all-files --hook-stage pre-push   (push hooks)
+# Skip one:     SKIP=gitleaks git commit ...   (never --no-verify, which skips all of them)
+minimum_pre_commit_version: '4.0.0'
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit]
+# Byte-for-byte copies of store data and generated code are never rewritten.
+exclude: ^web/(test/fixtures|src/shared/api/generated)/
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: [--maxkb=512]
+      - id: check-case-conflict
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      # Secrets in staged changes. The official image pinned to a version: the upstream
+      # gitleaks-docker hook runs the unpinned latest tag. Needs Docker running.
+      - id: gitleaks
+        name: gitleaks (staged changes)
+        language: docker_image
+        entry: zricethezav/gitleaks:v8.30.1 git --pre-commit --redact --staged --verbose
+        pass_filenames: false
+
+      # api: ruff and mypy come from api/uv.lock, so hooks, CI and the editor all run
+      # the same versions (no second copy pinned here to drift).
+      - id: ruff-check
+        name: ruff check --fix (api)
+        language: system
+        entry: uv run --project api ruff check --fix
+        types_or: [python, pyi]
+        files: ^api/
+      - id: ruff-format
+        name: ruff format (api)
+        language: system
+        entry: uv run --project api ruff format
+        types_or: [python, pyi]
+        files: ^api/
+      - id: mypy
+        name: mypy (api)
+        language: system
+        entry: uv run --directory api mypy
+        files: ^api/
+        pass_filenames: false
+        stages: [pre-push]
+      - id: pytest
+        name: pytest unit + API (api)
+        language: system
+        # Integration tests need MongoDB, so they stay in CI.
+        entry: uv run --directory api pytest tests/unit tests/api
+        files: ^api/
+        pass_filenames: false
+        stages: [pre-push]
+
+      # web: npm scripts run inside web/, so its own Prettier and ESLint config and
+      # ignore files apply.
+      - id: prettier
+        name: prettier --write (web)
+        language: system
+        entry: npm --prefix web run --silent format
+        files: ^web/
+        pass_filenames: false
+      - id: web-lint
+        name: eslint (web)
+        language: system
+        entry: npm --prefix web run --silent lint
+        files: ^web/
+        pass_filenames: false
+        stages: [pre-push]
+      - id: web-typecheck
+        name: typecheck (web)
+        language: system
+        entry: npm --prefix web run --silent typecheck
+        files: ^web/
+        pass_filenames: false
+        stages: [pre-push]
+      - id: web-test
+        name: vitest (web)
+        language: system
+        entry: npm --prefix web run --silent test
+        files: ^web/
+        pass_filenames: false
+        stages: [pre-push]
