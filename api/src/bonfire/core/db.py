@@ -22,8 +22,13 @@ class MongoDB:
         """Open the client. Lazy: no network call until the first query."""
         if self._client is not None:
             return
+        password = settings.mongo_password
         self._client = AsyncMongoClient(
-            settings.mongo_uri.get_secret_value(),
+            host=settings.mongo_host,
+            port=settings.mongo_port,
+            username=settings.mongo_username,  # None and None: no authentication
+            password=password.get_secret_value() if password else None,
+            authSource=settings.mongo_auth_source,
             serverSelectionTimeoutMS=settings.mongo_timeout_ms,
         )
         self._db = self._client[settings.mongo_db]

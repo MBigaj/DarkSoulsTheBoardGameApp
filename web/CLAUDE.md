@@ -21,6 +21,7 @@ npm run gen:types      # after a schema change in the store (DATA_DIR=…); drop
 ```
 
 Docker (repo root): `docker compose up --watch web` (dev, HMR), `docker compose --profile prod up --build web-prod` (nginx on :8080).
+Dev proxy: Vite forwards `/api/v1` to `API_PROXY_TARGET` (compose: `http://api:8000`; default `http://localhost:8000`), as nginx does in prod, so the browser never needs CORS.
 Node 26 (`.nvmrc`). TypeScript is pinned to ~6.0 and ESLint to 9: typescript-eslint and jsx-a11y don't support newer yet.
 
 ## Data

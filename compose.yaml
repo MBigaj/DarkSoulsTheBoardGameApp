@@ -1,9 +1,27 @@
 # Bonfire Ledger — local stack.
 # Dev:  docker compose up --watch                       (web on http://localhost:5173)
 # Prod: docker compose --profile prod up --build web-prod  (nginx on http://localhost:8080)
-# api/ and seed services are added once api/ exists.
+# API:  http://localhost:8000/api/v1/docs · through web: http://localhost:5173/api/v1/health/ready
+# Seed: docker compose run --rm seed                      (one-off import job, tools profile)
 
 name: bonfire-ledger
+
+# Shared by api and seed (YAML anchor; the x- prefix tells Compose to ignore the key).
+x-api-common: &api-common
+  depends_on:
+    mongo:
+      condition: service_healthy
+  environment:
+    # Values come only from .env, as for mongo. User and password stay separate
+    # variables (the driver combines them), so no connection string exists anywhere.
+    API_MONGO_HOST: mongo
+    API_MONGO_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+    API_MONGO_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    API_MONGO_DB: ${MONGO_INITDB_DATABASE}
+    API_DATA_DIR: /data
+  volumes:
+    # Same card store as web, read-only.
+    - ${DSTBG_DATA_DIR:-../DSTBG_DATA}:/data:ro
 
 services:
   mongo:
@@ -33,6 +51,8 @@ services:
       VITE_API_HTTP: ${VITE_API_HTTP:-}
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
       VITE_IMAGE_BASE_URL: ${VITE_IMAGE_BASE_URL:-/images}
+      # Vite's dev proxy forwards /api/v1 here (service name on the compose network).
+      API_PROXY_TARGET: http://api:8000
       # Read by mockApi (web/scripts/data-paths.ts).
       DATA_DIR: /data
       FIXTURES_DIR: /fixtures
@@ -83,8 +103,33 @@ services:
       # nginx serves /images from the store's images/ folder.
       - ${DSTBG_DATA_DIR:-../DSTBG_DATA}:/data:ro
 
-  # api:   build ./api  — FastAPI + uv (owner)
-  # seed:  one-off import job using the api image (owner)
+  api:
+    <<: *api-common
+    build:
+      context: ./api
+      target: dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000" # dev only: /api/v1/docs from the host
+    # Compose Watch, as for web: bind mounts on Windows don't trigger reloads.
+    develop:
+      watch:
+        - action: sync
+          path: ./api/src
+          target: /app/src
+        - action: rebuild
+          path: ./api/uv.lock
+        - action: rebuild
+          path: ./api/pyproject.toml
+
+  # One-off import job: validates the store and loads it into Mongo (script lands in BE-04).
+  seed:
+    <<: *api-common
+    profiles: [tools]
+    build:
+      context: ./api
+      target: runtime
+    command: ["python", "-m", "bonfire.scripts.seed"]
 
 volumes:
   mongo-data:

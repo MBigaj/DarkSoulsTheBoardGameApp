@@ -41,6 +41,11 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       // The data store and fixtures live outside web/.
       fs: { allow: [searchForWorkspaceRoot(process.cwd()), dataDir, fixturesDir] },
+      // Same-origin /api/v1 in dev, as nginx does in prod, so the browser needs no CORS.
+      // Compose sets API_PROXY_TARGET=http://api:8000; outside Docker the API runs on localhost.
+      proxy: {
+        '/api/v1': { target: process.env.API_PROXY_TARGET ?? 'http://localhost:8000' },
+      },
     },
     test: {
       environment: 'jsdom',

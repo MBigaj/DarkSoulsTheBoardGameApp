@@ -15,11 +15,11 @@ Unofficial fan companion for **Dark Souls™: The Board Game** — card archive,
 
 ```sh
 cp .env.example .env    # then edit the values
-docker compose up --watch                          # web dev server: http://localhost:5173
+docker compose up --watch                          # mongo + api + web: http://localhost:5173 (API on :8000)
 docker compose --profile prod up --build web-prod  # production build via nginx: http://localhost:8080
 ```
 
-The web container reads the card data store read-only from `DSTBG_DATA_DIR` (default `../DSTBG_DATA`).
+The `web`, `api` and `seed` containers read the card data store read-only from `DSTBG_DATA_DIR` (default `../DSTBG_DATA`). In dev, Vite forwards `/api/v1` to the `api` container; in `web-prod`, nginx does.
 
 ### Frontend only (Node 26)
 
