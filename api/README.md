@@ -1,5 +1,7 @@
 # Bonfire Ledger API
 
+[![api](https://github.com/MBigaj/DarkSoulsTheBoardGameApp/actions/workflows/api.yml/badge.svg)](https://github.com/MBigaj/DarkSoulsTheBoardGameApp/actions/workflows/api.yml)
+
 FastAPI + MongoDB backend. Design and decisions: `claude/architecture-overview.md` (project docs).
 
 ## Run
@@ -26,6 +28,16 @@ uv run ruff format . && uv run ruff check .   # format + lint
 uv run mypy                                    # types, strict
 uv run pytest                                  # tests
 ```
+
+## CI
+`.github/workflows/api.yml` runs on PRs and pushes to `main` that touch `api/`:
+- **Lint, typecheck, unit tests:** `ruff format --check`, `ruff check`, `mypy`, `pytest tests/unit`.
+- **API and integration tests:** `pytest tests/api tests/integration` against a `mongo:8` service container.
+
+Both run the same commands as above, with `UV_LOCKED=1`: a `uv.lock` that's out of date fails the run (fix: `uv lock`).
+The workflow runs on every PR; a `changes` job skips both when `api/` is untouched, and `api-ok` reports the result. Mark only **api-ok** as a required check.
+
+Locally, the git hooks (`.pre-commit-config.yaml`, see the root README) run ruff on commit and mypy + pytest on push, with the versions from `uv.lock`.
 
 ## Layout
 ```

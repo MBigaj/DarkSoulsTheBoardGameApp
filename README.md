@@ -21,6 +21,17 @@ docker compose --profile prod up --build web-prod  # production build via nginx:
 
 The `web`, `api` and `seed` containers read the card data store read-only from `DSTBG_DATA_DIR` (default `../DSTBG_DATA`). In dev, Vite forwards `/api/v1` to the `api` container; in `web-prod`, nginx does.
 
+### Git hooks
+
+```sh
+uv tool install pre-commit   # once per machine
+pre-commit install           # once per clone: installs the commit and push hooks
+```
+
+- **On commit:** whitespace and end-of-file fixes, YAML/TOML checks, merge markers, private keys, a gitleaks secret scan (needs Docker running), `ruff check --fix` and `ruff format` for `api/`, Prettier for `web/`.
+- **On push:** mypy and pytest (unit + API) for `api/`; ESLint, typecheck and Vitest for `web/`.
+- Hooks only run for the folders a commit touches. Run them all with `pre-commit run --all-files` (add `--hook-stage pre-push` for the push set). Skip one with `SKIP=<id>`, never `--no-verify`.
+
 ### Frontend only (Node 26)
 
 ```sh
