@@ -1,15 +1,11 @@
 name: api
 
+# No trigger-level path filters: the workflow runs on every PR, so the required
+# `api-ok` check always reports. The `changes` job decides whether there is work to do.
 on:
   push:
     branches: [main]
-    paths:
-      - 'api/**'
-      - '.github/workflows/api.yml'
   pull_request:
-    paths:
-      - 'api/**'
-      - '.github/workflows/api.yml'
   workflow_dispatch:
 
 # Least privilege: the jobs only read the repository.
@@ -31,8 +27,34 @@ env:
   FORCE_COLOR: '1'
 
 jobs:
+  changes:
+    name: Detect API changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read # paths-filter lists PR files through the API
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      # Push events diff against the previous commit, which needs the repository.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name != 'pull_request'
+        with:
+          persist-credentials: false
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - '.github/workflows/api.yml'
+
   check:
     name: Lint, typecheck, unit tests
+    needs: changes
+    # Manual runs always do the work.
+    if: needs.changes.outputs.api == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -63,6 +85,8 @@ jobs:
   integration:
     # A real MongoDB: repository tests never mock the driver.
     name: API and integration tests
+    needs: changes
+    if: needs.changes.outputs.api == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -96,3 +120,22 @@ jobs:
 
       - name: API and integration tests
         run: uv run pytest tests/api tests/integration
+
+  # The one check to mark as required in branch protection. It always runs and
+  # reports, so PRs that don't touch api/ aren't left waiting for skipped jobs.
+  api-ok:
+    name: api-ok
+    if: always()
+    needs: [changes, check, integration]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fail if a needed job failed or was cancelled
+        working-directory: .
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          case " $RESULTS " in
+            *" failure "*|*" cancelled "*) exit 1 ;;
+          esac

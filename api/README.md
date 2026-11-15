@@ -35,6 +35,9 @@ uv run pytest                                  # tests
 - **API and integration tests:** `pytest tests/api tests/integration` against a `mongo:8` service container.
 
 Both run the same commands as above, with `UV_LOCKED=1`: a `uv.lock` that's out of date fails the run (fix: `uv lock`).
+The workflow runs on every PR; a `changes` job skips both when `api/` is untouched, and `api-ok` reports the result. Mark only **api-ok** as a required check.
+
+Locally, the git hooks (`.pre-commit-config.yaml`, see the root README) run ruff on commit and mypy + pytest on push, with the versions from `uv.lock`.
 
 ## Layout
 ```
