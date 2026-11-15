@@ -1,0 +1,98 @@
+name: api
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/api.yml'
+  pull_request:
+    paths:
+      - 'api/**'
+      - '.github/workflows/api.yml'
+  workflow_dispatch:
+
+# Least privilege: the jobs only read the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: api-${{ github.ref }}
+  # Cancel superseded PR runs only; every commit on main keeps its run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    working-directory: api
+
+env:
+  # Fail when uv.lock is out of date with pyproject.toml instead of silently re-locking.
+  UV_LOCKED: '1'
+  FORCE_COLOR: '1'
+
+jobs:
+  check:
+    name: Lint, typecheck, unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Third-party actions pinned to a full commit SHA (tags can be moved); the comment
+      # keeps the version readable for updates.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: '0.13.8' # same uv as api/Dockerfile
+          working-directory: api
+          enable-cache: true
+          cache-python: true # Python comes from api/.python-version, installed by uv
+
+      - run: uv sync
+
+      - name: Format
+        run: uv run ruff format --check .
+      - name: Lint
+        run: uv run ruff check --output-format=github .
+      - name: Typecheck
+        run: uv run mypy
+      - name: Unit tests
+        run: uv run pytest tests/unit
+
+  integration:
+    # A real MongoDB: repository tests never mock the driver.
+    name: API and integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # No auth: a throwaway server that exists only for this job, so no credentials
+      # are needed anywhere.
+      API_MONGO_HOST: localhost
+      API_MONGO_DB: bonfire_test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: '0.13.8'
+          working-directory: api
+          enable-cache: true
+          cache-python: true
+
+      - run: uv sync
+
+      - name: API and integration tests
+        run: uv run pytest tests/api tests/integration
