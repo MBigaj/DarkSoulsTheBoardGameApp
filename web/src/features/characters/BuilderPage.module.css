@@ -7,12 +7,12 @@
   gap: 28px;
 }
 
-/* Left: class card, stats (equipment in FE-16). Right: the damage calculator (FE-17). */
 /* Holds the footer below the fold until the classes arrive, so it doesn't jump. */
 .main[data-loading] {
   min-height: 100vh;
 }
 
+/* Left: class card, stats, equipment. Right: the damage calculator. */
 .columns {
   display: flex;
   flex-wrap: wrap;

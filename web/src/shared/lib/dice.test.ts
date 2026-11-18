@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { DiceCounts, DiceTable } from '@/shared/api/types';
-import { attackSummary, expectedDamage, sumDistribution } from './dice';
+import { attackSummary, chanceToDamage, expectedDamage, killChance, sumDistribution } from './dice';
 
 // The faces in dice.json; every expected value below is worked out by hand from them.
 const DICE: DiceTable = {
@@ -68,22 +68,59 @@ describe('attackSummary', () => {
     const summary = attackSummary(pool, DICE, modifier);
     expect(summary.average).toBeCloseTo(average, 12);
     expect(summary.max).toBe(max);
-    expect(summary.hitVsBlock2).toBeCloseTo(hitVsBlock2, 12);
-    summary.expectedByDefence.forEach((value, def) => {
-      expect(value).toBeCloseTo(expectedByDefence[def] ?? NaN, 12);
+    const dist = sumDistribution(pool, DICE);
+    expect(chanceToDamage(dist, modifier, 2)).toBeCloseTo(hitVsBlock2, 12);
+    expectedByDefence.forEach((value, def) => {
+      expect(expectedDamage(dist, modifier, def)).toBeCloseTo(value, 12);
     });
   });
 
-  it('never expects negative damage, and more defence never means more damage', () => {
+  // Lowest = smallest face sum + modifier, never below 0.
+  it.each<[string, DiceCounts, number, number]>([
+    ['empty pool', {}, 0, 0],
+    ['empty pool, +3', {}, 3, 3],
+    ['1 black (a 0 face)', { black: 1 }, 0, 0],
+    ['1 blue', { blue: 1 }, 0, 1],
+    ['1 black + 1 blue', { black: 1, blue: 1 }, 0, 1],
+    ['2 orange', { orange: 2 }, 0, 2],
+    ['1 black, +2', { black: 1 }, 2, 2],
+    ['1 blue, −2', { blue: 1 }, -2, 0],
+    ['2 orange, −1', { orange: 2 }, -1, 1],
+  ])('lowest: %s', (_name, pool, modifier, min) => {
+    expect(attackSummary(pool, DICE, modifier).min).toBe(min);
+  });
+
+  it('never expects negative damage, more defence never means more, and lowest ≤ average ≤ max', () => {
     for (let black = 0; black <= 2; black++)
       for (let blue = 0; blue <= 2; blue++)
         for (let orange = 0; orange <= 2; orange++)
           for (let modifier = -2; modifier <= 3; modifier++) {
-            const { expectedByDefence } = attackSummary({ black, blue, orange }, DICE, modifier);
-            expectedByDefence.forEach((value, def) => {
+            const pool = { black, blue, orange };
+            const dist = sumDistribution(pool, DICE);
+            const byDefence = [0, 1, 2, 3, 4].map((def) => expectedDamage(dist, modifier, def));
+            byDefence.forEach((value, def) => {
               expect(value).toBeGreaterThanOrEqual(0);
-              if (def > 0) expect(value).toBeLessThanOrEqual(expectedByDefence[def - 1] ?? 0);
+              if (def > 0) expect(value).toBeLessThanOrEqual(byDefence[def - 1] ?? 0);
             });
+            const { min, average, max } = attackSummary(pool, DICE, modifier);
+            expect(min).toBeLessThanOrEqual(average);
+            expect(average).toBeLessThanOrEqual(max);
           }
+  });
+});
+
+describe('killChance', () => {
+  // [name, pool, modifier, health, chance]: P(sum + modifier ≥ health).
+  it.each<[string, DiceCounts, number, number, number]>([
+    ['empty pool vs 1', {}, 0, 1, 0],
+    ['empty pool +1 vs 1', {}, 1, 1, 1],
+    ['1 black vs 1 (only the 0 face fails)', { black: 1 }, 0, 1, 5 / 6],
+    ['1 black vs 2', { black: 1 }, 0, 2, 2 / 6],
+    ['1 black vs 3: out of reach', { black: 1 }, 0, 3, 0],
+    ['1 black +1 vs 3', { black: 1 }, 1, 3, 2 / 6],
+    ['2 orange vs 5', { orange: 2 }, 0, 5, 21 / 36],
+    ['1 blue −2 vs 1', { blue: 1 }, -2, 1, 1 / 6],
+  ])('%s', (_name, pool, modifier, health, chance) => {
+    expect(killChance(pool, DICE, modifier, health)).toBeCloseTo(chance, 12);
   });
 });

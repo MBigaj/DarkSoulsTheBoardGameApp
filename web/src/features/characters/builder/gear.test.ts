@@ -3,13 +3,11 @@ import type { Treasure } from '@/shared/api/types';
 import {
   attachUpgrade,
   cardsLost,
-  leftHandWouldDrop,
   detachUpgrade,
   dropUnknown,
   EMPTY_GEAR,
   equip,
   equippedIds,
-  setTwoHanded,
   slotAccepts,
   starterKit,
   type Gear,
@@ -101,6 +99,10 @@ describe('slotAccepts', () => {
   });
 });
 
+/** A catalog for `dropUnknown`: id → card (only `hands` matters). */
+const catalog = (ids: string[], twoHanded: string[] = []) =>
+  new Map(ids.map((id) => [id, card(id, 'physical', twoHanded.includes(id) ? 2 : 1)]));
+
 describe('equip', () => {
   const gear: Gear = {
     armour: 'robe',
@@ -133,7 +135,7 @@ describe('equip', () => {
   });
 
   it('nothing goes in the left hand while two-handed, nor in a slot that doesn’t take it', () => {
-    const two = setTwoHanded(gear, true);
+    const two = equip(gear, 'right', card('greatsword', 'physical', 2));
     expect(equip(two, 'left', card('buckler', 'shield', 1))).toBe(two);
     expect(equip(gear, 'left', card('greatsword', 'physical', 2))).toBe(gear);
     expect(equip(gear, 'armour', card('dagger', 'physical', 1))).toBe(gear);
@@ -158,11 +160,8 @@ describe('equip', () => {
     expect(equip(moved, 'left', card('buckler', 'shield', 1)).left).toBe('buckler');
   });
 
-  it('says which card going two-handed would drop, and when', () => {
+  it('says which card a two-handed pick dropped, and only that one', () => {
     const full: Gear = { ...gear, backup: ['bow', 'flame'] };
-    expect(leftHandWouldDrop(full)).toBe(true);
-    expect(leftHandWouldDrop(gear)).toBe(false);
-    expect(leftHandWouldDrop({ ...full, left: null })).toBe(false);
     const after = equip(full, 'right', card('greatsword', 'physical', 2));
     expect(cardsLost(full, after, 'axe')).toEqual(['shield']);
     // A swap that drops nothing else: only the replaced card leaves, and that's on purpose.
@@ -176,25 +175,35 @@ describe('equip', () => {
 
   it('backup cards never count as equipped', () => {
     expect(equippedIds({ ...gear, backup: ['bow', 'flame'] })).toEqual(['robe', 'shield', 'axe']);
-    expect(equippedIds(setTwoHanded(gear, true))).toEqual(['robe', 'axe']);
-  });
-
-  it('the two-handed toggle frees the left hand on, and leaves it empty off', () => {
-    const on = setTwoHanded(gear, true);
-    expect(on).toMatchObject({ twoHanded: true, left: null, backup: ['shield', null] });
-    expect(setTwoHanded(on, false)).toMatchObject({ twoHanded: false, left: null });
+    expect(equippedIds(equip(gear, 'right', card('greatsword', 'physical', 2)))).toEqual([
+      'robe',
+      'greatsword',
+    ]);
   });
 });
 
 describe('dropUnknown', () => {
   it('empties slots whose card the catalog doesn’t have, and keeps the same object otherwise', () => {
     const gear: Gear = { ...EMPTY_GEAR, armour: 'robe', right: 'gone', backup: ['bow', 'gone2'] };
-    expect(dropUnknown(gear, new Set(['robe', 'bow']))).toEqual({
+    expect(dropUnknown(gear, catalog(['robe', 'bow']))).toEqual({
       ...gear,
       right: null,
       backup: ['bow', null],
     });
-    expect(dropUnknown(gear, new Set(['robe', 'bow', 'gone', 'gone2']))).toBe(gear);
+    expect(dropUnknown(gear, catalog(['robe', 'bow', 'gone', 'gone2']))).toBe(gear);
+  });
+
+  it('makes two-handed follow the right-hand card, not an old toggle', () => {
+    const gear: Gear = { ...EMPTY_GEAR, left: 'shield', right: 'axe', twoHanded: true };
+    // A one-handed axe saved with the old toggle on: off again.
+    expect(dropUnknown(gear, catalog(['shield', 'axe'])).twoHanded).toBe(false);
+    // A two-handed card saved with a left-hand card: the left one goes to backup.
+    const saved: Gear = { ...EMPTY_GEAR, left: 'shield', right: 'halberd', twoHanded: false };
+    expect(dropUnknown(saved, catalog(['shield', 'halberd'], ['halberd']))).toMatchObject({
+      twoHanded: true,
+      left: null,
+      backup: ['shield', null],
+    });
   });
 });
 
@@ -266,7 +275,7 @@ describe('upgrades', () => {
   it('upgrades move with their card, and come off when it leaves the gear', () => {
     const onShield = attachUpgrade(gear, shield, upgrade('shard', 'weapon'), costOf);
     // Two-handed: the shield goes to backup, its upgrade with it.
-    const two = setTwoHanded(onShield, true);
+    const two = equip(onShield, 'right', card('greatsword', 'physical', 2));
     expect(two.backup[0]).toBe('shield');
     expect(two.upgrades).toEqual({ shield: ['shard'] });
     // Swapped out: gone.
@@ -287,10 +296,10 @@ describe('upgrades', () => {
 
   it('dropUnknown also drops upgrades the catalog lost', () => {
     const withUps: Gear = { ...gear, upgrades: { axe: ['shard', 'gone'] } };
-    expect(dropUnknown(withUps, new Set(['robe', 'shield', 'axe', 'shard'])).upgrades).toEqual({
+    expect(dropUnknown(withUps, catalog(['robe', 'shield', 'axe', 'shard'])).upgrades).toEqual({
       axe: ['shard'],
     });
     const lostHost: Gear = { ...gear, right: 'gone-axe', upgrades: { 'gone-axe': ['shard'] } };
-    expect(dropUnknown(lostHost, new Set(['robe', 'shield', 'shard'])).upgrades).toEqual({});
+    expect(dropUnknown(lostHost, catalog(['robe', 'shield', 'shard'])).upgrades).toEqual({});
   });
 });

@@ -1,0 +1,421 @@
+/* CharactersFinal aside: framed panel beside the class column. */
+.panel {
+  /* Its full width beside the column; wraps under it below ≈ 1155px. */
+  flex: 1 1 440px;
+  max-width: 440px;
+  /* A flex item won't shrink below its content's width without this (3px overflow at 360px). */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  background: var(--panel);
+}
+
+/* Wrapped under the class column: use the full width. */
+@media (max-width: 1155px) {
+  .panel {
+    max-width: none;
+  }
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.headTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  color: var(--accent-text);
+}
+
+.title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 1.3125rem; /* 21px */
+  letter-spacing: var(--track-heading);
+}
+
+.label,
+.total dt {
+  font-family: var(--font-mono);
+  font-size: 0.625rem; /* 10px */
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 6px;
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 52px;
+  padding: 6px 12px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std),
+    color var(--dur-hover) var(--ease-std);
+}
+
+.choice:hover {
+  border-color: var(--ornament);
+}
+
+.choice[aria-pressed='true'] {
+  background: var(--tint);
+  border-color: var(--accent-text);
+  color: var(--text);
+}
+
+.choiceName,
+.rowName {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-small);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.choiceSub,
+.rowSub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  color: var(--text);
+  font-size: var(--fs-label);
+}
+
+.swatch[data-swatch='black'] {
+  background: var(--die-black);
+  border-color: var(--die-black-edge);
+}
+
+.swatch[data-swatch='blue'] {
+  background: var(--die-blue);
+  border-color: var(--die-blue-edge);
+}
+
+.swatch[data-swatch='orange'] {
+  background: var(--die-orange);
+  border-color: var(--die-orange-edge);
+}
+
+.swatch[data-swatch='modifier'] {
+  background: transparent;
+  border-color: var(--ornament);
+}
+
+.swatch[data-swatch='stamina'] {
+  background: var(--stamina);
+  border-color: var(--stamina-edge);
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rowName {
+  letter-spacing: 0.1em;
+}
+
+.step {
+  width: var(--tap-min);
+  height: var(--tap-min);
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.125rem;
+  cursor: pointer;
+  transition: border-color var(--dur-hover) var(--ease-std);
+}
+
+.step:hover:not(:disabled) {
+  border-color: var(--ornament);
+}
+
+.step:disabled {
+  cursor: default;
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.count {
+  width: 28px;
+  flex: none;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1.0625rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.count[data-set] {
+  color: var(--accent-text);
+}
+
+.accent {
+  color: var(--accent-text);
+}
+
+.totals {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  text-align: center;
+}
+
+.total dt {
+  letter-spacing: 0.16em;
+}
+
+.total dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.kill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  text-align: center;
+}
+
+.killValue {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+}
+
+/* Option summary: icon + number parts. */
+.choice .choiceSub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-top: 2px;
+}
+
+.part {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.icon {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border: 1px solid;
+}
+
+.icon[data-icon='stamina'] {
+  background: var(--stamina);
+  border-color: var(--stamina-edge);
+}
+
+.icon[data-icon='black'] {
+  background: var(--die-black);
+  border-color: var(--die-black-edge);
+}
+
+.icon[data-icon='blue'] {
+  background: var(--die-blue);
+  border-color: var(--die-blue-edge);
+}
+
+.icon[data-icon='orange'] {
+  background: var(--die-orange);
+  border-color: var(--die-orange-edge);
+}
+
+.icon[data-icon='magic'] {
+  border-radius: 50%;
+  background: var(--magic);
+  border-color: var(--magic);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--magic) 60%, transparent);
+}
+
+/* What upgrades add to a value: "+1 Heavy Gem · rolls 3". */
+.rowBonus {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--ornament);
+}
+
+.upgrades {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upgrade {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--line);
+  background: var(--bg);
+  color: var(--muted);
+}
+
+/* Applying effects: solid border, gold hexagon, readable effect. */
+.upgrade[data-applies] {
+  border-style: solid;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.hex {
+  flex: none;
+  width: 14px;
+  height: 16px;
+  margin-top: 3px;
+  background: var(--line);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+.upgrade[data-applies] .hex {
+  background: var(--ornament);
+}
+
+.upgradeText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.upgradeName {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-small);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.upgradeWhere {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--fs-label);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+}
+
+.upgradeEffect {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.effect {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--muted);
+}
+
+.effect[data-applies] .upgradeEffect {
+  color: var(--accent-text);
+}
+
+.upgradeNote {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.condition {
+  margin-top: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice,
+  .step {
+    transition: none;
+  }
+}

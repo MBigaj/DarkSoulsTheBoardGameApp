@@ -46,29 +46,41 @@ export function chanceToDamage(dist: SumDistribution, modifier: number, defence:
   return hits / dist.total;
 }
 
+/** P(sum + modifier ≥ health): one attack kills an enemy with `health` (no block or resist). */
+export function chanceToKill(dist: SumDistribution, modifier: number, health: number): number {
+  return chanceToDamage(dist, modifier, health - 1);
+}
+
+/** Lowest possible damage against no defence (the smallest reachable sum). */
+export function minDamage(dist: SumDistribution, modifier: number): number {
+  const lowest = dist.counts.findIndex((ways) => ways > 0);
+  return Math.max(0, lowest + modifier);
+}
+
 /** Highest possible damage against no defence. */
 export function maxDamage(dist: SumDistribution, modifier: number): number {
   return Math.max(0, dist.counts.length - 1 + modifier);
 }
 
-export type AttackSummary = {
-  /** Expected damage against defence 0, 1, 2, 3, 4 (index = defence). */
-  expectedByDefence: number[];
-  /** "Avg total": expected damage against no defence. */
-  average: number;
-  /** "Max total". */
-  max: number;
-  /** "≥1 vs block 2", 0–1. */
-  hitVsBlock2: number;
-};
+/** Raw damage of one attack, before block or resist. */
+export type AttackSummary = { min: number; average: number; max: number };
 
 /** Everything the damage calculator shows, for one attack. */
 export function attackSummary(pool: DiceCounts, dice: DiceTable, modifier: number): AttackSummary {
   const dist = sumDistribution(pool, dice);
   return {
-    expectedByDefence: [0, 1, 2, 3, 4].map((def) => expectedDamage(dist, modifier, def)),
+    min: minDamage(dist, modifier),
     average: expectedDamage(dist, modifier, 0),
     max: maxDamage(dist, modifier),
-    hitVsBlock2: chanceToDamage(dist, modifier, 2),
   };
+}
+
+/** The calculator's "Chance to kill": one attack with this pool against `health`. */
+export function killChance(
+  pool: DiceCounts,
+  dice: DiceTable,
+  modifier: number,
+  health: number,
+): number {
+  return chanceToKill(sumDistribution(pool, dice), modifier, health);
 }

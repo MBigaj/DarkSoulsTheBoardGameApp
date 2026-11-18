@@ -5,13 +5,13 @@ import {
   detachUpgrade,
   dropUnknown,
   equip,
-  setTwoHanded,
   type Gear,
   type GearCard,
   type GearSlot,
   type UpgradeCard,
   type UpgradeHost,
 } from './gear';
+import { clampHealth, clampInputs, DEFAULT_HEALTH, parseCalc, type Calc } from './calculator';
 
 export const STATS = ['strength', 'dexterity', 'intelligence', 'faith'] as const;
 export type Stat = (typeof STATS)[number];
@@ -25,9 +25,28 @@ export const TIER_COST: readonly number[] = [0, 2, 4, 8];
 
 export const SLOT_COUNT = 4;
 
-/** `gear: null` = not set up yet: the class's starter kit goes in once the catalog is loaded. */
-export type PartySlot = { classId: string; tiers: Tiers; gear: Gear | null };
-export type BuilderState = { active: number; slots: readonly PartySlot[] };
+/**
+ * `gear: null` = not set up yet: the class's starter kit goes in once the catalog is loaded.
+ * `calc: null` = the calculator shows the right-hand card's strongest attack option.
+ */
+export type PartySlot = {
+  classId: string;
+  tiers: Tiers;
+  gear: Gear | null;
+  calc: Calc | null;
+  /** Four or more damage cubes on the endurance bar, for upgrades like Red Tearstone Ring. */
+  heavilyDamaged: boolean;
+};
+/**
+ * The enemy the calculator works against, shared by the party: `targetHealth` for the chance to kill,
+ * `targetIsBoss` for "against bosses" upgrades (Dragon Scale).
+ */
+export type BuilderState = {
+  active: number;
+  slots: readonly PartySlot[];
+  targetHealth: number;
+  targetIsBoss: boolean;
+};
 
 export type BuilderAction =
   | { type: 'selectSlot'; slot: number }
@@ -35,7 +54,11 @@ export type BuilderAction =
   | { type: 'setClass'; classId: string; kit: Gear | null }
   /** A card into one of the active slot's gear slots (null empties it); see `equip` in gear.ts. */
   | { type: 'equip'; slot: GearSlot; card: GearCard | null }
-  | { type: 'setTwoHanded'; on: boolean }
+  /** The active slot's calculator: an attack option loaded, or edited values (`option: null`). */
+  | { type: 'setCalc'; calc: Calc }
+  | { type: 'setTargetHealth'; health: number }
+  | { type: 'setTargetIsBoss'; on: boolean }
+  | { type: 'setHeavilyDamaged'; on: boolean }
   /** An upgrade onto a card of the active slot's gear; `costs` = slots each upgrade card takes. */
   | {
       type: 'attachUpgrade';
@@ -48,7 +71,7 @@ export type BuilderAction =
    * The catalog is loaded: slots without gear get their class's starter kit, and saved card ids the
    * catalog doesn't have are dropped.
    */
-  | { type: 'fillGear'; kits: Readonly<Record<string, Gear>>; known: ReadonlySet<string> }
+  | { type: 'fillGear'; kits: Readonly<Record<string, Gear>>; known: ReadonlyMap<string, GearCard> }
   /** Buy up to `tier` (every lower tier comes with it); a lower tier than owned sells back down. */
   | { type: 'setTier'; stat: Stat; tier: Tier }
   /** The active slot back to base stats. */
@@ -67,7 +90,15 @@ const BASE: Tiers = { strength: 0, dexterity: 0, intelligence: 0, faith: 0 };
 export function initialBuilder(): BuilderState {
   return {
     active: 0,
-    slots: DEFAULT_PARTY.map((classId) => ({ classId, tiers: BASE, gear: null })),
+    slots: DEFAULT_PARTY.map((classId) => ({
+      classId,
+      tiers: BASE,
+      gear: null,
+      calc: null,
+      heavilyDamaged: false,
+    })),
+    targetHealth: DEFAULT_HEALTH,
+    targetIsBoss: false,
   };
 }
 
@@ -78,6 +109,17 @@ export function tierSouls(tier: Tier): number {
 
 export function soulsSpent(tiers: Tiers): number {
   return STATS.reduce((sum, stat) => sum + tierSouls(tiers[stat]), 0);
+}
+
+/**
+ * New gear for a slot. A different card (or none) in the calculator's hand has other attack
+ * options, so the calculator goes back to its default weapon and strongest option.
+ */
+function withGear(slot: PartySlot, gear: Gear | null): PartySlot {
+  if (gear === slot.gear) return slot;
+  const hand = slot.calc?.weapon ?? 'right';
+  const calc = gear?.[hand] === slot.gear?.[hand] ? slot.calc : null;
+  return { ...slot, gear, calc };
 }
 
 function updateActive(state: BuilderState, update: (slot: PartySlot) => PartySlot): BuilderState {
@@ -97,16 +139,23 @@ export function builderReducer(state: BuilderState, action: BuilderAction): Buil
       return updateActive(state, (slot) =>
         slot.classId === action.classId
           ? slot
-          : { classId: action.classId, tiers: BASE, gear: action.kit },
+          : {
+              classId: action.classId,
+              tiers: BASE,
+              gear: action.kit,
+              calc: null,
+              heavilyDamaged: false,
+            },
       );
     case 'equip':
       return updateActive(state, (slot) =>
-        slot.gear ? { ...slot, gear: equip(slot.gear, action.slot, action.card) } : slot,
+        slot.gear ? withGear(slot, equip(slot.gear, action.slot, action.card)) : slot,
       );
-    case 'setTwoHanded':
-      return updateActive(state, (slot) =>
-        slot.gear ? { ...slot, gear: setTwoHanded(slot.gear, action.on) } : slot,
-      );
+    case 'setCalc':
+      return updateActive(state, (slot) => ({
+        ...slot,
+        calc: { ...action.calc, inputs: clampInputs(action.calc.inputs) },
+      }));
     case 'attachUpgrade':
       return updateActive(state, (slot) =>
         slot.gear
@@ -134,6 +183,12 @@ export function builderReducer(state: BuilderState, action: BuilderAction): Buil
         ...slot,
         tiers: { ...slot.tiers, [action.stat]: action.tier },
       }));
+    case 'setTargetHealth':
+      return { ...state, targetHealth: clampHealth(action.health) };
+    case 'setTargetIsBoss':
+      return { ...state, targetIsBoss: action.on };
+    case 'setHeavilyDamaged':
+      return updateActive(state, (slot) => ({ ...slot, heavilyDamaged: action.on }));
     case 'reset':
       return updateActive(state, (slot) => ({ ...slot, tiers: BASE }));
     case 'syncClasses':
@@ -155,6 +210,8 @@ function syncClasses(state: BuilderState, ids: readonly string[]): BuilderState 
         classId: preferred && known.has(preferred) ? preferred : first,
         tiers: BASE,
         gear: null,
+        calc: null,
+        heavilyDamaged: false,
       };
     }),
   };
@@ -163,11 +220,11 @@ function syncClasses(state: BuilderState, ids: readonly string[]): BuilderState 
 function fillGear(
   state: BuilderState,
   kits: Readonly<Record<string, Gear>>,
-  known: ReadonlySet<string>,
+  known: ReadonlyMap<string, GearCard>,
 ): BuilderState {
   const slots = state.slots.map((slot) => {
     const gear = slot.gear ? dropUnknown(slot.gear, known) : (kits[slot.classId] ?? null);
-    return gear === slot.gear ? slot : { ...slot, gear };
+    return withGear(slot, gear);
   });
   return slots.every((slot, i) => slot === state.slots[i]) ? state : { ...state, slots };
 }
@@ -185,7 +242,14 @@ function parseSlot(value: unknown): PartySlot | null {
     if (!isTier(tier)) return null;
     parsed[stat] = tier;
   }
-  return { classId, tiers: parsed, gear: parseGear((value as { gear?: unknown }).gear) };
+  const { gear, calc, heavilyDamaged } = value as Record<string, unknown>;
+  return {
+    classId,
+    tiers: parsed,
+    gear: parseGear(gear),
+    calc: parseCalc(calc),
+    heavilyDamaged: heavilyDamaged === true,
+  };
 }
 
 const isId = (value: unknown): value is string | null =>
@@ -223,7 +287,7 @@ function parseUpgrades(value: unknown): Gear['upgrades'] {
  */
 export function parseBuilder(value: unknown): BuilderState | null {
   if (typeof value !== 'object' || value === null) return null;
-  const { active, slots } = value as Partial<Record<string, unknown>>;
+  const { active, slots, targetHealth, targetIsBoss } = value as Partial<Record<string, unknown>>;
   if (!Array.isArray(slots) || slots.length !== SLOT_COUNT) return null;
   const parsed = slots.map(parseSlot);
   if (parsed.some((slot) => slot === null)) return null;
@@ -231,5 +295,11 @@ export function parseBuilder(value: unknown): BuilderState | null {
   return {
     active: slot >= 0 && slot < SLOT_COUNT ? slot : 0,
     slots: parsed as PartySlot[],
+    // Saves from before the health setting get the default.
+    targetHealth:
+      typeof targetHealth === 'number' && Number.isFinite(targetHealth)
+        ? clampHealth(targetHealth)
+        : DEFAULT_HEALTH,
+    targetIsBoss: targetIsBoss === true,
   };
 }

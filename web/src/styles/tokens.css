@@ -34,6 +34,11 @@
   --die-blue-edge: #7fa7c4;
   --die-orange: #e08a3c;
   --die-orange-edge: #f2a865;
+  /* Stamina cubes are green on the board (owner, 19 Nov): endurance bar, calculator stamina. */
+  --stamina: #4f8f4a;
+  --stamina-edge: #86c27e;
+  /* Magical attack orb (card icon legend: yellow orb). */
+  --magic: #e6c84f;
 
   --badge-treasure: #c9a45c;
   --badge-enemy: #b3aa9a;

@@ -33,6 +33,10 @@ type RawSpecialRule = NonNullable<RawEncounter['specialRules']>[number];
 
 export type Condition = NonNullable<RawAttack['conditions']>[number];
 
+/** What an upgrade adds to attacks (`attackBonus` on upgrade cards), for the damage calculator. */
+export type AttackBonus = NonNullable<RawTreasure['attackBonus']>[number];
+export type BonusCondition = NonNullable<AttackBonus['condition']>;
+
 export type Attack = Omit<
   RawAttack,
   'dice' | 'nodeAttack' | 'shaft' | 'conditions' | 'keywords'
