@@ -7,7 +7,10 @@ export type Gear = {
   right: string | null;
   /** Carried, never equipped. */
   backup: readonly [string | null, string | null];
-  /** The right hand uses both hands; the left hand is empty. */
+  /**
+   * The right-hand card is two-handed (its `hands` is 2), so the left hand is empty. Never set by the
+   * player: `equip` writes it from the card, and `dropUnknown` checks it against the catalog.
+   */
   twoHanded: boolean;
   /**
    * Upgrade cards per host card (`_id` → upgrade `_id`s). Upgrades belong to the card, not the
@@ -112,11 +115,6 @@ export function equip(gear: Gear, slot: GearSlot, card: GearCard | null): Gear {
   return pruneUpgrades(next);
 }
 
-/** Going two-handed would drop the left-hand card: there's one, and both backups are full. */
-export function leftHandWouldDrop(gear: Gear): boolean {
-  return gear.left !== null && gear.backup[0] !== null && gear.backup[1] !== null;
-}
-
 /**
  * Cards in `before` that `after` no longer holds, other than `replaced` (the card the player swapped
  * out on purpose). Non-empty only when going two-handed dropped the left-hand card; the page says so.
@@ -126,23 +124,22 @@ export function cardsLost(before: Gear, after: Gear, replaced: string | null): s
   return [...cardsInGear(before)].filter((id) => id !== replaced && !held.has(id));
 }
 
-/** The toggle. Turning it on frees the left hand; the page locks it on for a two-handed card. */
-export function setTwoHanded(gear: Gear, on: boolean): Gear {
-  return on
-    ? pruneUpgrades(freeLeftHand({ ...gear, twoHanded: true }))
-    : { ...gear, twoHanded: false };
-}
-
-/** Saved ids the catalog no longer has become empty slots, and their upgrades come off. */
-export function dropUnknown(gear: Gear, known: ReadonlySet<string>): Gear {
+/**
+ * Against the catalog: saved ids it no longer has become empty slots and their upgrades come off,
+ * and two-handed follows the right-hand card's `hands` (an older save may have it set by hand).
+ */
+export function dropUnknown(gear: Gear, known: ReadonlyMap<string, GearCard>): Gear {
   const keep = (id: string | null) => (id !== null && known.has(id) ? id : null);
   const lostUpgrade = Object.values(gear.upgrades).some((ids) => ids.some((id) => !known.has(id)));
-  const next = pruneUpgrades({
+  const right = keep(gear.right);
+  const twoHanded = right !== null && known.get(right)?.hands === 2;
+  const kept: Gear = {
     ...gear,
     armour: keep(gear.armour),
     left: keep(gear.left),
-    right: keep(gear.right),
+    right,
     backup: [keep(gear.backup[0]), keep(gear.backup[1])],
+    twoHanded,
     upgrades: lostUpgrade
       ? Object.fromEntries(
           Object.entries(gear.upgrades).map(([host, ids]) => [
@@ -151,9 +148,11 @@ export function dropUnknown(gear: Gear, known: ReadonlySet<string>): Gear {
           ]),
         )
       : gear.upgrades,
-  });
+  };
+  const next = pruneUpgrades(twoHanded ? freeLeftHand(kept) : kept);
   const same =
     next.upgrades === gear.upgrades &&
+    next.twoHanded === gear.twoHanded &&
     GEAR_SLOTS.every((slot) => cardIn(next, slot) === cardIn(gear, slot));
   return same ? gear : next;
 }

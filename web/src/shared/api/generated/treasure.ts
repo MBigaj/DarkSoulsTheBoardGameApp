@@ -42,6 +42,12 @@ export interface RawTreasure {
    * upgrade cards only; slots this upgrade occupies when more than 1 (default 1)
    */
   upgradeSlotCost?: number;
+  /**
+   * upgrade cards only; what the upgrade adds to attacks, for the damage calculator (a weapon upgrade: that weapon's attacks; an armour upgrade: all the character's attacks). Omitted when no number changes (bleed, poison, magical, range).
+   *
+   * @minItems 1
+   */
+  attackBonus?: [AttackBonus, ...AttackBonus[]];
   requirements: {
     strength: number;
     dexterity: number;
@@ -94,6 +100,25 @@ export interface RawTreasure {
       }[]
     ];
   };
+}
+export interface AttackBonus {
+  dice?: Dice;
+  /**
+   * added to each attack's damage
+   */
+  damage?: number;
+  /**
+   * added to the attack's stamina cost (negative = cheaper, never below 0)
+   */
+  stamina?: number;
+  /**
+   * only the weapon's highest-stamina attack; omitted = every attack
+   */
+  attacks?: "highestStamina";
+  /**
+   * vsBoss = the target is a boss · heavilyDamaged = four or more damage cubes on this character's endurance bar · bossTreasure = the upgraded weapon is a boss treasure; omitted = always
+   */
+  condition?: "vsBoss" | "heavilyDamaged" | "bossTreasure";
 }
 export interface Dice {
   [k: string]: number | undefined;

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useCatalog, useClasses } from '@/shared/api/queries';
-import type { ClassDef, Treasure } from '@/shared/api/types';
+import { useCatalog, useClasses, useDice } from '@/shared/api/queries';
+import type { ClassDef, DiceTable, Treasure } from '@/shared/api/types';
 import { PageHeader } from '@/shared/ui/PageHeader';
-import { soulsSpent } from './builder/builderReducer';
+import { soulsSpent, type BuilderState, type PartySlot } from './builder/builderReducer';
 import {
   cardIn,
   cardsLost,
@@ -13,7 +13,10 @@ import {
   type Gear,
   type GearSlot,
 } from './builder/gear';
+import { currentCalc, HANDS, isHighestStamina, loadWeapon } from './builder/calculator';
+import { bonusLines, withBonuses } from './builder/upgradeBonus';
 import { CardChooser } from './CardChooser';
+import { DamageCalculator, type CalculatorView } from './DamageCalculator';
 import { UpgradeDetails } from './UpgradeDetails';
 import { Equipment } from './Equipment';
 import { useBuilder } from './builder/useBuilder';
@@ -60,6 +63,7 @@ export function BuilderPage() {
 
 function Builder({ classes }: { classes: readonly ClassDef[] }) {
   const [state, dispatch] = useBuilder();
+  const dice = useDice();
   const byId = useMemo(() => new Map(classes.map((cls) => [cls._id, cls])), [classes]);
   // A saved party can name a class the store no longer has: repair the state, not just the view.
   useEffect(() => {
@@ -85,7 +89,7 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
   );
   // Slots without gear get their starter kit; saved cards the catalog lost are dropped.
   useEffect(() => {
-    if (kits) dispatch({ type: 'fillGear', kits, known: new Set(cardById.keys()) });
+    if (kits) dispatch({ type: 'fillGear', kits, known: cardById });
   }, [kits, cardById, dispatch]);
 
   // Slots each upgrade card takes, for the reducer's free-slot check.
@@ -118,6 +122,10 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
   const cls = slotClasses[state.active];
   if (slotClasses.length !== state.slots.length || !slot || !cls) return null;
 
+  // Until the dice and the slot's gear are in, the panel holds its place without numbers.
+  const view =
+    dice.data && slot.gear ? calculatorView(slot.gear, slot, state, dice.data, cardById) : null;
+
   return (
     <>
       <PartyRoster
@@ -139,7 +147,12 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
         className={styles.columns}
       >
         <div className={styles.column}>
-          <ClassCard cls={cls} souls={soulsSpent(slot.tiers)} stamina={0} />
+          <ClassCard
+            cls={cls}
+            souls={soulsSpent(slot.tiers)}
+            // What the attack costs with upgrades fills the endurance bar.
+            stamina={view?.effective.stamina ?? 0}
+          />
           <StatProgression
             cls={cls}
             tiers={slot.tiers}
@@ -170,11 +183,33 @@ function Builder({ classes }: { classes: readonly ClassDef[] }) {
               dispatch({ type: 'detachUpgrade', hostId: host._id, upgradeId: upgrade._id });
               focusUpgradesOf(host._id);
             }}
-            onTwoHanded={(on) => {
-              dispatch({ type: 'setTwoHanded', on });
-            }}
           />
         </div>
+        <DamageCalculator
+          dice={dice.data ?? null}
+          view={view}
+          onChange={(next) => {
+            dispatch({ type: 'setCalc', calc: next });
+          }}
+          onWeapon={(hand) => {
+            const card = view?.weapons.find((w) => w.hand === hand)?.card;
+            if (card && dice.data) {
+              dispatch({ type: 'setCalc', calc: loadWeapon(hand, card.attacks, dice.data) });
+            }
+          }}
+          conditions={{ vsBoss: state.targetIsBoss, heavilyDamaged: slot.heavilyDamaged }}
+          onCondition={(condition, on) => {
+            dispatch(
+              condition === 'vsBoss'
+                ? { type: 'setTargetIsBoss', on }
+                : { type: 'setHeavilyDamaged', on },
+            );
+          }}
+          health={state.targetHealth}
+          onHealth={(health) => {
+            dispatch({ type: 'setTargetHealth', health });
+          }}
+        />
       </div>
       {choosing?.kind === 'slot' && slot.gear && (
         <CardChooser
@@ -274,4 +309,47 @@ function UpgradeChooser({ gear, host, costs, onPick, ...rest }: UpgradeChooserPr
       }}
     />
   );
+}
+
+/**
+ * The calculator's inputs for one slot: its weapons (equipped hands with attacks), the chosen one's
+ * settings, and the upgrade lines that apply on top (that weapon's upgrades plus armour upgrades).
+ */
+function calculatorView(
+  gear: Gear,
+  slot: PartySlot,
+  state: BuilderState,
+  dice: DiceTable,
+  cardById: ReadonlyMap<string, Treasure>,
+): CalculatorView {
+  const card = (id: string | null) => (id ? (cardById.get(id) ?? null) : null);
+  const upgradesOf = (host: Treasure | null) =>
+    host ? (gear.upgrades[host._id] ?? []).flatMap((id) => cardById.get(id) ?? []) : [];
+  const hands = { right: card(gear.right), left: gear.twoHanded ? null : card(gear.left) };
+  const weapons = HANDS.flatMap((hand) => {
+    const held = hands[hand];
+    return held && held.attacks.length > 0 ? [{ hand, card: held }] : [];
+  });
+  const calc = currentCalc(
+    slot.calc,
+    { right: hands.right?.attacks ?? [], left: hands.left?.attacks ?? [] },
+    dice,
+  );
+  const weapon = hands[calc.weapon];
+  const onWeapon = upgradesOf(weapon);
+  const lines = weapon
+    ? bonusLines(weapon, onWeapon, upgradesOf(card(gear.armour)), {
+        highestStamina: isHighestStamina(weapon.attacks, calc.option),
+        vsBoss: state.targetIsBoss,
+        heavilyDamaged: slot.heavilyDamaged,
+      })
+    : [];
+  return {
+    weapons,
+    weapon,
+    calc,
+    lines,
+    noEffect: onWeapon.filter((upgrade) => !upgrade.attackBonus),
+    effective: withBonuses(calc.inputs, lines),
+  };
 }

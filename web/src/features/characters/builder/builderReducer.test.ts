@@ -7,6 +7,7 @@ import {
   type BuilderAction,
   type BuilderState,
 } from './builderReducer';
+import { DEFAULT_HEALTH } from './calculator';
 
 const run = (...actions: BuilderAction[]) => actions.reduce(builderReducer, initialBuilder());
 const active = (state: BuilderState) => {
@@ -84,15 +85,21 @@ describe('builderReducer: classes the store has', () => {
           classId: 'gone',
           tiers: { strength: 2, dexterity: 0, intelligence: 0, faith: 0 },
           gear: null,
+          calc: null,
+          heavilyDamaged: false,
         },
         ...initialBuilder().slots.slice(1),
       ],
+      targetHealth: 5,
+      targetIsBoss: false,
     };
     const state = builderReducer(saved, { type: 'syncClasses', ids });
     expect(state.slots[0]).toEqual({
       classId: 'warrior',
       tiers: initialBuilder().slots[0]?.tiers,
       gear: null,
+      calc: null,
+      heavilyDamaged: false,
     });
     expect(state.slots.slice(1)).toEqual(saved.slots.slice(1));
     expect(state.active).toBe(1);
@@ -158,6 +165,13 @@ describe('builderReducer: gear', () => {
     upgrades: {},
   };
 
+  const known = new Map(
+    ['robe', 'shield', 'axe'].map((id) => [
+      id,
+      { _id: id, equip: 'hand' as const, hands: 1 as const },
+    ]),
+  );
+
   it('fillGear gives slots without gear their class kit and drops unknown saved cards', () => {
     const start = initialBuilder();
     const withSaved = builderReducer(
@@ -165,7 +179,7 @@ describe('builderReducer: gear', () => {
         ...start,
         slots: start.slots.map((s, i) => (i === 1 ? { ...s, gear: { ...kit, right: 'gone' } } : s)),
       },
-      { type: 'fillGear', kits: { warrior: kit }, known: new Set(['robe', 'shield', 'axe']) },
+      { type: 'fillGear', kits: { warrior: kit }, known: known },
     );
     expect(withSaved.slots[0]?.gear).toEqual(kit); // warrior: its kit
     expect(withSaved.slots[1]?.gear).toMatchObject({ right: null, armour: 'robe' }); // saved, cleaned
@@ -173,16 +187,16 @@ describe('builderReducer: gear', () => {
     const again = builderReducer(withSaved, {
       type: 'fillGear',
       kits: { warrior: kit },
-      known: new Set(['robe', 'shield', 'axe']),
+      known: known,
     });
     expect(again).toBe(withSaved);
   });
 
-  it('a new class brings its kit; equip and the toggle act on the active slot only', () => {
+  it('a new class brings its kit; equip acts on the active slot only', () => {
     const state = run(
       { type: 'selectSlot', slot: 2 },
       { type: 'setClass', classId: 'herald', kit },
-      { type: 'setTwoHanded', on: true },
+      { type: 'equip', slot: 'right', card: { _id: 'halberd', equip: 'hand', hands: 2 } },
     );
     expect(active(state).gear).toMatchObject({
       twoHanded: true,
@@ -221,5 +235,101 @@ describe('builderReducer: gear', () => {
       slots: state.slots.map((s) => ({ ...s, gear: { ...kit, backup: ['x'] } })),
     };
     expect(parseBuilder(broken)?.slots.every((s) => s.gear === null)).toBe(true);
+  });
+});
+
+describe('builderReducer: calculator', () => {
+  const kit = {
+    armour: 'robe',
+    left: 'shield',
+    right: 'axe',
+    backup: [null, null] as const,
+    twoHanded: false,
+    upgrades: {},
+  };
+  const inputs = {
+    dice: { black: 2, blue: 0, orange: 0 },
+    modifier: 0,
+    stamina: 3,
+  };
+  const edited = run(
+    { type: 'setClass', classId: 'herald', kit },
+    { type: 'setCalc', calc: { weapon: 'right', option: 1, inputs } },
+  );
+
+  it('keeps the settings while the right hand holds the same card', () => {
+    const state = builderReducer(edited, { type: 'equip', slot: 'armour', card: null });
+    expect(active(state).calc).toEqual({ weapon: 'right', option: 1, inputs });
+  });
+
+  it('goes back to the strongest option when the right-hand card changes or leaves', () => {
+    const swapped = builderReducer(edited, {
+      type: 'equip',
+      slot: 'right',
+      card: { _id: 'sword', equip: 'hand', hands: 1 },
+    });
+    expect(active(swapped).calc).toBeNull();
+    const moved = builderReducer(edited, {
+      type: 'equip',
+      slot: 'backup0',
+      card: { _id: 'axe', equip: 'hand', hands: 1 },
+    });
+    expect(active(moved).gear?.right).toBeNull();
+    expect(active(moved).calc).toBeNull();
+  });
+
+  it('with the left hand chosen, only a left-hand change resets it', () => {
+    const left = builderReducer(edited, {
+      type: 'setCalc',
+      calc: { weapon: 'left', option: 0, inputs },
+    });
+    const rightSwap = builderReducer(left, {
+      type: 'equip',
+      slot: 'right',
+      card: { _id: 'sword', equip: 'hand', hands: 1 },
+    });
+    expect(active(rightSwap).calc?.weapon).toBe('left');
+    const leftSwap = builderReducer(left, {
+      type: 'equip',
+      slot: 'left',
+      card: { _id: 'flame', equip: 'hand', hands: 1 },
+    });
+    expect(active(leftSwap).calc).toBeNull();
+  });
+
+  it('stores values inside the limits, and survives a reload', () => {
+    const state = builderReducer(edited, {
+      type: 'setCalc',
+      calc: { weapon: 'right', option: null, inputs: { ...inputs, stamina: 14 } },
+    });
+    expect(active(state).calc?.inputs.stamina).toBe(10);
+    expect(parseBuilder(JSON.parse(JSON.stringify(state)))).toEqual(state);
+  });
+});
+
+describe('builderReducer: enemy health', () => {
+  it('is one value for the whole party, kept inside 1–40, and survives a reload', () => {
+    const state = run({ type: 'setTargetHealth', health: 55 }, { type: 'selectSlot', slot: 2 });
+    expect(state.targetHealth).toBe(40);
+    expect(builderReducer(state, { type: 'setTargetHealth', health: 0 }).targetHealth).toBe(1);
+    expect(parseBuilder(JSON.parse(JSON.stringify(state)))).toEqual(state);
+  });
+
+  it('gives saves from before it the default', () => {
+    const { targetHealth: _, ...old } = initialBuilder();
+    expect(parseBuilder(old)?.targetHealth).toBe(DEFAULT_HEALTH);
+  });
+});
+
+describe('builderReducer: upgrade conditions', () => {
+  it('"target is a boss" is party-wide; "4+ damage" belongs to the active slot', () => {
+    const state = run(
+      { type: 'setTargetIsBoss', on: true },
+      { type: 'selectSlot', slot: 1 },
+      { type: 'setHeavilyDamaged', on: true },
+    );
+    expect(state.targetIsBoss).toBe(true);
+    expect(state.slots.map((slot) => slot.heavilyDamaged)).toEqual([false, true, false, false]);
+    expect(parseBuilder(JSON.parse(JSON.stringify(state)))).toEqual(state);
   });
 });

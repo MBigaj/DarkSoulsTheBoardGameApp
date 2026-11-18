@@ -1,6 +1,6 @@
 import type { Treasure } from '@/shared/api/types';
 import { CardFace } from '@/shared/ui/CardFace';
-import { cardIn, leftHandWouldDrop, type Gear, type GearSlot } from './builder/gear';
+import { cardIn, type Gear, type GearSlot } from './builder/gear';
 import { Upgrades } from './Upgrades';
 import styles from './Equipment.module.css';
 
@@ -18,7 +18,6 @@ type EquipmentProps = {
   gear: Gear | null;
   cardOf: (id: string) => Treasure | undefined;
   onChoose: (slot: GearSlot) => void;
-  onTwoHanded: (on: boolean) => void;
   onAddUpgrade: (host: Treasure) => void;
   onInspectUpgrade: (host: Treasure, upgrade: Treasure) => void;
   onRemoveUpgrade: (host: Treasure, upgrade: Treasure) => void;
@@ -27,12 +26,14 @@ type EquipmentProps = {
   onDismissNotice: () => void;
 };
 
-/** Armour, both hands and two backup cards, plus the two-handed toggle. */
+/**
+ * Armour, both hands and two backup cards. Two-handed comes from the right-hand card's data (owner,
+ * 18 Nov: no toggle): it empties the left hand and tags the right one "Two-handed".
+ */
 export function Equipment({
   gear,
   cardOf,
   onChoose,
-  onTwoHanded,
   onAddUpgrade,
   onInspectUpgrade,
   onRemoveUpgrade,
@@ -40,37 +41,12 @@ export function Equipment({
   onDismissNotice,
 }: EquipmentProps) {
   const twoHanded = gear?.twoHanded ?? false;
-  const right = gear?.right ? cardOf(gear.right) : undefined;
-  // A two-handed card keeps the toggle on; with a one-handed one it's the player's call.
-  const locked = right?.hands === 2;
-  // Never drop the left-hand card silently: with both backups full the toggle waits.
-  const blocked = !twoHanded && gear !== null && leftHandWouldDrop(gear);
   return (
     <section className={styles.section} aria-labelledby="equipment-title">
       <div className={styles.head}>
         <h2 id="equipment-title" className={styles.title}>
           Equipment
         </h2>
-        <div className={styles.toggleWrap}>
-          <button
-            type="button"
-            className={styles.toggle}
-            aria-pressed={twoHanded}
-            aria-describedby={blocked ? 'two-handed-note' : undefined}
-            disabled={!gear || locked || blocked}
-            onClick={() => {
-              onTwoHanded(!twoHanded);
-            }}
-          >
-            <span className={styles.tick} aria-hidden="true" />
-            Right hand is two-handed
-          </button>
-          {blocked && (
-            <span id="two-handed-note" className={styles.toggleNote}>
-              Free a backup slot first: the left-hand card would have nowhere to go.
-            </span>
-          )}
-        </div>
       </div>
       <div className={styles.noticeSlot} role="status">
         {notice && (

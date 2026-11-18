@@ -56,3 +56,15 @@ export function SearchIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function DiceIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.6} {...props}>
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <circle cx="9" cy="9" r="1.1" />
+      <circle cx="15" cy="15" r="1.1" />
+      <circle cx="15" cy="9" r="1.1" />
+      <circle cx="9" cy="15" r="1.1" />
+    </Svg>
+  );
+}

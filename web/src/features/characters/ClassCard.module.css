@@ -132,7 +132,7 @@
 
 .enduranceCount {
   flex: none;
-  color: var(--accent-text);
+  color: var(--stamina-edge);
 }
 
 .bar {
@@ -148,8 +148,8 @@
 }
 
 .square[data-filled] {
-  border-color: var(--accent);
-  background: var(--accent);
+  border-color: var(--stamina-edge);
+  background: var(--stamina);
 }
 
 @media (max-width: 480px) {
