@@ -1,0 +1,36 @@
+{
+  "_id": "tog-tile-2b",
+  "set": "tog",
+  "tile": 2,
+  "side": "b",
+  "reverse": "tog-tile-2a",
+  "art": "tiles/tog/2b.png",
+  "nodes": {
+    "primarySpawn": [
+      1,
+      1
+    ],
+    "secondarySpawn": [
+      4,
+      4
+    ],
+    "primaryTerrain": [
+      3,
+      3
+    ],
+    "secondaryTerrain": [
+      0,
+      2
+    ]
+  },
+  "doorways": [
+    [
+      2,
+      4
+    ],
+    [
+      4,
+      2
+    ]
+  ]
+}

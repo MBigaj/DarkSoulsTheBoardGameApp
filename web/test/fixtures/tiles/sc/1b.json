@@ -1,0 +1,40 @@
+{
+  "_id": "sc-tile-1b",
+  "set": "sc",
+  "tile": 1,
+  "side": "b",
+  "reverse": "sc-tile-1a",
+  "art": "tiles/sc/1b.png",
+  "nodes": {
+    "primarySpawn": [
+      0,
+      4
+    ],
+    "secondarySpawn": [
+      3,
+      3
+    ],
+    "primaryTerrain": [
+      4,
+      0
+    ],
+    "secondaryTerrain": [
+      1,
+      1
+    ]
+  },
+  "doorways": [
+    [
+      0,
+      2
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      4,
+      2
+    ]
+  ]
+}

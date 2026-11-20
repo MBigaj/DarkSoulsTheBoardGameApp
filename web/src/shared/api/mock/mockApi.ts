@@ -8,6 +8,7 @@ import type { Api } from '../api';
 import { notFound } from '../errors';
 import { normalizeCard, type RawCard } from '../normalize/cards';
 import type { Card, CardOf, ForgedEncounter } from '../types';
+import { matchFixture } from './forge';
 import { catalogVersion, clampLimit, paginate, sortById } from './query';
 
 const SOURCES: Record<CardType, () => Promise<{ default: RawCard[] }>> = {
@@ -92,11 +93,12 @@ export const mockApi: Api = {
     return (await import('./sources/classes')).default;
   },
 
-  // Mock mode returns the sample for the requested level; the real generator is the backend's.
+  // Mock mode returns the closest fixture (`matchFixture`) unchanged, so /forge/:id reloads it by
+  // id; the real generator is the backend's.
   async generateEncounter(request) {
     await latency();
-    const encounter = (await forgedEncounters()).find((e) => e.level === request.level);
-    if (!encounter) throw notFound(`No sample encounter for level ${String(request.level)}.`);
+    const encounter = matchFixture(await forgedEncounters(), request);
+    if (!encounter) throw notFound('No sample encounters in data/fixtures/encounters.');
     return encounter;
   },
 

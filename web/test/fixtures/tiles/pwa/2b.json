@@ -1,0 +1,36 @@
+{
+  "_id": "pwa-tile-2b",
+  "set": "pwa",
+  "tile": 2,
+  "side": "b",
+  "reverse": "pwa-tile-2a",
+  "art": "tiles/pwa/2b.png",
+  "nodes": {
+    "primarySpawn": [
+      1,
+      1
+    ],
+    "secondarySpawn": [
+      4,
+      4
+    ],
+    "primaryTerrain": [
+      1,
+      3
+    ],
+    "secondaryTerrain": [
+      2,
+      2
+    ]
+  },
+  "doorways": [
+    [
+      2,
+      4
+    ],
+    [
+      4,
+      2
+    ]
+  ]
+}
