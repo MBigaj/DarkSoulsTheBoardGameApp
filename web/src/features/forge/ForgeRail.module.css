@@ -1,7 +1,7 @@
-/* ForgeFinal settings rail. */
+/* ForgeFinal settings rail (handoff: rail 260–300px). No max-width: once the row wraps, the rail
+   fills it, wherever that happens. */
 .rail {
-  flex: 1 1 320px;
-  max-width: 320px;
+  flex: 1 1 300px;
   min-width: 0;
   padding: 22px;
   border: 1px solid var(--line);
@@ -119,9 +119,9 @@
 .difficulty {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-height: 66px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   text-align: left;
   background: transparent;
   border: 1px solid var(--border);
@@ -179,7 +179,7 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.0625rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   line-height: 1.15;
 }

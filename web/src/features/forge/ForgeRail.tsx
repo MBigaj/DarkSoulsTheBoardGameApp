@@ -42,21 +42,17 @@ function Choices<T extends string | number>({
   options,
   value,
   onPick,
-  label,
   columns,
   className,
 }: {
   options: readonly { value: T; label: string; name?: string }[];
   value: T;
   onPick: (value: T) => void;
-  label: string;
   columns: number;
   className?: string;
 }) {
   return (
     <div
-      role="group"
-      aria-label={label}
       className={styles.choices}
       style={{ gridTemplateColumns: `repeat(${String(columns)}, minmax(0, 1fr))` }}
     >
@@ -159,7 +155,6 @@ export function ForgeRail({ controls, dispatch, onMode, onForge, forging, error 
             <fieldset className={styles.field}>
               <legend className={styles.legend}>Tiles</legend>
               <Choices<TileCount>
-                label="Tiles"
                 columns={4}
                 options={COUNTS.map((n) => ({ value: n, label: String(n) }))}
                 value={controls.tiles}
@@ -171,7 +166,6 @@ export function ForgeRail({ controls, dispatch, onMode, onForge, forging, error 
             <fieldset className={styles.field}>
               <legend className={styles.legend}>Encounter level</legend>
               <Choices<EncounterLevel>
-                label="Encounter level"
                 columns={3}
                 className={styles.levelChoice}
                 options={LEVELS.map((level) => ({
@@ -191,7 +185,6 @@ export function ForgeRail({ controls, dispatch, onMode, onForge, forging, error 
         <fieldset className={styles.field}>
           <legend className={styles.legend}>Party size</legend>
           <Choices<PartySize>
-            label="Party size"
             columns={4}
             options={COUNTS.map((n) => ({ value: n, label: String(n) }))}
             value={controls.partySize}
@@ -205,7 +198,6 @@ export function ForgeRail({ controls, dispatch, onMode, onForge, forging, error 
           <fieldset className={styles.field}>
             <legend className={styles.legend}>Objective</legend>
             <Choices<Objective>
-              label="Objective"
               columns={3}
               className={styles.objective}
               options={OBJECTIVES}

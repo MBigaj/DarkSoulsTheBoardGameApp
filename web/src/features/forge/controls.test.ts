@@ -85,6 +85,32 @@ describe('switching to Custom carries the current values over', () => {
     expect(state).toMatchObject({ mode: 'custom', tiles: 2, objective: 'slay', trial: true });
   });
 
+  it('only once: the player’s Custom values survive switching back and forth', () => {
+    const shown = encounter({ tiles: [{}, {}] as ForgedEncounter['tiles'] });
+    const state = run(
+      { type: 'setMode', mode: 'custom', shown },
+      { type: 'setTiles', tiles: 4 },
+      { type: 'setMode', mode: 'difficulty' },
+      { type: 'setMode', mode: 'custom', shown },
+    );
+    expect(state.tiles).toBe(4);
+  });
+
+  it('only once: carried-over values are not replaced by the next shown encounter', () => {
+    const first = encounter({ tiles: [{}, {}] as ForgedEncounter['tiles'], objective: 'slay' });
+    const next = encounter({
+      id: 'e2',
+      tiles: [{}] as ForgedEncounter['tiles'],
+      objective: 'exit',
+    });
+    const state = run(
+      { type: 'setMode', mode: 'custom', shown: first },
+      { type: 'setMode', mode: 'difficulty' },
+      { type: 'setMode', mode: 'custom', shown: next },
+    );
+    expect(state).toMatchObject({ tiles: 2, objective: 'slay' });
+  });
+
   it('with nothing on show, the rail’s own values', () => {
     const state = controlsReducer(INITIAL_CONTROLS, { type: 'setMode', mode: 'custom' });
     expect(state).toMatchObject({ mode: 'custom', tiles: 3, objective: 'exit', trial: false });

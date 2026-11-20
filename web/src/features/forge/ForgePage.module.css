@@ -10,7 +10,7 @@
 }
 
 .result {
-  flex: 999 1 640px;
+  flex: 999 1 560px;
   min-width: 0;
   display: flex;
   flex-direction: column;

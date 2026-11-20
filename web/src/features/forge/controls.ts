@@ -17,7 +17,8 @@ export type TileCount = 1 | 2 | 3 | 4;
 /**
  * `tiles`, `objective` and `trial` are only sent in Custom mode, but kept in both so switching back
  * and forth loses nothing. `touched`: the player has changed something since the page opened, so a
- * loaded encounter (/forge/:id) no longer overwrites the rail.
+ * loaded encounter (/forge/:id) no longer overwrites the rail. `customSet`: the Custom fields hold
+ * the player's own values (or were carried over once already), so they are never carried over again.
  */
 export type ForgeControls = {
   mode: ForgeMode;
@@ -29,6 +30,7 @@ export type ForgeControls = {
   objective: Objective;
   trial: boolean;
   touched: boolean;
+  customSet: boolean;
 };
 
 /** Rail order of the pool (canvas): Tomb of Giants, Painted World, Sunless City. */
@@ -54,10 +56,14 @@ export const INITIAL_CONTROLS: ForgeControls = {
   objective: 'exit',
   trial: false,
   touched: false,
+  customSet: false,
 };
 
 export type ControlsAction =
-  /** Switching to Custom carries over what the shown encounter (if any) was forged with. */
+  /**
+   * Switching to Custom carries over what the shown encounter (if any) was forged with, once: not
+   * after the player set a Custom field or values were already carried over.
+   */
   | { type: 'setMode'; mode: ForgeMode; shown?: ForgedEncounter }
   | { type: 'setLevel'; level: EncounterLevel }
   | { type: 'setPartySize'; partySize: PartySize }
@@ -84,8 +90,8 @@ export function controlsReducer(state: ForgeControls, action: ControlsAction): F
   switch (action.type) {
     case 'setMode':
       if (action.mode === state.mode) return state;
-      return action.mode === 'custom' && action.shown
-        ? { ...touched, mode: 'custom', ...customFrom(action.shown) }
+      return action.mode === 'custom' && action.shown && !state.customSet
+        ? { ...touched, mode: 'custom', ...customFrom(action.shown), customSet: true }
         : { ...touched, mode: action.mode };
     case 'setLevel':
       return { ...touched, level: action.level };
@@ -97,11 +103,11 @@ export function controlsReducer(state: ForgeControls, action: ControlsAction): F
       return { ...touched, sets };
     }
     case 'setTiles':
-      return { ...touched, tiles: action.tiles };
+      return { ...touched, tiles: action.tiles, customSet: true };
     case 'setObjective':
-      return { ...touched, objective: action.objective };
+      return { ...touched, objective: action.objective, customSet: true };
     case 'setTrial':
-      return { ...touched, trial: action.trial };
+      return { ...touched, trial: action.trial, customSet: true };
     case 'load': {
       if (state.touched) return state;
       const { encounter } = action;
