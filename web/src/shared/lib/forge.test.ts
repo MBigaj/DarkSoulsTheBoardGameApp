@@ -131,6 +131,79 @@ describe('encounterProblems', () => {
     expect(problems).toMatch(/tile 1 must hold exactly one enemy/);
   });
 
+  it('a tile cut off from the rest is not connected', () => {
+    const good = level(2);
+    const third = good.tiles[2];
+    if (!third) throw new Error('level 2 has three tiles');
+    // Tile 3 loses its doorway node and the door into it: no dangling doorway, but an island.
+    const island: ForgedEncounter = {
+      ...good,
+      tiles: [
+        ...good.tiles.slice(0, 2),
+        { ...third, nodes: third.nodes.filter((n) => n.kind !== 'doorway') },
+      ],
+      doors: good.doors.filter((d) => d.to.tile !== 3),
+    };
+    // Tile 2's doorway towards tile 3 is dropped too, so only the connection checks can catch it.
+    const [, second] = island.tiles;
+    if (!second) throw new Error('level 2 has three tiles');
+    island.tiles[1] = {
+      ...second,
+      nodes: second.nodes.filter((n) => !(n.kind === 'doorway' && n.r === 4 && n.c === 2)),
+    };
+    const problems = encounterProblems(island).join('\n');
+    expect(problems).toMatch(/tile 3 is not connected to tile 1 by doors/);
+    expect(problems).toMatch(/expected 2 doors for 3 tiles, found 1/);
+    expect(problems).not.toMatch(/has no door/);
+  });
+
+  it('reports missing or malformed fields instead of throwing', () => {
+    const good = level(1);
+    const first = good.tiles[0];
+    if (!first) throw new Error('level 1 has tiles');
+    for (const [field, value, sentence] of [
+      ['doors', undefined, /doors must be a list/],
+      ['enemies', null, /enemies must be a list/],
+      ['terrain', 'barrel', /terrain must be a list/],
+      ['tiles', [{ ...first, nodes: undefined }], /tile 1: nodes must be a list/],
+      ['tiles', [{ ...first, at: [0] }], /tile 1: at must be two integers/],
+      ['tiles', [null], /tile 1: not an object/],
+    ] as const) {
+      let problems: string[] = [];
+      expect(() => (problems = encounterProblems({ ...good, [field]: value }))).not.toThrow();
+      expect(problems.join('\n'), field).toMatch(sentence);
+    }
+  });
+
+  it('enemies come from the encounter’s sets', () => {
+    const good = level(2); // ToG
+    const [first, ...rest] = good.enemies;
+    if (!first) throw new Error('level 2 has enemies');
+    const problems = encounterProblems({
+      ...good,
+      enemies: [{ ...first, enemyId: 'sc-enemy-hollow-soldier' }, ...rest],
+    });
+    expect(problems).toEqual([
+      "enemy sc-enemy-hollow-soldier: its set (sc) isn't one of the encounter's sets",
+    ]);
+  });
+
+  it('terrain pieces and terrain nodes match one to one on each tile', () => {
+    const good = level(2); // tile 3 holds a torch and a shrine
+    const noPiece = encounterProblems({
+      ...good,
+      terrain: good.terrain.filter((t) => t.name !== 'shrine'),
+    });
+    expect(noPiece).toEqual(["tile 3: terrain nodes [torch, shrine] don't match terrain [torch]"]);
+    const extraPiece = encounterProblems({
+      ...good,
+      terrain: [...good.terrain, { name: 'torch', tile: 3 }],
+    });
+    expect(extraPiece).toEqual([
+      "tile 3: terrain nodes [torch, shrine] don't match terrain [torch, shrine, torch]",
+    ]);
+  });
+
   it('turns away anything that isn’t an encounter', () => {
     expect(encounterProblems(null)).toEqual(['not an object']);
     expect(encounterProblems({ id: 'x' })).toContain('tiles must hold 1–4 tiles');
