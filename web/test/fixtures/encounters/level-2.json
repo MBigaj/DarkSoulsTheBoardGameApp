@@ -11,49 +11,67 @@
   },
   "specialRules": [
     {
-      "keyword": "respawn"
+      "keyword": "darkness"
     },
     {
-      "keyword": "darkness"
+      "keyword": "timer",
+      "n": 6
     }
   ],
   "tiles": [
     {
       "tile": 1,
+      "tileId": "tog-tile-1b",
+      "turns": 0,
       "at": [
         0,
         0
       ],
       "nodes": [
         {
-          "r": 4,
-          "c": 1,
-          "kind": "start"
+          "r": 2,
+          "c": 4,
+          "kind": "doorway"
         },
         {
           "r": 4,
-          "c": 2,
-          "kind": "start"
-        },
-        {
-          "r": 4,
-          "c": 3,
-          "kind": "start"
+          "c": 4,
+          "kind": "spawn",
+          "ref": "primary"
         },
         {
           "r": 1,
           "c": 1,
-          "kind": "spawn"
+          "kind": "spawn",
+          "ref": "secondary"
+        },
+        {
+          "r": 1,
+          "c": 3,
+          "kind": "terrain",
+          "ref": "gravestone"
+        },
+        {
+          "r": 0,
+          "c": 0,
+          "kind": "start"
         },
         {
           "r": 2,
-          "c": 4,
-          "kind": "doorway"
+          "c": 0,
+          "kind": "start"
+        },
+        {
+          "r": 4,
+          "c": 0,
+          "kind": "start"
         }
       ]
     },
     {
       "tile": 2,
+      "tileId": "tog-tile-2b",
+      "turns": 1,
       "at": [
         0,
         1
@@ -71,24 +89,22 @@
         },
         {
           "r": 1,
-          "c": 1,
-          "kind": "spawn"
-        },
-        {
-          "r": 1,
           "c": 3,
-          "kind": "spawn"
+          "kind": "spawn",
+          "ref": "primary"
         },
         {
-          "r": 3,
-          "c": 1,
-          "kind": "terrain",
-          "ref": "gravestone"
+          "r": 4,
+          "c": 0,
+          "kind": "spawn",
+          "ref": "secondary"
         }
       ]
     },
     {
       "tile": 3,
+      "tileId": "tog-tile-3a",
+      "turns": 0,
       "at": [
         1,
         1
@@ -100,20 +116,28 @@
           "kind": "doorway"
         },
         {
-          "r": 2,
+          "r": 4,
+          "c": 0,
+          "kind": "spawn",
+          "ref": "primary"
+        },
+        {
+          "r": 1,
           "c": 1,
-          "kind": "spawn"
+          "kind": "spawn",
+          "ref": "secondary"
         },
         {
           "r": 2,
-          "c": 3,
-          "kind": "spawn"
+          "c": 4,
+          "kind": "terrain",
+          "ref": "torch"
         },
         {
           "r": 3,
           "c": 3,
           "kind": "terrain",
-          "ref": "chest"
+          "ref": "shrine"
         },
         {
           "r": 4,
@@ -151,41 +175,52 @@
   ],
   "enemies": [
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 1
+      "enemyId": "tog-enemy-skeleton-soldier",
+      "tile": 1,
+      "spawn": "primary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 2
+      "enemyId": "tog-enemy-skeleton-archer",
+      "tile": 2,
+      "spawn": "primary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 2
+      "enemyId": "tog-enemy-skeleton-archer",
+      "tile": 2,
+      "spawn": "secondary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 2
-    },
-    {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 3
-    },
-    {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 3
+      "enemyId": "tog-enemy-necromancer",
+      "tile": 2,
+      "spawn": "secondary"
     },
     {
       "enemyId": "tog-enemy-skeleton-beast",
-      "tile": 3
+      "tile": 3,
+      "spawn": "primary"
+    },
+    {
+      "enemyId": "tog-enemy-giant-skeleton-soldier",
+      "tile": 3,
+      "spawn": "secondary"
+    },
+    {
+      "enemyId": "tog-enemy-skeleton-soldier",
+      "tile": 3,
+      "spawn": "secondary"
     }
   ],
   "terrain": [
     {
       "name": "gravestone",
-      "tile": 2
+      "tile": 1
     },
     {
-      "name": "chest",
+      "name": "torch",
+      "tile": 3
+    },
+    {
+      "name": "shrine",
       "tile": 3
     }
   ]

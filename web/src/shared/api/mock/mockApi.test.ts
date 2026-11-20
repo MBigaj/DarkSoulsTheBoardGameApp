@@ -95,3 +95,23 @@ describe('fetchCatalog', () => {
     expect(isApiError(error) && error.status).toBe(409);
   });
 });
+
+describe('mockApi forge', () => {
+  it('getEncounter(id) returns the encounter generateEncounter produced', async () => {
+    for (const level of [1, 2, 3] as const) {
+      const made = await mockApi.generateEncounter({
+        mode: 'difficulty',
+        level,
+        partySize: 2,
+        sets: ['sc', 'tog', 'pwa'],
+      });
+      expect(made.level).toBe(level);
+      expect(await mockApi.getEncounter(made.id)).toEqual(made);
+    }
+  });
+
+  it('an unknown id is a 404 problem', async () => {
+    const error: unknown = await mockApi.getEncounter('nope').catch((e: unknown) => e);
+    expect(isApiError(error) && error.status).toBe(404);
+  });
+});

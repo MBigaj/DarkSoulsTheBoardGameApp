@@ -1,0 +1,145 @@
+{
+  "id": "sample-level-1",
+  "level": 1,
+  "partySize": 2,
+  "sets": [
+    "sc"
+  ],
+  "objective": "slay",
+  "specialRules": [
+    {
+      "keyword": "onslaught"
+    }
+  ],
+  "tiles": [
+    {
+      "tile": 1,
+      "tileId": "sc-tile-1b",
+      "turns": 0,
+      "at": [
+        0,
+        0
+      ],
+      "nodes": [
+        {
+          "r": 2,
+          "c": 4,
+          "kind": "doorway"
+        },
+        {
+          "r": 0,
+          "c": 4,
+          "kind": "spawn",
+          "ref": "primary"
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "kind": "spawn",
+          "ref": "secondary"
+        },
+        {
+          "r": 0,
+          "c": 0,
+          "kind": "start"
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "kind": "start"
+        }
+      ]
+    },
+    {
+      "tile": 2,
+      "tileId": "sc-tile-3a",
+      "turns": 1,
+      "at": [
+        0,
+        1
+      ],
+      "nodes": [
+        {
+          "r": 2,
+          "c": 0,
+          "kind": "doorway"
+        },
+        {
+          "r": 4,
+          "c": 4,
+          "kind": "spawn",
+          "ref": "primary"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "kind": "spawn",
+          "ref": "secondary"
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "kind": "terrain",
+          "ref": "barrel"
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "kind": "terrain",
+          "ref": "envoyBanner"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "kind": "exit"
+        }
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "from": {
+        "tile": 1,
+        "r": 2,
+        "c": 4
+      },
+      "to": {
+        "tile": 2,
+        "r": 2,
+        "c": 0
+      }
+    }
+  ],
+  "enemies": [
+    {
+      "enemyId": "sc-enemy-hollow-soldier",
+      "tile": 1,
+      "spawn": "primary"
+    },
+    {
+      "enemyId": "sc-enemy-hollow-soldier",
+      "tile": 2,
+      "spawn": "primary"
+    },
+    {
+      "enemyId": "sc-enemy-crossbow-hollow",
+      "tile": 2,
+      "spawn": "secondary"
+    },
+    {
+      "enemyId": "sc-enemy-silver-knight-swordsman",
+      "tile": 2,
+      "spawn": "primary"
+    }
+  ],
+  "terrain": [
+    {
+      "name": "barrel",
+      "tile": 2
+    },
+    {
+      "name": "envoyBanner",
+      "tile": 2
+    }
+  ]
+}

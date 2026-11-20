@@ -3,11 +3,11 @@
   "level": 3,
   "partySize": 4,
   "sets": [
-    "tog"
+    "pwa"
   ],
   "objective": "exit",
   "trial": {
-    "objective": "Kill both Skeleton Beasts."
+    "objective": "Kill both Crow Demons."
   },
   "specialRules": [
     {
@@ -15,50 +15,54 @@
     },
     {
       "keyword": "illusion"
+    },
+    {
+      "text": "Place a chest on tile 3's primary terrain node; open it to draw a treasure card."
     }
   ],
   "tiles": [
     {
       "tile": 1,
+      "tileId": "pwa-tile-1b",
+      "turns": 0,
       "at": [
         0,
         0
       ],
       "nodes": [
         {
-          "r": 0,
-          "c": 1,
-          "kind": "start"
-        },
-        {
-          "r": 0,
-          "c": 2,
-          "kind": "start"
-        },
-        {
-          "r": 0,
-          "c": 3,
-          "kind": "start"
-        },
-        {
-          "r": 2,
-          "c": 2,
-          "kind": "spawn"
-        },
-        {
           "r": 2,
           "c": 4,
           "kind": "doorway"
         },
         {
+          "r": 2,
+          "c": 0,
+          "kind": "spawn",
+          "ref": "primary"
+        },
+        {
           "r": 4,
-          "c": 2,
-          "kind": "doorway"
+          "c": 4,
+          "kind": "spawn",
+          "ref": "secondary"
+        },
+        {
+          "r": 0,
+          "c": 0,
+          "kind": "start"
+        },
+        {
+          "r": 4,
+          "c": 0,
+          "kind": "start"
         }
       ]
     },
     {
       "tile": 2,
+      "tileId": "pwa-tile-2b",
+      "turns": 1,
       "at": [
         0,
         1
@@ -76,24 +80,28 @@
         },
         {
           "r": 1,
-          "c": 1,
-          "kind": "spawn"
+          "c": 3,
+          "kind": "spawn",
+          "ref": "primary"
         },
         {
-          "r": 3,
-          "c": 3,
-          "kind": "spawn"
+          "r": 4,
+          "c": 0,
+          "kind": "spawn",
+          "ref": "secondary"
         },
         {
-          "r": 1,
-          "c": 3,
+          "r": 2,
+          "c": 2,
           "kind": "terrain",
-          "ref": "torch"
+          "ref": "barrel"
         }
       ]
     },
     {
       "tile": 3,
+      "tileId": "pwa-tile-3b",
+      "turns": 2,
       "at": [
         1,
         1
@@ -106,57 +114,63 @@
         },
         {
           "r": 2,
-          "c": 0,
-          "kind": "doorway"
-        },
-        {
-          "r": 1,
-          "c": 1,
-          "kind": "spawn"
-        },
-        {
-          "r": 3,
-          "c": 3,
-          "kind": "spawn"
-        },
-        {
-          "r": 2,
-          "c": 2,
-          "kind": "terrain",
-          "ref": "shrine"
-        }
-      ]
-    },
-    {
-      "tile": 4,
-      "at": [
-        1,
-        0
-      ],
-      "nodes": [
-        {
-          "r": 2,
           "c": 4,
           "kind": "doorway"
         },
         {
           "r": 0,
-          "c": 2,
-          "kind": "doorway"
-        },
-        {
-          "r": 2,
-          "c": 1,
-          "kind": "spawn"
+          "c": 4,
+          "kind": "spawn",
+          "ref": "primary"
         },
         {
           "r": 3,
+          "c": 1,
+          "kind": "spawn",
+          "ref": "secondary"
+        },
+        {
+          "r": 1,
           "c": 3,
           "kind": "terrain",
           "ref": "chest"
+        }
+      ]
+    },
+    {
+      "tile": 4,
+      "tileId": "pwa-tile-4b",
+      "turns": 0,
+      "at": [
+        1,
+        2
+      ],
+      "nodes": [
+        {
+          "r": 2,
+          "c": 0,
+          "kind": "doorway"
         },
         {
-          "r": 4,
+          "r": 0,
+          "c": 4,
+          "kind": "spawn",
+          "ref": "primary"
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "kind": "spawn",
+          "ref": "secondary"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "kind": "terrain",
+          "ref": "lever"
+        },
+        {
+          "r": 0,
           "c": 2,
           "kind": "exit"
         }
@@ -192,80 +206,78 @@
       "from": {
         "tile": 3,
         "r": 2,
-        "c": 0
+        "c": 4
       },
       "to": {
         "tile": 4,
         "r": 2,
-        "c": 4
-      }
-    },
-    {
-      "from": {
-        "tile": 4,
-        "r": 0,
-        "c": 2
-      },
-      "to": {
-        "tile": 1,
-        "r": 4,
-        "c": 2
+        "c": 0
       }
     }
   ],
   "enemies": [
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 1
+      "enemyId": "pwa-enemy-snow-rat",
+      "tile": 1,
+      "spawn": "primary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 2
+      "enemyId": "pwa-enemy-engorged-zombie",
+      "tile": 2,
+      "spawn": "primary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 2
+      "enemyId": "pwa-enemy-snow-rat",
+      "tile": 2,
+      "spawn": "secondary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 2
+      "enemyId": "pwa-enemy-snow-rat",
+      "tile": 2,
+      "spawn": "secondary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 3
+      "enemyId": "pwa-enemy-crow-demon",
+      "tile": 3,
+      "spawn": "primary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 3
+      "enemyId": "pwa-enemy-phalanx-hollow",
+      "tile": 3,
+      "spawn": "secondary"
     },
     {
-      "enemyId": "tog-enemy-skeleton-beast",
-      "tile": 3
+      "enemyId": "pwa-enemy-phalanx-hollow",
+      "tile": 3,
+      "spawn": "secondary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 4
+      "enemyId": "pwa-enemy-crow-demon",
+      "tile": 4,
+      "spawn": "primary"
     },
     {
-      "enemyId": "tog-enemy-giant-skeleton-archer",
-      "tile": 4
+      "enemyId": "pwa-enemy-bonewheel-skeleton",
+      "tile": 4,
+      "spawn": "secondary"
     },
     {
-      "enemyId": "tog-enemy-skeleton-beast",
-      "tile": 4
+      "enemyId": "pwa-enemy-phalanx",
+      "tile": 4,
+      "spawn": "primary"
     }
   ],
   "terrain": [
     {
-      "name": "torch",
+      "name": "barrel",
       "tile": 2
     },
     {
-      "name": "shrine",
+      "name": "chest",
       "tile": 3
     },
     {
-      "name": "chest",
+      "name": "lever",
       "tile": 4
     }
   ]

@@ -159,37 +159,69 @@ export type ClassDef = RawClass;
 export type EncounterLevel = 1 | 2 | 3;
 export type Objective = 'slay' | 'survive' | 'exit';
 
-export type ForgeRequest = {
-  mode: 'difficulty' | 'custom';
-  level: EncounterLevel;
-  partySize: 1 | 2 | 3 | 4;
-  sets: SetCode[];
-  /** Custom mode only. */
-  tiles?: 1 | 2 | 3 | 4;
-  objective?: Objective;
-  trial?: boolean;
-};
+// ── Forge (PROVISIONAL) ──────────────────────────────────────────────────────────────────────
+// Draft contract from the frontend plan (FE-18). The real shape is agreed with the backend in
+// BE-08, after the remaining scans; revise these types then. Never a seed or a model version.
 
-export type NodeKind = 'start' | 'spawn' | 'terrain' | 'doorway' | 'exit';
+/** By difficulty: the generator picks tiles, objective and Trial. Custom: the player does. */
+export type ForgeRequest =
+  | { mode: 'difficulty'; level: EncounterLevel; partySize: PartySize; sets: SetCode[] }
+  | {
+      mode: 'custom';
+      level: EncounterLevel;
+      partySize: PartySize;
+      sets: SetCode[];
+      tiles: 1 | 2 | 3 | 4;
+      objective: Objective;
+      trial: boolean;
+    };
+
+export type PartySize = 1 | 2 | 3 | 4;
+/** Terrain tokens (the card schema's setup terrain names). */
+export type TerrainName =
+  'barrel' | 'chest' | 'envoyBanner' | 'fangBoar' | 'gravestone' | 'lever' | 'shrine' | 'torch';
+/** Which of a tile's two printed spawn nodes. */
+export type SpawnRole = 'primary' | 'secondary';
+
+/**
+ * A node on a placed tile, after turning. `r`, `c` are on the 5 × 5 lattice where only r + c even
+ * exists; a quarter turn maps (r, c) → (c, 4 − r). Spawn and terrain nodes are the tile's printed
+ * ones, turned.
+ */
+export type ForgedNode = { r: number; c: number } & (
+  | { kind: 'start' | 'doorway' | 'exit' }
+  | { kind: 'spawn'; ref: SpawnRole }
+  | { kind: 'terrain'; ref: TerrainName }
+);
+export type NodeKind = ForgedNode['kind'];
+
+/** `tile` = the tile's number on this map (1 = where the party starts), as in "TILE 2 · SC 3B". */
+export type ForgedTile = {
+  tile: number;
+  /** Store tile side, e.g. "sc-tile-3b". */
+  tileId: string;
+  /** Clockwise quarter turns applied to the tile's art and nodes. */
+  turns: 0 | 1 | 2 | 3;
+  at: [row: number, col: number];
+  nodes: ForgedNode[];
+};
 export type NodeRef = { tile: number; r: number; c: number };
 
-/** A generated encounter. Draft contract: agree with the backend before M6. No seed, ever. */
+/** A generated encounter (PROVISIONAL, see above). */
 export type ForgedEncounter = {
   id: string;
   level: EncounterLevel;
-  partySize: 1 | 2 | 3 | 4;
+  partySize: PartySize;
   sets: SetCode[];
   objective: Objective;
   trial?: { objective: string };
-  specialRules: { keyword: string; text?: string }[];
-  tiles: {
-    tile: number;
-    at: [row: number, col: number];
-    nodes: { r: number; c: number; kind: NodeKind; ref?: string }[];
-  }[];
+  /** Same shape as on encounter cards: a keyword (with `n` for Timer) or free text. */
+  specialRules: SpecialRule[];
+  tiles: ForgedTile[];
+  /** Two doorway nodes on neighbouring tiles that face each other. */
   doors: { from: NodeRef; to: NodeRef }[];
-  enemies: { enemyId: string; tile: number }[];
-  terrain: { name: string; tile: number }[];
+  enemies: { enemyId: string; tile: number; spawn: SpawnRole }[];
+  terrain: { name: TerrainName; tile: number }[];
 };
 
 /** A deck's card back (`backs/{set}/*.json`); `backFor` in lib/backs.ts picks a card's. */
