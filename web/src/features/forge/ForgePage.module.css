@@ -1,0 +1,36 @@
+/* Rail on the left, result on the right; the rail wraps above the result on narrow screens. */
+.main {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 32px var(--gutter) 80px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.result {
+  flex: 999 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.note {
+  margin: 0;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.summary {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
