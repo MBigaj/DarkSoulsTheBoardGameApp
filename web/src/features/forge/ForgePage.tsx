@@ -1,18 +1,16 @@
 import { useReducer, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useEncounter, useGenerateEncounter } from '@/shared/api/queries';
-import type { EncounterLevel } from '@/shared/api/types';
 import { PageHeader } from '@/shared/ui/PageHeader';
+import { EncounterResult } from './EncounterResult';
 import { controlsReducer, INITIAL_CONTROLS, toRequest } from './controls';
 import { ForgeRail } from './ForgeRail';
 import styles from './ForgePage.module.css';
 
-const ROMAN: Record<EncounterLevel, string> = { 1: 'I', 2: 'II', 3: 'III' };
-
 /**
  * Encounter Forge (ForgeFinal): the settings rail, and the encounter at /forge/:id. Forging
- * navigates there, so the link always shows what was forged. The result panel (map, legend,
- * roster) comes in FE-20; until then a summary line stands in. Never shows a seed.
+ * navigates there, so the link always shows what was forged; `EncounterResult` draws it. Never
+ * shows a seed.
  */
 export function ForgePage() {
   const { id = null } = useParams();
@@ -66,22 +64,17 @@ export function ForgePage() {
           className={styles.result}
           aria-busy={forge.isPending || encounter.isFetching ? true : undefined}
         >
-          {/* Placeholder until FE-20's result panel. */}
-          <p role="status" className={styles.note} hidden={!noPool}>
+          <p role="status" className={styles.notice} hidden={!noPool}>
             {noPool && 'Pick at least one core set to forge from.'}
           </p>
-          {id === null && !noPool && (
-            <p className={styles.note}>Choose a difficulty and forge an encounter.</p>
-          )}
-          {id !== null && encounter.isError && (
-            <p className={styles.note}>This encounter couldn't be found.</p>
-          )}
-          {shown && (
-            <p className={styles.summary}>
-              Level {ROMAN[shown.level]} · {shown.tiles.length}{' '}
-              {shown.tiles.length === 1 ? 'tile' : 'tiles'} · {shown.partySize}{' '}
-              {shown.partySize === 1 ? 'player' : 'players'}
-            </p>
+          {shown ? (
+            <EncounterResult encounter={shown} />
+          ) : (
+            <div className={styles.empty}>
+              {id === null && <p>Choose a difficulty and forge an encounter.</p>}
+              {id !== null && encounter.isError && <p>This encounter couldn&apos;t be found.</p>}
+              {id !== null && encounter.isPending && <p>Loading the encounter…</p>}
+            </div>
           )}
         </section>
       </div>

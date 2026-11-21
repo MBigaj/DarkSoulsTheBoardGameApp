@@ -2,7 +2,14 @@
  * The filter rail per card type (ArchiveFinal): groups, their filters and option labels, plus
  * the active-filter chips. The fields and matching live in `filters/`; this is presentation.
  */
-import { DICE, SET_CODES, SET_NAMES, type CardType, type SetCode } from '@/shared/lib/card-types';
+import {
+  DICE,
+  KEYWORD_NAMES,
+  SET_CODES,
+  SET_NAMES,
+  type CardType,
+  type SetCode,
+} from '@/shared/lib/card-types';
 import type { Bounds } from '@/shared/lib/url-state';
 import type { Facet } from './catalog';
 import type { CommonFilters, TypeFilters } from './filters';
@@ -262,20 +269,7 @@ const RAIL: { [T in CardType]: readonly RailGroup<T>[] } = {
           kind: 'pills',
           key: 'keywords',
           label: 'Special rule',
-          options: [
-            ['barrage', 'Barrage'],
-            ['bitterCold', 'Bitter cold'],
-            ['darkness', 'Darkness'],
-            ['eerie', 'Eerie'],
-            ['gang', 'Gang'],
-            ['hidden', 'Hidden'],
-            ['illusion', 'Illusion'],
-            ['mimic', 'Mimic'],
-            ['onslaught', 'Onslaught'],
-            ['poisonMist', 'Poison mist'],
-            ['snowstorm', 'Snowstorm'],
-            ['timer', 'Timer'],
-          ],
+          options: Object.entries(KEYWORD_NAMES),
         },
       ],
     },

@@ -27,6 +27,12 @@
   --node-start: #d6a648;
   --node-spawn: #c4473b;
   --node-terrain: #b36ad6;
+  --node-spawn-edge: #f0d6c8;
+  --node-spawn-text: #fff;
+  --node-terrain-text: #e7c9f3;
+  /* Behind ringed map markers, so the ring reads on any tile art. */
+  --node-scrim: rgba(13, 11, 11, 0.55);
+  --node-shadow: rgba(0, 0, 0, 0.45);
 
   --die-black: #1b1a18;
   --die-black-edge: #8a8273;

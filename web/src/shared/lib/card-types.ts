@@ -1,3 +1,5 @@
+import type { SpecialRuleKeyword } from '@/shared/api/types';
+
 /** The six card types, as stored in card JSON (`type`). */
 export const CARD_TYPES = ['treasure', 'enemy', 'boss', 'behaviour', 'encounter', 'event'] as const;
 export type CardType = (typeof CARD_TYPES)[number];
@@ -25,3 +27,19 @@ export function cardSets(card: { set: CardSet; sets?: readonly SetCode[] }): rea
 /** Attack/defence dice that appear on cards and in filters. */
 export const DICE = ['black', 'blue', 'orange'] as const;
 export type Die = (typeof DICE)[number];
+
+/** Special-rule keywords on encounter cards (and forged encounters), as printed. */
+export const KEYWORD_NAMES: Record<SpecialRuleKeyword, string> = {
+  barrage: 'Barrage',
+  bitterCold: 'Bitter cold',
+  darkness: 'Darkness',
+  eerie: 'Eerie',
+  gang: 'Gang',
+  hidden: 'Hidden',
+  illusion: 'Illusion',
+  mimic: 'Mimic',
+  onslaught: 'Onslaught',
+  poisonMist: 'Poison mist',
+  snowstorm: 'Snowstorm',
+  timer: 'Timer',
+};

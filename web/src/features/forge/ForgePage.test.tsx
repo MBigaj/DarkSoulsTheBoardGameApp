@@ -41,7 +41,7 @@ function renderForge() {
     });
     // Settled: the button is back and the encounter on show has loaded.
     await rail.findByRole('button', { name: 'Forge encounter' });
-    await within(screen.getByRole('region', { name: 'Generated encounter' })).findByText(/2 tiles/);
+    await screen.findByRole('img', { name: /^Map of 2 tiles/ });
     return generate.mock.calls[calls]?.[0];
   };
   return { rail, pick, forge };
