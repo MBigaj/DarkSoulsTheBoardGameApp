@@ -8,6 +8,12 @@ import styles from './EncounterResult.module.css';
 import { terrainName } from './mapLayout';
 
 const ROMAN = { 1: 'I', 2: 'II', 3: 'III' } as const;
+/** "tog-enemy-skeleton-soldier" → "Skeleton soldier": a name to show when the card can't be. */
+function enemyFallbackName(enemyId: string): string {
+  const slug = enemyId.replace(/^(sc|tog|pwa)-enemy-/, '').replace(/-/g, ' ');
+  return slug.charAt(0).toUpperCase() + slug.slice(1);
+}
+
 const plural = (n: number, one: string, many: string) => `${String(n)} ${n === 1 ? one : many}`;
 
 /** Objective in words. Survive has no turn count yet: the draft contract doesn't carry one. */
@@ -113,6 +119,9 @@ export function EncounterResult({ encounter }: { encounter: ForgedEncounter }) {
           <h3 className={styles.label}>
             Enemies ({encounter.enemies.length}) · Terrain ({encounter.terrain.length})
           </h3>
+          {catalog.error && (
+            <p className={styles.rosterNote}>Enemy details couldn&apos;t be loaded.</p>
+          )}
           <ul className={styles.roster}>
             {encounter.enemies.map((entry, i) => {
               const card = enemies.get(entry.enemyId);
@@ -126,7 +135,10 @@ export function EncounterResult({ encounter }: { encounter: ForgedEncounter }) {
                     {art && <img src={art} alt="" loading="lazy" />}
                   </span>
                   <span className={styles.name}>
-                    {card?.name ?? (catalog.complete ? entry.enemyId : 'Loading…')}
+                    {card?.name ??
+                      (catalog.complete || catalog.error
+                        ? enemyFallbackName(entry.enemyId)
+                        : 'Loading…')}
                   </span>
                   <span className={styles.tag}>
                     T{entry.tile}

@@ -2,6 +2,10 @@
  * Layout for the encounter map (ForgeFinal): where each placed tile, doorway connector and node
  * goes. Tiles sit on a CSS grid with a narrow track between neighbours for the connectors; nodes
  * sit on each tile's 5 × 5 lattice, already turned by the generator.
+ *
+ * Grid tracks: columns go tile, gap, tile…; rows go header, art, gap, header, art… A tile spans
+ * its header and art rows (a two-row subgrid), so a bar between side-by-side tiles sits in the
+ * art row and meets the doorways, whatever the header's height.
  */
 import type {
   ForgedEncounter,
@@ -12,13 +16,15 @@ import type {
 } from '@/shared/api/types';
 import { SET_CODES, SET_NAMES } from '@/shared/lib/card-types';
 
-/** Grid line of a tile at map row/col: tiles take odd tracks, connectors the even ones. */
-const track = (i: number) => 2 * i + 1;
+/** Grid column of a tile at map col: tiles take odd tracks, connectors the even ones. */
+const columnTrack = (col: number) => 2 * col + 1;
+/** Grid row of a tile's header at map row; its art is the next row, then a gap row. */
+const headerTrack = (row: number) => 3 * row + 1;
 
 export type MapGrid = {
   columns: number;
   rows: number;
-  /** Grid column and row (1-based) of each tile, by map tile number. */
+  /** Grid column and header row (1-based) of each tile, by map tile number; it spans 2 rows. */
   cells: Map<number, { column: number; row: number }>;
 };
 
@@ -29,7 +35,7 @@ export function mapGrid(tiles: readonly ForgedTile[]): MapGrid {
   let rows = 0;
   for (const tile of tiles) {
     const [row, col] = tile.at;
-    cells.set(tile.tile, { column: track(col), row: track(row) });
+    cells.set(tile.tile, { column: columnTrack(col), row: headerTrack(row) });
     columns = Math.max(columns, col + 1);
     rows = Math.max(rows, row + 1);
   }
@@ -58,9 +64,11 @@ export function connectors(encounter: Pick<ForgedEncounter, 'tiles' | 'doors'>):
     const [ra, ca] = a;
     const [rb, cb] = b;
     if (ra === rb && Math.abs(ca - cb) === 1) {
-      out.push({ column: 2 * Math.min(ca, cb) + 2, row: track(ra), axis: 'across' });
+      // In the art row, level with the doorways.
+      out.push({ column: 2 * Math.min(ca, cb) + 2, row: headerTrack(ra) + 1, axis: 'across' });
     } else if (ca === cb && Math.abs(ra - rb) === 1) {
-      out.push({ column: track(ca), row: 2 * Math.min(ra, rb) + 2, axis: 'down' });
+      // In the gap row below the upper tile.
+      out.push({ column: columnTrack(ca), row: headerTrack(Math.min(ra, rb)) + 2, axis: 'down' });
     }
   }
   return out;

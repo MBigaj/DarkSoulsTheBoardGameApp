@@ -11,25 +11,25 @@ const switchback = level3 as unknown as ForgedEncounter;
 const fixtures = [pair, lTurn, switchback];
 
 describe('mapGrid: tile at → grid tracks', () => {
-  it('tiles take odd tracks, leaving a gap track between neighbours', () => {
+  it('columns: tile, gap, tile…; rows: header, art, gap, header…', () => {
     // level-3: (0,0) (0,1) (1,1) (1,2)
     const grid = mapGrid(switchback.tiles);
     expect(grid).toMatchObject({ columns: 3, rows: 2 });
     expect([...grid.cells]).toEqual([
       [1, { column: 1, row: 1 }],
       [2, { column: 3, row: 1 }],
-      [3, { column: 3, row: 3 }],
-      [4, { column: 5, row: 3 }],
+      [3, { column: 3, row: 4 }],
+      [4, { column: 5, row: 4 }],
     ]);
   });
 });
 
 describe('connectors: doors → bars in the gap between the two tiles', () => {
-  it('side by side → across, in the column gap; stacked → down, in the row gap', () => {
-    // level-2: 1 (0,0) → 2 (0,1) → 3 (1,1)
+  it('side by side → across, in the column gap and the art row; stacked → down, in the gap row', () => {
+    // level-2: 1 (0,0) → 2 (0,1) → 3 (1,1). Row 1 = headers, 2 = art, 3 = gap.
     expect(connectors(lTurn)).toEqual([
-      { column: 2, row: 1, axis: 'across' },
-      { column: 3, row: 2, axis: 'down' },
+      { column: 2, row: 2, axis: 'across' },
+      { column: 3, row: 3, axis: 'down' },
     ]);
   });
 

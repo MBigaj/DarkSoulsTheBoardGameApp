@@ -1,16 +1,30 @@
 /* ForgeFinal map: tiles on a grid with a narrow track between neighbours for the doorway bars. */
-.map {
-  --map-gap: 22px;
-  display: grid;
-  width: 100%;
+.scroller {
+  overflow-x: auto;
 }
 
+.scroller:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 2px;
+}
+
+.map {
+  --map-gap: 22px;
+  /* Narrowest tile whose art (track − margins − borders) is 168px: marker labels at 10px. Below
+     that the map scrolls sideways in .scroller instead of shrinking. */
+  --tile-min: 192px;
+  display: grid;
+  width: 100%;
+  min-width: min-content;
+}
+
+/* A tile spans its header and art rows of the map (subgrid), so the bars between side-by-side
+   tiles, which sit in the art row, meet the doorways. The art row's margins are even (9 + 9 and
+   the 1px bottom border), so its centre is the art's centre. */
 .tile {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px;
+  display: grid;
+  grid-template-rows: subgrid;
   background: var(--panel2);
   border: 1px solid var(--line);
 }
@@ -20,6 +34,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 0 8px;
+  padding: 10px 10px 0;
   font-family: var(--font-mono);
   font-size: var(--fs-label);
   letter-spacing: 0.1em;
@@ -37,6 +52,7 @@
 
 .art {
   position: relative;
+  margin: 9px 10px;
   aspect-ratio: 1;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -135,22 +151,22 @@
   border-width: 0 2px;
 }
 
-/* Phones: less frame around each tile, so the art gets the width. */
+/* Phones: less frame around each tile (same 168px art minimum), "T1" headers. */
 @media (max-width: 479px) {
   .map {
     --map-gap: 12px;
-  }
-
-  .tile {
-    gap: 4px;
-    padding: 5px;
+    --tile-min: 182px;
   }
 
   .head {
+    padding: 5px 5px 0;
     letter-spacing: 0;
   }
 
-  /* "Tile 1" → "T1". */
+  .art {
+    margin: 4px 5px;
+  }
+
   .long {
     display: none;
   }

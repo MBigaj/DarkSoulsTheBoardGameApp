@@ -177,6 +177,13 @@
   gap: 6px;
 }
 
+.rosterNote {
+  margin: 0;
+  font-size: 0.875rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
 .row {
   display: flex;
   align-items: center;
