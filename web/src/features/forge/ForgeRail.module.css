@@ -1,0 +1,224 @@
+/* ForgeFinal settings rail (handoff: rail 260–300px). No max-width: once the row wraps, the rail
+   fills it, wherever that happens. */
+.rail {
+  flex: 1 1 300px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Wrapped above the result: full width. */
+@media (max-width: 991px) {
+  .rail {
+    max-width: none;
+  }
+}
+
+.field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend {
+  padding: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* Mode: two halves of one bordered control. */
+.modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--border);
+}
+
+.mode,
+.choice,
+.levelChoice,
+.objective {
+  min-height: var(--tap-min);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std),
+    color var(--dur-hover) var(--ease-std);
+}
+
+.mode {
+  min-height: 48px;
+  border: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.choice {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+.levelChoice {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.objective {
+  padding: 0 6px;
+  font-size: 1rem;
+}
+
+.choice:hover,
+.levelChoice:hover,
+.objective:hover {
+  border-color: var(--ornament);
+}
+
+/* Selected rail choices are filled (canvas), unlike the archive's tinted pills. */
+.mode[aria-pressed='true'],
+.choice[aria-pressed='true'],
+.levelChoice[aria-pressed='true'],
+.objective[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.choices {
+  display: grid;
+  gap: 6px;
+}
+
+/* Difficulty cards with level rings. */
+.difficulty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 66px;
+  padding: 8px 10px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-std),
+    background-color var(--dur-hover) var(--ease-std);
+}
+
+.difficulty:hover {
+  border-color: var(--ornament);
+}
+
+.difficulty[aria-pressed='true'] {
+  background: var(--tint);
+  border-color: var(--accent-text);
+}
+
+.difficulty[data-level='1'] {
+  --ring: var(--level-1);
+}
+
+.difficulty[data-level='2'] {
+  --ring: var(--level-2);
+}
+
+.difficulty[data-level='3'] {
+  --ring: var(--level-3);
+}
+
+.ring {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ring);
+  border-radius: 50%;
+  color: var(--ring);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.1875rem;
+}
+
+.difficultyText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.difficultyName {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.difficultySum {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* Pool rows and the Trial toggle: tinted when on (canvas). */
+.pool {
+  background: transparent;
+}
+
+.pool[aria-pressed='true'] {
+  background: var(--tint);
+  border-color: var(--accent-text);
+}
+
+.forge {
+  min-height: 54px;
+  font-size: 1.0625rem;
+  letter-spacing: 0.2em;
+}
+
+.notice {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--accent-text);
+  font-size: var(--fs-small);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode,
+  .choice,
+  .levelChoice,
+  .objective,
+  .difficulty {
+    transition: none;
+  }
+}
